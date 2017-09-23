@@ -104,8 +104,8 @@ def generateFeatures():
 			timeSeriesName = namePrefix + phase
 			if timeSeriesName == 'pedometer_walking_rest':
 				continue
-			#features.apply(rowFeaturise, axis=1, args=(features, timeSeriesName))
-			features.iloc[:50, :].apply(rowFeaturise, axis=1, args=(features, timeSeriesName))		#For testing
+			features.apply(rowFeaturise, axis=1, args=(features, timeSeriesName))
+			#features.iloc[:50, :].apply(rowFeaturise, axis=1, args=(features, timeSeriesName))		#For testing
 			errors += features.loc[:, "Error"].sum()
 			#Dropping rows with errors
 			features = features[features.loc[:, "Error"] == False]
