@@ -46,4 +46,4 @@ def createFeaturePedo(features, index, data, timeSeriesName):
 	nameSuffix = "_" + timeSeriesName
 	features.loc[index, "Distance walked" + nameSuffix] = data.loc[data.index[-1], 'distance']
 	features.loc[index, "Average Speed" + nameSuffix] = fu.avgSpeed(data)
-	features.loc[index, "Average Size of the Step" + nameSuffix] = data.loc[data.index[-1], 'distance']/data.loc[data.index[-1], 'numberOfSteps']
+	features.loc[index, "Average Size of the Step" + nameSuffix] = fu.avgStep(data)

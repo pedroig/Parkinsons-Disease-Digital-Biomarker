@@ -71,5 +71,15 @@ def avgSpeed(data):
 	start = datetime.strptime(data.loc[data.index[-1], 'startDate'], '%Y-%m-%dT%H:%M:%S%z')
 	end = datetime.strptime(data.loc[data.index[-1], 'endDate'], '%Y-%m-%dT%H:%M:%S%z')
 	delta = end - start
-	avgS = data.loc[data.index[-1], 'distance']/delta.seconds
-	return avgS
+	dist = data.loc[data.index[-1], 'distance']
+	if delta.seconds == 0:
+		return np.nan
+	else:
+		return dist/delta.seconds
+
+def avgStep(data):
+	stepNum = data.loc[data.index[-1], 'numberOfSteps']
+	if stepNum == 0:
+		return np.nan
+	else:
+		return data.loc[data.index[-1], 'distance']/stepNum

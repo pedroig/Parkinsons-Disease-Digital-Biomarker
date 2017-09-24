@@ -4,11 +4,9 @@ import createFeatures as cf
 import os
 
 def readJSON_data(pointer, timeSeriesName):
-
 	pointer = int(pointer)
 	path = '../data/{}/{}/{}/'
 	path = path.format(timeSeriesName, str(pointer%1000), str(pointer))
-
 	try:
 		for fileName in os.listdir(path):
 			if fileName.startswith(timeSeriesName):
@@ -33,8 +31,7 @@ def rowFeaturise(row, features, timeSeriesName):
 	else:
 		features.loc[row.name, "Error"] = True
 
-def generateFeatures():
-
+def generateFeatures(dataFraction=1):
 	demographics = pd.read_csv("../data/demographics.csv", index_col=0)
 	demographics = demographics.join(pd.get_dummies(demographics["gender"]))
 	demographics.rename(columns={'Prefer not to answer' : 'Prefer not to answer gender'}, inplace=True)
@@ -98,19 +95,21 @@ def generateFeatures():
 	features.index.name='ROW_ID'
 
 	errors = 0
+	rowLimit = int(dataFraction*len(features))
 	features.loc[:, "Error"] = False
 	for namePrefix in ['accel_walking_', 'pedometer_walking_']:
 		for phase in ["outbound", "return", "rest"]:
 			timeSeriesName = namePrefix + phase
 			if timeSeriesName == 'pedometer_walking_rest':
 				continue
-			features.apply(rowFeaturise, axis=1, args=(features, timeSeriesName))
-			#features.iloc[:50, :].apply(rowFeaturise, axis=1, args=(features, timeSeriesName))		#For testing
+			features.iloc[:rowLimit, :].apply(rowFeaturise, axis=1, args=(features, timeSeriesName))
 			errors += features.loc[:, "Error"].sum()
 			#Dropping rows with errors
 			features = features[features.loc[:, "Error"] == False]
+			print(timeSeriesName, "done.")
 	
 	print(errors, "rows dropped due to error during the reading")
+	rowLimit -= errors
 
 	features.rename(columns={'professional-diagnosis' : 'Target'}, inplace=True)
 	features = features.drop([	'healthCode',
@@ -124,6 +123,13 @@ def generateFeatures():
 								'deviceMotion_walking_rest.json.items',
 								'Error'
 								], axis=1)
+
+	#Dropping rows with invalid values
+	errors = rowLimit
+	features = features.replace([np.inf, -np.inf], np.nan)
+	features = features.dropna(axis=0, how='any')
+	errors -= len(features)
+	print(errors, "rows dropped due to invalid values")
 
 	features.to_csv("../data/features.csv")
 	return features
