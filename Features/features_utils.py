@@ -1,22 +1,31 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import os
 from datetime import datetime
 from sklearn.metrics import mutual_info_score
 from scipy import stats
 
 #Mixed dimensions
 
-def cart2sphRadialDist(data):
+def cart2sphRadialDist(data, raw=False):
 	hxy = np.hypot(data['x'], data['y'])
-	return np.hypot(hxy, data['z']).mean()
+	hxyz = np.hypot(hxy, data['z'])
+	if not raw:
+		hxyz = hxyz.mean()
+	return hxyz
 
-def cart2sphPolarAngle(data):
-	return np.arctan2(data['y'], data['x']).mean()
+def cart2sphPolarAngle(data, raw=False):
+	pAngle = np.arctan2(data['y'], data['x'])
+	if not raw:
+		pAngle = pAngle.mean()
+	return pAngle
 
-def cart2sphAzimuthAngle(data):
+def cart2sphAzimuthAngle(data, raw=False):
 	hxy = np.hypot(data['x'], data['y'])
-	return np.arctan2(data['z'], hxy).mean()
+	azAngle = np.arctan2(data['z'], hxy)
+	if not raw:
+		azAngle = azAngle.mean()
+	return azAngle
 
 #1 Dimension
 
@@ -32,9 +41,6 @@ def entropy(data, axis, bins=10):
 def dominantFreqComp(data, axis):
 	sp = np.fft.fft(data[axis])
 	freq = np.fft.fftfreq(len(data))
-	# plt.plot(freq, sp.real, freq, sp.imag)
-	# plt.plot(freq, np.abs(sp))
-	# plt.show()
 	freqIndex = np.argmax(np.abs(sp))
 	dominantFreq = freq[freqIndex]
 	return dominantFreq
@@ -83,3 +89,31 @@ def avgStep(data):
 		return np.nan
 	else:
 		return data.loc[data.index[-1], 'distance']/stepNum
+
+#Extra for loading data
+
+def readJSON_data(pointer, timeSeriesName):
+	pointer = int(pointer)
+	path = '../data/{}/{}/{}/'
+	path = path.format(timeSeriesName, str(pointer%1000), str(pointer))
+	try:
+		for fileName in os.listdir(path):
+			if fileName.startswith(timeSeriesName):
+				path += fileName
+				break
+		json_df = pd.read_json(path)
+	except IOError:
+		json_df = None
+	return json_df
+
+def loadUserInput():
+	TimeSeriesOptions = ['accel_walking_outbound',
+						'accel_walking_return',
+						'accel_walking_rest']
+	print("Choose the time series")
+	for index, timeSeriesName in enumerate(TimeSeriesOptions):
+		print(index, timeSeriesName)
+	timeSeriesSelected = int(input("Select the corresponding number: "))
+	pointer = int(input("Select the folder number of the file: "))
+	data = readJSON_data(pointer, TimeSeriesOptions[timeSeriesSelected])
+	return data

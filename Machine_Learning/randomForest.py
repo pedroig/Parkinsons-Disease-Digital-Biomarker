@@ -1,27 +1,35 @@
-import pandas as pd
 import numpy as np
-import metrics_utils as mu
+import learning_utils as lu
+import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_validate
 
-def randomForestModel(graphs=False, showTest=False, random_state_split=None, random_state_classifier=None, balance_samples=False):
-	X = pd.read_csv("../data/features.csv", index_col=0)
+def randomForestModel(graphs=False, showTest=False, random_state_classifier=None, balance_train=False, balance_test=False):
+	X_train, y_train = lu.load_data("train", balance_samples=balance_train)
 
-	if balance_samples:
-		X = mu.balanceSamples(X)
+	rnd_clf = RandomForestClassifier(n_estimators=100, n_jobs=-1, max_depth=12, random_state=random_state_classifier)
 
-	y = X.loc[:, "Target"]
-	y = np.asarray(y.values, dtype=np.int8)
-	X = X.drop("Target", axis=1)
-	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random_state_split)
+	print("\nMetrics on 10-fold Cross-validation")
+	scoring = ["accuracy", "precision", "recall", "f1", "roc_auc"]
+	scores = cross_validate(rnd_clf, X_train, y_train, scoring=scoring, cv=10, return_train_score=False)
+	for scoreType in scores.keys():
+		print("{}: {}".format(scoreType, scores[scoreType].mean()))
 
-	rnd_clf = RandomForestClassifier(n_estimators=100, n_jobs=-1, oob_score=True, max_depth=25, random_state=random_state_classifier)
 	rnd_clf.fit(X_train, y_train)
 
-	print("Score of the training dataset obtained using an out-of-bag estimate:", rnd_clf.oob_score_)
-	
+	print('\nRanking feature importances')
+	importances = rnd_clf.feature_importances_
+	indices = np.argsort(importances)[::-1]
+	plt.figure()
+	plt.bar(range(X_train.shape[1]), importances[indices])
+	plt.xticks(range(X_train.shape[1]), indices)
+	plt.show()
+	for i in range(X_train.shape[1]):
+		print("%d . feature %d (%f)" % (i+1, indices[i], importances[indices[i]]))
+
 	if showTest:
-		mu.metricsTestSet(X_test, y_test, rnd_clf)
+		X_test, y_test = lu.load_data("test", balance_samples=balance_test)
+		lu.metricsTestSet(X_test, y_test, rnd_clf)
 
 	if graphs:
-		mu.exportTreeGraphs('Forest_Graphs', rnd_clf.estimators_, X.axes[1])
+		lu.exportTreeGraphs('Forest_Graphs', rnd_clf.estimators_, X.axes[1])

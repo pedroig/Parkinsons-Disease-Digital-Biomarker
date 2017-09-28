@@ -1,26 +1,13 @@
 import pandas as pd
 import numpy as np
 import createFeatures as cf
-import os
-
-def readJSON_data(pointer, timeSeriesName):
-	pointer = int(pointer)
-	path = '../data/{}/{}/{}/'
-	path = path.format(timeSeriesName, str(pointer%1000), str(pointer))
-	try:
-		for fileName in os.listdir(path):
-			if fileName.startswith(timeSeriesName):
-				path += fileName
-				break
-		json_df = pd.read_json(path)
-	except IOError:
-		json_df = None
-	return json_df
+import features_utils as fu
+from sklearn.model_selection import train_test_split
 
 def rowFeaturise(row, features, timeSeriesName):
 	pointer = features.loc[row.name, timeSeriesName+'.json.items']
 	if ~np.isnan(pointer) :
-		data = readJSON_data(pointer, timeSeriesName)
+		data = fu.readJSON_data(pointer, timeSeriesName)
 		if (data is None) or data.empty:		#No file matching the pointer or data file Null
 			features.loc[row.name, "Error"] = True
 		else:
@@ -31,10 +18,11 @@ def rowFeaturise(row, features, timeSeriesName):
 	else:
 		features.loc[row.name, "Error"] = True
 
-def generateFeatures(dataFraction=1):
+def generateFeatures(dataFraction=1, earlySplit=True):
 	demographics = pd.read_csv("../data/demographics.csv", index_col=0)
-	demographics = demographics.join(pd.get_dummies(demographics["gender"]))
-	demographics.rename(columns={'Prefer not to answer' : 'Prefer not to answer gender'}, inplace=True)
+	#Dropping rows without answer for gender
+	demographics[(demographics.gender == "Male") | (demographics.gender == "Female")]
+	demographics = demographics.join(pd.get_dummies(demographics["gender"]).Male)
 	columns_to_keep_demographics = [#'ROW_VERSION',
 									#'recordId',
 									'healthCode',
@@ -66,9 +54,7 @@ def generateFeatures(dataFraction=1):
 									#'video-usage',
 									#'years-smoking'
 									#'gender',
-									'Male',
-									'Female',
-									'Prefer not to answer gender'
+									'Male'
 									]
 	demographics = demographics[columns_to_keep_demographics]
 
@@ -91,45 +77,54 @@ def generateFeatures(dataFraction=1):
 								]
 	walking_activity = walking_activity[columns_to_keep_walking]
 
-	features = pd.merge(walking_activity, demographics, on="healthCode")
-	features.index.name='ROW_ID'
+	if earlySplit:
+		demographics_train, demographics_test = train_test_split(demographics, test_size=0.2)
+		features_train = pd.merge(walking_activity, demographics_train, on="healthCode")
+		features_test = pd.merge(walking_activity, demographics_test, on="healthCode")
+		listFeatures = [(features_train, 'features_train'), (features_test, 'features_test')]
+	else:
+		features = pd.merge(walking_activity, demographics, on="healthCode")
+		listFeatures = [(features, 'features')]
 
-	errors = 0
-	rowLimit = int(dataFraction*len(features))
-	features.loc[:, "Error"] = False
-	for namePrefix in ['accel_walking_', 'pedometer_walking_']:
-		for phase in ["outbound", "return", "rest"]:
-			timeSeriesName = namePrefix + phase
-			if timeSeriesName == 'pedometer_walking_rest':
-				continue
-			features.iloc[:rowLimit, :].apply(rowFeaturise, axis=1, args=(features, timeSeriesName))
-			errors += features.loc[:, "Error"].sum()
-			#Dropping rows with errors
-			features = features[features.loc[:, "Error"] == False]
-			print(timeSeriesName, "done.")
-	
-	print(errors, "rows dropped due to error during the reading")
-	rowLimit -= errors
+	for features, featuresSplitName in listFeatures:
+		print("\nGenerating", featuresSplitName)
 
-	features.rename(columns={'professional-diagnosis' : 'Target'}, inplace=True)
-	features = features.drop([	'healthCode',
-								'accel_walking_outbound.json.items',
-								'deviceMotion_walking_outbound.json.items',
-								'pedometer_walking_outbound.json.items',
-								'accel_walking_return.json.items',
-								'deviceMotion_walking_return.json.items',
-								'pedometer_walking_return.json.items',
-								'accel_walking_rest.json.items',
-								'deviceMotion_walking_rest.json.items',
-								'Error'
-								], axis=1)
+		features.index.name='ROW_ID'
+		features = features.sample(frac=dataFraction)
 
-	#Dropping rows with invalid values
-	errors = rowLimit
-	features = features.replace([np.inf, -np.inf], np.nan)
-	features = features.dropna(axis=0, how='any')
-	errors -= len(features)
-	print(errors, "rows dropped due to invalid values")
+		errors = 0
+		features.loc[:, "Error"] = False
+		for namePrefix in ['accel_walking_', 'pedometer_walking_']:
+			for phase in ["outbound", "return", "rest"]:
+				timeSeriesName = namePrefix + phase
+				if timeSeriesName == 'pedometer_walking_rest':
+					continue
+				features.apply(rowFeaturise, axis=1, args=(features, timeSeriesName))
+				errors += features.loc[:, "Error"].sum()
+				# Dropping rows with errors
+				features = features[features.loc[:, "Error"] == False]
+				print(timeSeriesName, "done.")
+		
+		print(errors, "rows dropped due to error during the reading")
 
-	features.to_csv("../data/features.csv")
-	return features
+		features.rename(columns={'professional-diagnosis' : 'Target'}, inplace=True)
+		features = features.drop([	'healthCode',
+									'accel_walking_outbound.json.items',
+									'deviceMotion_walking_outbound.json.items',
+									'pedometer_walking_outbound.json.items',
+									'accel_walking_return.json.items',
+									'deviceMotion_walking_return.json.items',
+									'pedometer_walking_return.json.items',
+									'accel_walking_rest.json.items',
+									'deviceMotion_walking_rest.json.items',
+									'Error'
+									], axis=1)
+
+		#Dropping rows with invalid values
+		errors = len(features)
+		features = features.replace([np.inf, -np.inf], np.nan)
+		features = features.dropna(axis=0, how='any')
+		errors -= len(features)
+		print(errors, "rows dropped due to invalid values")
+
+		features.to_csv("../data/{}.csv".format(featuresSplitName))

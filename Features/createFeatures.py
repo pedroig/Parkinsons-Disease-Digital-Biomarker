@@ -40,7 +40,6 @@ def createFeatureAcc(features, index, data, timeSeriesName):
 				features.loc[index, "Mutual Information" + nameSuffix] = fu.mutualInfo(data, axis1, axis2, bins=100)		#How many bins?
 				#features.loc[index, "Cross Entropy" + nameSuffix] = fu.crossEntropy(data, axis1, axis2, bins=100)			#How many bins?  Inf? 	Which definition to use?	#XY and YZ?
 
-
 def createFeaturePedo(features, index, data, timeSeriesName):
 
 	nameSuffix = "_" + timeSeriesName

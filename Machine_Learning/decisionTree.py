@@ -1,33 +1,22 @@
-import pandas as pd
-import numpy as np
-import metrics_utils as mu
+import learning_utils as lu
 from sklearn import tree
-from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_validate
 
-def decisionTreeModel(graphs=False, showTest=False, random_state_split=None, balance_samples=False):
-	X = pd.read_csv("../data/features.csv", index_col=0)
-	
-	if balance_samples:
-		X = mu.balanceSamples(X)
+def decisionTreeModel(graphs=False, showTest=False, balance_train=False, balance_test=False):
+	X_train, y_train = lu.load_data("train", balance_samples=balance_train)
 
-	y = X.loc[:, "Target"]
-	y = np.asarray(y.values, dtype=np.int8)
-	X = X.drop("Target", axis=1)
-	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random_state_split)
-
-	tree_clf = tree.DecisionTreeClassifier(max_depth=25)
+	tree_clf = tree.DecisionTreeClassifier(max_depth=12)
 
 	print("\nMetrics on 10-fold Cross-validation")
-	scoring = ["accuracy", "precision", "recall", "f1"]
+	scoring = ["accuracy", "precision", "recall", "f1", "roc_auc"]
 	scores = cross_validate(tree_clf, X_train, y_train, scoring=scoring, cv=10, return_train_score=False)
-	
 	for scoreType in scores.keys():
 		print("{}: {}".format(scoreType, scores[scoreType].mean()))
 	
 	if showTest:
 		tree_clf.fit(X_train, y_train)
-		mu.metricsTestSet(X_test, y_test, tree_clf)
+		X_test, y_test = lu.load_data("test", balance_samples=balance_test)
+		lu.metricsTestSet(X_test, y_test, tree_clf)
 
 	if graphs:
-		mu.exportTreeGraphs('DecisionTreeGraph', [tree_clf], X.axes[1])
+		lu.exportTreeGraphs('DecisionTreeGraph', [tree_clf], X.axes[1])
