@@ -18,7 +18,7 @@ def rowFeaturise(row, features, timeSeriesName):
 	else:
 		features.loc[row.name, "Error"] = True
 
-def generateFeatures(dataFraction=1, earlySplit=True):
+def generateFeatures(dataFraction=1, earlySplit=True, dropExtraCol=True):
 	demographics = pd.read_csv("../data/demographics.csv", index_col=0)
 	#Dropping rows without answer for gender
 	demographics[(demographics.gender == "Male") | (demographics.gender == "Female")]
@@ -87,6 +87,8 @@ def generateFeatures(dataFraction=1, earlySplit=True):
 		listFeatures = [(features, 'features')]
 
 	for features, featuresSplitName in listFeatures:
+		if dropExtraCol == False:
+			featuresSplitName += '_extra_columns'
 		print("\nGenerating", featuresSplitName)
 
 		features.index.name='ROW_ID'
@@ -108,17 +110,19 @@ def generateFeatures(dataFraction=1, earlySplit=True):
 		print(errors, "rows dropped due to error during the reading")
 
 		features.rename(columns={'professional-diagnosis' : 'Target'}, inplace=True)
-		features = features.drop([	'healthCode',
-									'accel_walking_outbound.json.items',
-									'deviceMotion_walking_outbound.json.items',
-									'pedometer_walking_outbound.json.items',
-									'accel_walking_return.json.items',
-									'deviceMotion_walking_return.json.items',
-									'pedometer_walking_return.json.items',
-									'accel_walking_rest.json.items',
-									'deviceMotion_walking_rest.json.items',
-									'Error'
-									], axis=1)
+		
+		if dropExtraCol:
+			features = features.drop([	'healthCode',
+										'accel_walking_outbound.json.items',
+										'deviceMotion_walking_outbound.json.items',
+										'pedometer_walking_outbound.json.items',
+										'accel_walking_return.json.items',
+										'deviceMotion_walking_return.json.items',
+										'pedometer_walking_return.json.items',
+										'accel_walking_rest.json.items',
+										'deviceMotion_walking_rest.json.items',
+										'Error'
+										], axis=1)
 
 		#Dropping rows with invalid values
 		errors = len(features)

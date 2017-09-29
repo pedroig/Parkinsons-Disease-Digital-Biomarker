@@ -107,13 +107,19 @@ def readJSON_data(pointer, timeSeriesName):
 	return json_df
 
 def loadUserInput():
-	TimeSeriesOptions = ['accel_walking_outbound',
+	timeSeriesOptions = ['accel_walking_outbound',
 						'accel_walking_return',
 						'accel_walking_rest']
 	print("Choose the time series")
-	for index, timeSeriesName in enumerate(TimeSeriesOptions):
+	for index, timeSeriesName in enumerate(timeSeriesOptions):
 		print(index, timeSeriesName)
 	timeSeriesSelected = int(input("Select the corresponding number: "))
-	pointer = int(input("Select the folder number of the file: "))
-	data = readJSON_data(pointer, TimeSeriesOptions[timeSeriesSelected])
+
+	target = int(input('\n0 for normal or 1 for PD: '))
+	features = pd.read_csv('../data/features_extra_columns.csv', index_col=0)
+	features = features[features.Target == target]
+
+	timeSeriesName = timeSeriesOptions[timeSeriesSelected] + '.json.items'
+	pointer = features[timeSeriesName].sample().iloc[0]
+	data = readJSON_data(pointer, timeSeriesOptions[timeSeriesSelected])
 	return data
