@@ -7,7 +7,7 @@ from sklearn.model_selection import cross_validate
 def randomForestModel(graphs=False, showTest=False, random_state_classifier=None, balance_train=False, balance_test=False):
 	X_train, y_train = lu.load_data("train", balance_samples=balance_train)
 
-	rnd_clf = RandomForestClassifier(n_estimators=10, n_jobs=-1, max_depth=12, random_state=random_state_classifier)
+	rnd_clf = RandomForestClassifier(n_estimators=20, max_depth=8, min_samples_split=4, n_jobs=-1, random_state=random_state_classifier)
 
 	print("\nMetrics on 10-fold Cross-validation")
 	scoring = ["accuracy", "precision", "recall", "f1", "roc_auc"]
@@ -25,7 +25,7 @@ def randomForestModel(graphs=False, showTest=False, random_state_classifier=None
 	plt.xticks(range(X_train.shape[1]), indices)
 	plt.show()
 	for i in range(X_train.shape[1]):
-		print("%d . feature %d (%f)" % (i+1, indices[i], importances[indices[i]]))
+		print("%d . feature %s (%f)" % (i+1, X_train.axes[1][indices[i]], importances[indices[i]]))
 
 	if showTest:
 		X_test, y_test = lu.load_data("test", balance_samples=balance_test)
