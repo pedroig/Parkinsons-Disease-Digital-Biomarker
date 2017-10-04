@@ -1,4 +1,3 @@
-from mpl_toolkits.mplot3d import Axes3D
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import visualization_utils as vu
