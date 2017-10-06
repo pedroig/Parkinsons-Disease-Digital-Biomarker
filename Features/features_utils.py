@@ -30,7 +30,27 @@ def cart2sphAzimuthAngle(data, raw=False):
         azAngle = azAngle.mean()
     return azAngle
 
+
+def sma(data):
+    ans = 0
+    for axis in ['x', 'y', 'z']:
+        ans += np.abs(data.loc[:, axis]).sum()
+    ans /= len(data)
+    return ans
+
 # 1 Dimension
+
+
+def dataRange(data, axis):
+    return data[axis].max() - data[axis].min()
+
+
+def interquartile(data, axis):
+    return data[axis].quantile(0.75) - data[axis].quantile(0.25)
+
+
+def rms(data, axis):
+    return np.sqrt((data[axis]**2).sum() / len(data))
 
 
 def zeroCrossingRate(data, axis):
@@ -46,7 +66,7 @@ def entropy(data, axis, bins=10):
 
 def dominantFreqComp(data, axis):
     sp = np.fft.fft(data[axis])
-    freq = np.fft.fftfreq(len(data))
+    freq = np.fft.fftfreq(len(data), d=0.01)
     freqIndex = np.argmax(np.abs(sp))
     dominantFreq = freq[freqIndex]
     return np.abs(dominantFreq)
@@ -68,8 +88,8 @@ def crossCorrelation(data, axis1, axis2, lag=0):
 
 
 def mutualInfo(data, axis1, axis2, bins=10):
-    c_xy = np.histogram2d(data.loc[:, "x"], data.loc[:, "y"], bins)[0]
-    mi = mutual_info_score(None, None, contingency=c_xy)
+    contingency = np.histogram2d(data.loc[:, axis1], data.loc[:, axis2], bins)[0]
+    mi = mutual_info_score(None, None, contingency=contingency)
     return mi
 
 

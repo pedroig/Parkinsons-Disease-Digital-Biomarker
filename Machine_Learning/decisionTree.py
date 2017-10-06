@@ -17,7 +17,7 @@ def decisionTreeModel(graphs=False, showTest=False, balance_train=False, balance
     if showTest:
         tree_clf.fit(X_train, y_train)
         X_test, y_test = lu.load_data("test", balance_samples=balance_test)
-        lu.metricsTestSet(X_test, y_test, tree_clf)
+        lu.metricsPrint(X_test, y_test, tree_clf, "test")
 
     if graphs:
         lu.exportTreeGraphs('DecisionTreeGraph', [tree_clf], X_train.axes[1])

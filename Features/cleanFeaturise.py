@@ -77,15 +77,17 @@ def generateFeatures(dataFraction=1, earlySplit=True, dropExtraCol=True):
         'pedometer_walking_return.json.items',
         'accel_walking_rest.json.items',
         'deviceMotion_walking_rest.json.items',
-        # 'medTimepoint'
+        'medTimepoint'
     ]
     walking_activity = walking_activity[columns_to_keep_walking]
 
     if earlySplit:
-        demographics_train, demographics_test = train_test_split(demographics, test_size=0.2)
-        features_train = pd.merge(walking_activity, demographics_train, on="healthCode")
-        features_test = pd.merge(walking_activity, demographics_test, on="healthCode")
-        listFeatures = [(features_train, 'features_train'), (features_test, 'features_test')]
+        demographics_train, demographics_test_val = train_test_split(demographics, test_size=0.2)
+        demographics_test, demographics_val = train_test_split(demographics_test_val, test_size=0.5)
+        train = pd.merge(walking_activity, demographics_train, on="healthCode")
+        test = pd.merge(walking_activity, demographics_test, on="healthCode")
+        val = pd.merge(walking_activity, demographics_val, on="healthCode")
+        listFeatures = [(train, 'train'), (test, 'test'), (val, 'val')]
     else:
         features = pd.merge(walking_activity, demographics, on="healthCode")
         listFeatures = [(features, 'features')]
@@ -112,6 +114,7 @@ def generateFeatures(dataFraction=1, earlySplit=True, dropExtraCol=True):
                 print(timeSeriesName, "done.")
 
         print(errors, "rows dropped due to error during the reading")
+        features = features.drop('Error', axis=1)
 
         features.rename(columns={'professional-diagnosis': 'Target'}, inplace=True)
 
@@ -125,7 +128,7 @@ def generateFeatures(dataFraction=1, earlySplit=True, dropExtraCol=True):
                                        'pedometer_walking_return.json.items',
                                        'accel_walking_rest.json.items',
                                        'deviceMotion_walking_rest.json.items',
-                                       'Error'
+                                       'medTimepoint'
                                        ], axis=1)
 
         # Dropping rows with invalid values

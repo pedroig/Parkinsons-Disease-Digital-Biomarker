@@ -6,8 +6,11 @@ import numpy as np
 
 
 class TestFeature:
-    def __init__(self):
-        self.data = fu.loadUserInput()
+    def __init__(self, data=None):
+        if(data is None):
+            self.data = fu.loadUserInput()
+        else:
+            self.data = data
         self.data.timestamp -= self.data.timestamp.iloc[0]
         self.x = None
         self.y = None
@@ -18,14 +21,17 @@ class TestFeature:
         plt.plot(self.x, self.y)
         plt.ylabel(self.ylabel)
         plt.xlabel(self.xlabel)
+
+    def show(self):
+        self.plot()
         plt.show()
 
 # Level 2
 
 
 class RawFeature(TestFeature):
-    def __init__(self, axis):
-        super(RawFeature, self).__init__()
+    def __init__(self, axis, data=None):
+        super(RawFeature, self).__init__(data)
         self.x = self.data.timestamp
         self.y = self.data.loc[:, axis]
         self.ylabel = 'Acceleration in axis ' + axis
@@ -33,8 +39,8 @@ class RawFeature(TestFeature):
 
 
 class Feature2dBins(TestFeature):
-    def __init__(self, axis1, axis2):
-        super(Feature2dBins, self).__init__()
+    def __init__(self, axis1, axis2, data=None):
+        super(Feature2dBins, self).__init__(data)
         self.x = [i for i in range(1, 1000)]
         self.y = [self.mainCalc(axis1, axis2, xx) for xx in self.x]
         self.xlabel = '#bins'
@@ -44,8 +50,8 @@ class Feature2dBins(TestFeature):
 
 
 class RawSpherical(TestFeature):
-    def __init__(self):
-        super(RawSpherical, self).__init__()
+    def __init__(self, data=None):
+        super(RawSpherical, self).__init__(data)
         self.x = self.data.timestamp
         self.xlabel = 'time'
         self.y = self.mainCalc()
@@ -55,8 +61,8 @@ class RawSpherical(TestFeature):
 
 
 class Entropy(TestFeature):
-    def __init__(self, axis):
-        super(Entropy, self).__init__()
+    def __init__(self, axis, data=None):
+        super(Entropy, self).__init__(data)
         self.x = [i for i in range(1, 10000)]
         self.y = [fu.entropy(self.data, axis, xx) for xx in self.x]
         self.ylabel = 'Entropy ' + axis
@@ -64,10 +70,10 @@ class Entropy(TestFeature):
 
 
 class Frequency(TestFeature):
-    def __init__(self, axis):
-        super(Frequency, self).__init__()
+    def __init__(self, axis, data=None):
+        super(Frequency, self).__init__(data)
         self.y = np.abs(np.fft.fft(self.data[axis]))
-        self.x = np.fft.fftfreq(len(self.data))
+        self.x = np.fft.fftfreq(len(self.data), d=0.01)
         self.ylabel = 'Acceleration in frequency domain ' + axis
         self.xlabel = 'Frequency'
 
@@ -75,17 +81,26 @@ class Frequency(TestFeature):
 
 
 class MutualInfo(Feature2dBins):
-    def __init__(self, axis1, axis2):
-        super(MutualInfo, self).__init__(axis1, axis2)
+    def __init__(self, axis1, axis2, data=None):
+        super(MutualInfo, self).__init__(axis1, axis2, data)
         self.ylabel = 'Mutual Information ' + axis1 + axis2
 
     def mainCalc(self, axis1, axis2, bins):
         return fu.mutualInfo(self.data, axis1, axis2, bins)
 
 
+class CrossEntropy(Feature2dBins):
+    def __init__(self, axis1, axis2, data=None):
+        super(CrossEntropy, self).__init__(axis1, axis2, data)
+        self.ylabel = 'Cross Entropy ' + axis1 + axis2
+
+    def mainCalc(self, axis1, axis2, bins):
+        return fu.crossEntropy(self.data, axis1, axis2, bins)
+
+
 class RadialDistance(RawSpherical):
-    def __init__(self):
-        super(RadialDistance, self).__init__()
+    def __init__(self, data=None):
+        super(RadialDistance, self).__init__(data)
         self.ylabel = 'Radial Distance of the acceleration'
 
     def mainCalc(self):
@@ -93,8 +108,8 @@ class RadialDistance(RawSpherical):
 
 
 class PolarAngle(RawSpherical):
-    def __init__(self):
-        super(PolarAngle, self).__init__()
+    def __init__(self, data=None):
+        super(PolarAngle, self).__init__(data)
         self.ylabel = 'Polar Angle of the acceleration'
 
     def mainCalc(self):
@@ -102,9 +117,26 @@ class PolarAngle(RawSpherical):
 
 
 class AzimuthAngle(RawSpherical):
-    def __init__(self):
-        super(AzimuthAngle, self).__init__()
+    def __init__(self, data=None):
+        super(AzimuthAngle, self).__init__(data)
         self.ylabel = 'Azimuth Angle of the acceleration'
 
     def mainCalc(self):
         return fu.cart2sphAzimuthAngle(self.data, raw=True)
+
+
+# Extra for overview
+
+class Overview():
+    def __init__(self):
+        self.data = fu.loadUserInput()
+
+    def show(self):
+        for index, axis in enumerate(['x', 'y', 'z']):
+            plt.subplot(2, 2, index + 1)
+            obj = RawFeature(axis, self.data)
+            obj.plot()
+        plt.subplot(2, 2, 4)
+        obj = RadialDistance(self.data)
+        obj.plot()
+        plt.show()
