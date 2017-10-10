@@ -5,9 +5,13 @@ from sklearn import tree
 import os
 
 
-def metricsPrint(X_test, y_test, clf, setName):
+def metricsShow(X_test, y_test, clf, setName):
     print("\nMetrics on {} Set".format(setName))
     y_pred = clf.predict(X_test)
+    metricsPrint(y_test, y_pred)
+
+
+def metricsPrint(y_test, y_pred):
     print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
     print("Precision:", metrics.precision_score(y_test, y_pred))
     print("Recall:", metrics.recall_score(y_test, y_pred))
@@ -19,12 +23,12 @@ def exportTreeGraphs(folder, trees, names):
     for i_tree, tree_clf in enumerate(trees):
         path = '{}/{}/tree_{}.dot'.format(os.getcwd(), folder, str(i_tree))
         with open(path, 'w') as my_file:
-            my_file = tree.export_graphviz(	tree_clf,
-                                            out_file=my_file,
-                                            feature_names=names,
-                                            class_names=['Normal', 'Parkinsons'],
-                                            rounded=True,
-                                            filled=True)
+            my_file = tree.export_graphviz(tree_clf,
+                                           out_file=my_file,
+                                           feature_names=names,
+                                           class_names=['Normal', 'Parkinsons'],
+                                           rounded=True,
+                                           filled=True)
 
 
 def load_data(featuresSplitName, balance_samples=False):

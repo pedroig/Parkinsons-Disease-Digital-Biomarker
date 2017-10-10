@@ -9,14 +9,14 @@ def randomForestModel(graphs=False, showTest=False, balance_train=False, balance
 
     rnd_clf = RandomForestClassifier(n_estimators=20, max_depth=12, min_samples_split=4, n_jobs=-1)
     rnd_clf.fit(X_train, y_train)
-    lu.metricsPrint(X_train, y_train, rnd_clf, "training")
+    lu.metricsShow(X_train, y_train, rnd_clf, "training")
 
     X_val, y_val = lu.load_data("val", balance_samples=balance_val)
-    lu.metricsPrint(X_val, y_val, rnd_clf, "validation")
+    lu.metricsShow(X_val, y_val, rnd_clf, "validation")
 
     if showTest:
         X_test, y_test = lu.load_data("test", balance_samples=balance_test)
-        lu.metricsPrint(X_test, y_test, rnd_clf, "test")
+        lu.metricsShow(X_test, y_test, rnd_clf, "test")
 
     print('\nRanking feature importances')
     importances = rnd_clf.feature_importances_
