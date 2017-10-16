@@ -25,6 +25,7 @@ def createFeatureAcc(features, index, data, timeSeriesName):
         features.loc[index, "Interquartile" + nameSuffix] = fu.interquartile(data, axis)
         features.loc[index, "Median" + nameSuffix] = data[axis].median()
         features.loc[index, "Data Range" + nameSuffix] = fu.dataRange(data, axis)
+        features.loc[index, "Skewness" + nameSuffix] = data[axis].skew()
         features.loc[index, "Kurtosis" + nameSuffix] = data[axis].kurtosis()
         features.loc[index, "Root Mean Square (RMS)" + nameSuffix] = fu.rms(data, axis)
         features.loc[index, "Entropy" + nameSuffix] = fu.entropy(data, axis, bins=4000)
@@ -37,7 +38,7 @@ def createFeatureAcc(features, index, data, timeSeriesName):
             if axis1 < axis2:
                 nameSuffix = "_" + timeSeriesName + "_" + axis1 + axis2
 
-                features.loc[index, "Cross-correlation 0 lag" + nameSuffix] = fu.crossCorrelation(data, axis1, axis2, lag=0)  # lag?
+                features.loc[index, "Cross-correlation 0 lag" + nameSuffix] = fu.crossCorrelation(data, axis1, axis2, lag=0)
                 features.loc[index, "Mutual Information" + nameSuffix] = fu.mutualInfo(data, axis1, axis2, bins=1000)
                 # features.loc[index, "Cross Entropy" + nameSuffix] = fu.crossEntropy(data, axis1, axis2, bins=100)			#How many bins?  Inf? 	Which definition to use?	#XY and YZ?
 

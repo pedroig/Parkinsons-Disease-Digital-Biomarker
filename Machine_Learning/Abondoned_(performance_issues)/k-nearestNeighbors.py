@@ -16,9 +16,9 @@ def knn(k=3, balance_train=False, balance_val=False):
     y_pred = []
 
     # Limiting data due to performance issues
-    X_train = X_train[:20]  # *7
-    X_val = X_val[:5]  # *3
-    y_val = y_val[:5]
+    X_train = X_train[:280]  # *7*2
+    X_val = X_val[:15]  # *3
+    y_val = y_val[:15]
 
     for ind_val, pointer_val in enumerate(X_val.loc[:, timeSeriesName + '.json.items']):
         print(100 * ind_val / len(X_val), "%")
