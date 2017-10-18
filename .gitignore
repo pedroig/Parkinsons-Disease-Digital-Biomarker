@@ -2,6 +2,14 @@
 __pycache__/
 *.py[cod]
 
-Extra/
+# Data files and folders
+*.cacheMap
+*.tmp
+*.csv
+*.session
+*.txt
+*.npy
+data/_features_processed/*
 
-Features/temp.py
+# Temporary files
+Extra/
