@@ -1,6 +1,9 @@
-import features_utils as fu
 import matplotlib.pyplot as plt
 import numpy as np
+from datetime import datetime
+import sys
+sys.path.insert(0, '../Features')
+import features_utils as fu
 
 # Level 1
 
@@ -8,7 +11,7 @@ import numpy as np
 class TestFeature:
     def __init__(self, data=None):
         if(data is None):
-            self.data = fu.loadUserInput()
+            self.data, _ = fu.loadUserInput()
         else:
             self.data = data
         self.data.timestamp -= self.data.timestamp.iloc[0]
@@ -128,15 +131,49 @@ class AzimuthAngle(RawSpherical):
 # Extra for overview
 
 class Overview():
-    def __init__(self):
-        self.data = fu.loadUserInput()
+    def __init__(self, segments=False, totalAvgStep=False):
+        self.dataAcc, self.dataPedo = fu.loadUserInput()
+        self.segments = segments
+        self.totalAvgStep = totalAvgStep
 
     def show(self):
         for index, axis in enumerate(['x', 'y', 'z']):
             plt.subplot(2, 2, index + 1)
-            obj = RawFeature(axis, self.data)
+            obj = RawFeature(axis, self.dataAcc)
             obj.plot()
+            if self.segments:
+                self.plotSegments()
         plt.subplot(2, 2, 4)
-        obj = RadialDistance(self.data)
+        obj = RadialDistance(self.dataAcc)
         obj.plot()
+        if self.segments:
+            self.plotSegments()
         plt.show()
+
+    def setTotalAvgStep(self, totalAvgStep):
+        self.totalAvgStep = totalAvgStep
+
+    def plotSegments(self):
+        start = datetime.strptime(self.dataPedo.loc[0, 'startDate'], '%Y-%m-%dT%H:%M:%S%z')
+        if self.totalAvgStep:
+            end = datetime.strptime(self.dataPedo.loc[:, 'endDate'].iloc[-1], '%Y-%m-%dT%H:%M:%S%z')
+            delta = end - start
+            steps = self.dataPedo.loc[:, 'numberOfSteps'].iloc[-1]
+            segment = delta.seconds / steps
+            for i in range(steps):
+                pos = i * segment
+                plt.axvline(x=pos, color='red')
+        else:
+            zero = start
+            prevStep = 0
+            for row in self.dataPedo.itertuples():
+                end = datetime.strptime(row.endDate, '%Y-%m-%dT%H:%M:%S%z')
+                steps = row.numberOfSteps
+                delta = end - start
+                segment = delta.seconds / steps
+                for i in range(steps - prevStep):
+                    delta = start - zero
+                    pos = delta.seconds + i * segment
+                    plt.axvline(x=pos, color='red')
+                prevStep = steps
+                start = end

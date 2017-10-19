@@ -140,9 +140,9 @@ def readJSON_data(pointer, timeSeriesName):
 
 
 def loadUserInput():
-    timeSeriesOptions = ['accel_walking_outbound',
-                         'accel_walking_return',
-                         'accel_walking_rest']
+    timeSeriesOptions = ['walking_outbound',
+                         'walking_return',
+                         'walking_rest']
     print("Choose the time series")
     for index, timeSeriesName in enumerate(timeSeriesOptions):
         print(index, timeSeriesName)
@@ -152,7 +152,13 @@ def loadUserInput():
     features = pd.read_csv('../data/features_extra_columns.csv', index_col=0)
     features = features[features.Target == target]
 
-    timeSeriesName = timeSeriesOptions[timeSeriesSelected] + '.json.items'
-    pointer = features[timeSeriesName].sample().iloc[0]
-    data = readJSON_data(pointer, timeSeriesOptions[timeSeriesSelected])
-    return data
+    sampled = features.sample().iloc[0]
+
+    timeSeriesName = "accel_" + timeSeriesOptions[timeSeriesSelected]
+    pointerAccel = sampled[timeSeriesName + '.json.items']
+    dataAccel = readJSON_data(pointerAccel, timeSeriesName)
+
+    timeSeriesName = "pedometer_" + timeSeriesOptions[timeSeriesSelected]
+    pointerPedo = sampled[timeSeriesName + '.json.items']
+    dataPedo = readJSON_data(pointerPedo, timeSeriesName)
+    return dataAccel, dataPedo

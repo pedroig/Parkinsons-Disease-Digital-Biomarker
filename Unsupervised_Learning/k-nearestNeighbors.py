@@ -1,10 +1,11 @@
-import learning_utils as lu
 import numpy as np
 import dynamicTimeWarping as dtw
 import sys
 import heapq
 import time
 sys.path.insert(0, '../Features')
+sys.path.insert(0, '../Random_Forest')
+import learning_utils as lu
 import features_utils as fu
 
 
