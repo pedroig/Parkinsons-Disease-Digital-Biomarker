@@ -150,9 +150,6 @@ class Overview():
             self.plotSegments()
         plt.show()
 
-    def setTotalAvgStep(self, totalAvgStep):
-        self.totalAvgStep = totalAvgStep
-
     def plotSegments(self):
         start = datetime.strptime(self.dataPedo.loc[0, 'startDate'], '%Y-%m-%dT%H:%M:%S%z')
         if self.totalAvgStep:
@@ -168,12 +165,13 @@ class Overview():
             prevStep = 0
             for row in self.dataPedo.itertuples():
                 end = datetime.strptime(row.endDate, '%Y-%m-%dT%H:%M:%S%z')
-                steps = row.numberOfSteps
+                steps = row.numberOfSteps - prevStep
                 delta = end - start
-                segment = delta.seconds / steps
-                for i in range(steps - prevStep):
+                if steps > 0:
+                    segment = delta.seconds / steps
                     delta = start - zero
-                    pos = delta.seconds + i * segment
-                    plt.axvline(x=pos, color='red')
-                prevStep = steps
+                    for i in range(steps):
+                        pos = delta.seconds + i * segment
+                        plt.axvline(x=pos, color='red')
+                prevStep += steps
                 start = end

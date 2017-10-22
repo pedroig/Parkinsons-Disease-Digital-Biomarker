@@ -122,9 +122,14 @@ The first and simpler method was PCA, to test the viability of this method, it w
 
 To surpass the limitations of a lower dimension projection with PCA, the t-SNE method was applied ([testingTSNE](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Visualization/Dimension_Reduction/testingTSNE.py)) and plots for two and three dimensions were generated. However, both figures failed to separate groups data from the two possible targets as can be seen in the pictures below:
 
-![2D t-SNE plot](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Visualization/Dimension_Reduction/Figures/T-SNE2d.png "2D t-SNE plot")
+| ![2D t-SNE plot](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Visualization/Dimension_Reduction/Figures/T-SNE2d.png "2D t-SNE plot") |
+|:----:|
+| 2D t-SNE plot |
 
-![3D t-SNE plot](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Visualization/Dimension_Reduction/Figures/T-SNE3d.png "3D t-SNE plot")
+
+| ![3D t-SNE plot](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Visualization/Dimension_Reduction/Figures/T-SNE3d.png "3D t-SNE plot") |
+|:----:|
+| 3D t-SNE plot |
 
 ### 6. Useful Resources
 
