@@ -10,6 +10,7 @@ __pycache__/
 *.txt
 *.npy
 data/_features_processed/*
+RNN/tf_logs/*
 
 # Temporary files
 Extra/

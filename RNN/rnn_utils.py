@@ -14,7 +14,6 @@ def generateSetFromTable(featuresTable, n_steps, n_inputs):
     for row in featuresTable.itertuples():
         data = fu.readJSON_data(row.accel_walking_rest, 'accel_walking_rest')
         seq_length = np.append(seq_length, len(data))
-        # data = data.iloc[:2950, :]
         XElement = data.loc[:, axes]
         zeros = pd.DataFrame(0, index=np.arange(n_steps - len(data)), columns=axes)
         X = pd.concat([X, XElement, zeros])
