@@ -10,13 +10,16 @@ logdir = "{}/run-{}/".format(root_logdir, now)
 
 tf.reset_default_graph()
 
-n_steps = 3603  # maximum time-series length for the rest stage
+timeSeriesName = 'outbound'
+# n_steps = 3603  # maximum time-series length for the rest stage
+# n_steps = 3226  # maximum time-series length for the return stage
+n_steps = 3159  # maximum time-series length for the outbound stage
 n_inputs = 3
-n_neurons = 20
+n_neurons = 200
 n_outputs = 2
-n_layers = 2
+n_layers = 1
 
-learning_rate = 0.001
+learning_rate = 0.0001  # 0.001
 
 X = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
 y = tf.placeholder(tf.int32, [None])
@@ -42,20 +45,19 @@ loss_summary = tf.summary.scalar('Loss', loss)
 file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
 
 
-featuresTableTrain = ru.readPreprocessTable('train')
-featuresTableVal = ru.readPreprocessTable('val')
+featuresTableTrain = ru.readPreprocessTable('train', timeSeriesName)
+featuresTableVal = ru.readPreprocessTable('val', timeSeriesName)
 
-n_train_size = 15000  # max = 15001
-n_val_size = 1700  # max = 1773
+n_train_size = 150  # max = 15001
+n_val_size = 100  # max = 1773
 
 featuresTableTrain = featuresTableTrain.iloc[:n_train_size]
 featuresTableVal = featuresTableVal.iloc[:n_val_size]
 
-X_val, y_val, seq_length_val = ru.generateSetFromTable(featuresTableVal, n_steps, n_inputs)
-
+X_val, y_val, seq_length_val = ru.generateSetFromTable(featuresTableVal, n_steps, n_inputs, timeSeriesName, True)
 
 n_epochs = 10
-batch_size = 200
+batch_size = 10
 n_batches = len(featuresTableTrain) // batch_size
 
 with tf.Session() as sess:
@@ -64,7 +66,7 @@ with tf.Session() as sess:
         acc_train = np.array([])
         for batch_index in range(n_batches):
             featuresTableBatch = featuresTableTrain[featuresTableTrain.index // batch_size == batch_index]
-            X_batch, y_batch, seq_length_batch = ru.generateSetFromTable(featuresTableBatch, n_steps, n_inputs)
+            X_batch, y_batch, seq_length_batch = ru.generateSetFromTable(featuresTableBatch, n_steps, n_inputs, timeSeriesName, True)
             sess.run(training_op, feed_dict={X: X_batch, y: y_batch, seq_length: seq_length_batch})
             if batch_index % 4 == 0:
                 summary_str = loss_summary.eval(feed_dict={X: X_batch, y: y_batch, seq_length: seq_length_batch})

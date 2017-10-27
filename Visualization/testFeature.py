@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
 import sys
+import pywt
 sys.path.insert(0, '../Features')
 import features_utils as fu
 
@@ -19,15 +20,23 @@ class TestFeature:
         self.y = None
         self.xlabel = None
         self.ylabel = None
+        self.yWavelet = None
 
     def plot(self):
-        plt.plot(self.x, self.y)
+        plt.plot(self.x, self.y, label='raw')
         plt.ylabel(self.ylabel)
         plt.xlabel(self.xlabel)
 
     def show(self):
         self.plot()
         plt.show()
+
+    def plotWavelet(self, wavelet, level):
+        coeffs = pywt.wavedec(self.y, wavelet, level=level)
+        self.yWavelet = pywt.upcoef('a', coeffs[0], wavelet, level=level, take=len(self.y))
+        name = '{}, level:{}'.format(wavelet, str(level))
+        plt.plot(self.x, self.yWavelet, label=name)
+
 
 # Level 2
 
@@ -135,20 +144,34 @@ class Overview():
         self.dataAcc, self.dataPedo = fu.loadUserInput()
         self.segments = segments
         self.totalAvgStep = totalAvgStep
+        self.waveletList = []
+
+    def overiewPlotting(self, obj):
+        obj.plot()
+        for wavelet, level in self.waveletList:
+            obj.plotWavelet(wavelet, level)
+        if self.segments:
+            self.plotSegments()
+        plt.legend()
 
     def show(self):
         for index, axis in enumerate(['x', 'y', 'z']):
             plt.subplot(2, 2, index + 1)
             obj = RawFeature(axis, self.dataAcc)
-            obj.plot()
-            if self.segments:
-                self.plotSegments()
+            self.overiewPlotting(obj)
         plt.subplot(2, 2, 4)
         obj = RadialDistance(self.dataAcc)
-        obj.plot()
-        if self.segments:
-            self.plotSegments()
+        self.overiewPlotting(obj)
         plt.show()
+
+    def addWavelet(self, wavelet, level):
+        self.waveletList.append((wavelet, level))
+
+    def removeAllWavelets(self):
+        self.waveletList = []
+
+    def removeWavelet(self, wavelet, level):
+        self.waveletList.remove((wavelet, level))
 
     def plotSegments(self):
         start = datetime.strptime(self.dataPedo.loc[0, 'startDate'], '%Y-%m-%dT%H:%M:%S%z')
