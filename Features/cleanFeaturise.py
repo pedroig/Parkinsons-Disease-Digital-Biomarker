@@ -5,7 +5,7 @@ import features_utils as fu
 from sklearn.model_selection import train_test_split
 
 
-def rowFeaturise(row, features, timeSeriesName):
+def rowFeaturise(row, features, timeSeriesName, wavelet=None, level=None):
     pointer = features.loc[row.name, timeSeriesName + '.json.items']
     if ~np.isnan(pointer):
         data = fu.readJSON_data(pointer, timeSeriesName)
@@ -13,6 +13,9 @@ def rowFeaturise(row, features, timeSeriesName):
             features.loc[row.name, "Error"] = True
         else:
             if timeSeriesName.startswith("accel"):
+                if wavelet is not None:
+                    fu.waveletFiltering(data, wavelet, level)
+                    fu.saveWavelet(data, pointer, timeSeriesName, wavelet, level)
                 cf.createFeatureAcc(features, row.name, data, timeSeriesName)
             elif timeSeriesName.startswith("pedometer"):
                 cf.createFeaturePedo(features, row.name, data, timeSeriesName)
@@ -20,7 +23,7 @@ def rowFeaturise(row, features, timeSeriesName):
         features.loc[row.name, "Error"] = True
 
 
-def generateFeatures(dataFraction=1, earlySplit=True, dropExtraCol=True):
+def generateFeatures(dataFraction=1, earlySplit=True, dropExtraCol=True, wavelet=None, level=None):
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
     # Dropping rows without answer for gender
     demographics[(demographics.gender == "Male") | (demographics.gender == "Female")]
@@ -107,7 +110,7 @@ def generateFeatures(dataFraction=1, earlySplit=True, dropExtraCol=True):
                 timeSeriesName = namePrefix + phase
                 if timeSeriesName == 'pedometer_walking_rest':
                     continue
-                features.apply(rowFeaturise, axis=1, args=(features, timeSeriesName))
+                features.apply(rowFeaturise, axis=1, args=(features, timeSeriesName, wavelet, level))
                 errors += features.loc[:, "Error"].sum()
                 # Dropping rows with errors
                 features = features[features.loc[:, "Error"] == False]
@@ -137,5 +140,8 @@ def generateFeatures(dataFraction=1, earlySplit=True, dropExtraCol=True):
         features = features.dropna(axis=0, how='any')
         errors -= len(features)
         print(errors, "rows dropped due to invalid values")
+
+        if wavelet is not None:
+            featuresSplitName += '_waveletFiltering'
 
         features.to_csv("../data/{}.csv".format(featuresSplitName))

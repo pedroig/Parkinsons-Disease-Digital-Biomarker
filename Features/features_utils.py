@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+import pywt
 from datetime import datetime
 from sklearn.metrics import mutual_info_score
 from scipy import stats
@@ -37,6 +38,12 @@ def sma(data):
         ans += np.abs(data.loc[:, axis]).sum()
     ans /= len(data)
     return ans
+
+
+def waveletFiltering(data, wavelet, level):
+    for axis in ['x', 'y', 'z']:
+        coeffs = pywt.wavedec(data[axis], wavelet, level=level)
+        data[axis] = pywt.upcoef('a', coeffs[0], wavelet, level=level, take=len(data))
 
 # 1 Dimension
 
@@ -121,19 +128,32 @@ def avgStep(data):
     else:
         return data.loc[data.index[-1], 'distance'] / stepNum
 
-# Extra for loading data
+# Extra for file manipulation
 
 
-def readJSON_data(pointer, timeSeriesName):
+def generatePath(pointer, timeSeriesName):
     pointer = int(pointer)
     path = '../data/{}/{}/{}/'
     path = path.format(timeSeriesName, str(pointer % 1000), str(pointer))
+    return path
+
+
+def readJSON_data(pointer, timeSeriesName, waveletName=''):
+    path = generatePath(pointer, timeSeriesName)
     try:
         for fileName in os.listdir(path):
-            if fileName.startswith(timeSeriesName):
-                path += fileName
-                break
-        json_df = pd.read_json(path)
+            if len(waveletName) > 0:
+                if fileName.startswith(waveletName):
+                    path += fileName
+                    break
+            else:
+                if fileName.startswith(timeSeriesName):
+                    path += fileName
+                    break
+        if len(waveletName) > 0:
+            json_df = pd.read_json(path, orient='split')
+        else:
+            json_df = pd.read_json(path)
     except IOError:
         json_df = None
     return json_df
@@ -162,3 +182,9 @@ def loadUserInput():
     pointerPedo = sampled[timeSeriesName + '.json.items']
     dataPedo = readJSON_data(pointerPedo, timeSeriesName)
     return dataAccel, dataPedo
+
+
+def saveWavelet(data, pointer, timeSeriesName, wavelet, level):
+    path = generatePath(pointer, timeSeriesName)
+    waveletName = '{}-level{}.json'.format(wavelet, str(level))
+    data.to_json(path + waveletName, orient='split')
