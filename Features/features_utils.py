@@ -138,23 +138,19 @@ def generatePath(pointer, timeSeriesName):
     return path
 
 
-def readJSON_data(pointer, timeSeriesName, waveletName=''):
+def readJSON_data(pointer, timeSeriesName, waveletFileName=''):
     path = generatePath(pointer, timeSeriesName)
     try:
-        for fileName in os.listdir(path):
-            if len(waveletName) > 0:
-                if fileName.startswith(waveletName):
-                    path += fileName
-                    break
-            else:
+        if len(waveletFileName) > 0:
+            path += waveletFileName
+            json_df = pd.read_json(path, orient='split')
+        else:
+            for fileName in os.listdir(path):
                 if fileName.startswith(timeSeriesName):
                     path += fileName
                     break
-        if len(waveletName) > 0:
-            json_df = pd.read_json(path, orient='split')
-        else:
             json_df = pd.read_json(path)
-    except IOError:
+    except:
         json_df = None
     return json_df
 
@@ -184,7 +180,12 @@ def loadUserInput():
     return dataAccel, dataPedo
 
 
+def genWaveletFileName(wavelet, level):
+    waveletFileName = '{}-level{}.json'.format(wavelet, str(level))
+    return waveletFileName
+
+
 def saveWavelet(data, pointer, timeSeriesName, wavelet, level):
     path = generatePath(pointer, timeSeriesName)
-    waveletName = '{}-level{}.json'.format(wavelet, str(level))
-    data.to_json(path + waveletName, orient='split')
+    waveletFileName = genWaveletFileName(wavelet, level)
+    data.to_json(path + waveletFileName, orient='split')

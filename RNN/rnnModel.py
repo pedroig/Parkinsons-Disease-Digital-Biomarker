@@ -2,6 +2,9 @@ import tensorflow as tf
 import numpy as np
 import rnn_utils as ru
 from datetime import datetime
+import sys
+sys.path.insert(0, '../Features')
+import features_utils as fu
 
 # Log directory for tensorboard
 now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
@@ -9,6 +12,10 @@ root_logdir = "tf_logs"
 logdir = "{}/run-{}/".format(root_logdir, now)
 
 tf.reset_default_graph()
+
+wavelet = 'db3'
+level = 5
+waveletFileName = fu.genWaveletFileName(wavelet, level)
 
 timeSeriesName = 'outbound'
 # n_steps = 3603  # maximum time-series length for the rest stage
@@ -19,7 +26,7 @@ n_neurons = 200
 n_outputs = 2
 n_layers = 1
 
-learning_rate = 0.0001  # 0.001
+learning_rate = 0.00001  # 0.001
 
 X = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
 y = tf.placeholder(tf.int32, [None])
@@ -45,19 +52,19 @@ loss_summary = tf.summary.scalar('Loss', loss)
 file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
 
 
-featuresTableTrain = ru.readPreprocessTable('train', timeSeriesName)
-featuresTableVal = ru.readPreprocessTable('val', timeSeriesName)
+featuresTableTrain = ru.readPreprocessTable('train', timeSeriesName, len(waveletFileName) > 0)
+featuresTableVal = ru.readPreprocessTable('val', timeSeriesName, len(waveletFileName) > 0)
 
-n_train_size = 150  # max = 15001
-n_val_size = 100  # max = 1773
+n_train_size = 15000
+n_val_size = 1773
 
 featuresTableTrain = featuresTableTrain.iloc[:n_train_size]
 featuresTableVal = featuresTableVal.iloc[:n_val_size]
 
-X_val, y_val, seq_length_val = ru.generateSetFromTable(featuresTableVal, n_steps, n_inputs, timeSeriesName, True)
+X_val, y_val, seq_length_val = ru.generateSetFromTable(featuresTableVal, n_steps, n_inputs, timeSeriesName, middle60=True, waveletFileName=waveletFileName)
 
 n_epochs = 10
-batch_size = 10
+batch_size = 100
 n_batches = len(featuresTableTrain) // batch_size
 
 with tf.Session() as sess:
@@ -66,7 +73,7 @@ with tf.Session() as sess:
         acc_train = np.array([])
         for batch_index in range(n_batches):
             featuresTableBatch = featuresTableTrain[featuresTableTrain.index // batch_size == batch_index]
-            X_batch, y_batch, seq_length_batch = ru.generateSetFromTable(featuresTableBatch, n_steps, n_inputs, timeSeriesName, True)
+            X_batch, y_batch, seq_length_batch = ru.generateSetFromTable(featuresTableBatch, n_steps, n_inputs, timeSeriesName, middle60=True, waveletFileName=waveletFileName)
             sess.run(training_op, feed_dict={X: X_batch, y: y_batch, seq_length: seq_length_batch})
             if batch_index % 4 == 0:
                 summary_str = loss_summary.eval(feed_dict={X: X_batch, y: y_batch, seq_length: seq_length_batch})

@@ -5,7 +5,7 @@ sys.path.insert(0, '../Features')
 import features_utils as fu
 
 
-def generateSetFromTable(featuresTable, n_steps, n_inputs, timeSeriesName, middle60=False):
+def generateSetFromTable(featuresTable, n_steps, n_inputs, timeSeriesName, middle60=False, waveletFileName=''):
     timeSeriesName = 'accel_walking_' + timeSeriesName
     axes = ['x', 'y', 'z']
     y = featuresTable.Target
@@ -13,7 +13,7 @@ def generateSetFromTable(featuresTable, n_steps, n_inputs, timeSeriesName, middl
     X = pd.DataFrame(columns=axes)
     seq_length = np.array([])
     for row in featuresTable.itertuples():
-        data = fu.readJSON_data(getattr(row, timeSeriesName), timeSeriesName)
+        data = fu.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, waveletFileName)
         if middle60:
             lower_bound = int(np.ceil(len(data) * 0.2))
             upper_bound = int(np.ceil(len(data) * 0.8))
@@ -27,8 +27,11 @@ def generateSetFromTable(featuresTable, n_steps, n_inputs, timeSeriesName, middl
     return X, y, seq_length
 
 
-def readPreprocessTable(name, timeSeriesName):
-    featuresTable = pd.read_csv("../data/{}_extra_columns.csv".format(name), index_col=0)
+def readPreprocessTable(name, timeSeriesName, chooseWaveletTable):
+    waveletFiltering = ''
+    if chooseWaveletTable:
+        waveletFiltering = '_waveletFiltering'
+    featuresTable = pd.read_csv("../data/{}_extra_columns{}.csv".format(name, waveletFiltering), index_col=0)
     # Renaming to use the column name to access a named tuple
     featuresTable.rename(columns={'accel_walking_{}.json.items'.format(timeSeriesName): 'accel_walking_' + timeSeriesName}, inplace=True)
     featuresTable.reset_index(inplace=True)
@@ -39,7 +42,6 @@ def findMaximumLength(timeSeriesName):
     """
         Input:
         - timeSeriesName: 'rest', 'outbound', 'return'
-
 
         Outputs:
         maximum length for the time-series stage selected
