@@ -181,6 +181,8 @@ def loadUserInput():
 
 
 def genWaveletFileName(wavelet, level):
+    if wavelet == "":
+        return ""
     waveletFileName = '{}-level{}.json'.format(wavelet, str(level))
     return waveletFileName
 

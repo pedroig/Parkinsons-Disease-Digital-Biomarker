@@ -51,4 +51,5 @@ def load_data(featuresSplitName, balance_samples=False):
     y = X.Target
     y = np.asarray(y.values, dtype=np.int8)
     X = X.drop("Target", axis=1)
+    # X = X.drop(["age", "Male"], axis=1)
     return X, y
