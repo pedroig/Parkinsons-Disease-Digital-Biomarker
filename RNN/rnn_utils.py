@@ -13,16 +13,16 @@ def generateSetFromTable(featuresTable, n_steps, n_inputs, waveletFileName=''):
     seq_length = {}
     for timeSeries in ['outbound', 'rest', 'return']:
         timeSeriesName = 'accel_walking_' + timeSeries
-        X[timeSeriesName] = pd.DataFrame(columns=axes)
-        seq_length[timeSeriesName] = np.array([])
+        X[timeSeries] = pd.DataFrame(columns=axes)
+        seq_length[timeSeries] = np.array([])
         for row in featuresTable.itertuples():
             data = fu.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, waveletFileName)
-            seq_length[timeSeriesName] = np.append(seq_length[timeSeriesName], len(data))
+            seq_length[timeSeries] = np.append(seq_length[timeSeries], len(data))
             XElement = data.loc[:, axes]
-            zeros = pd.DataFrame(0, index=np.arange(n_steps[timeSeriesName] - len(data)), columns=axes)
-            X[timeSeriesName] = pd.concat([X[timeSeriesName], XElement, zeros])
-        X[timeSeriesName] = np.asarray(X[timeSeriesName])
-        X[timeSeriesName] = X.reshape((-1, n_steps[timeSeriesName], n_inputs))
+            zeros = pd.DataFrame(0, index=np.arange(n_steps[timeSeries] - len(data)), columns=axes)
+            X[timeSeries] = pd.concat([X[timeSeries], XElement, zeros])
+        X[timeSeries] = np.asarray(X[timeSeries])
+        X[timeSeries] = X[timeSeries].reshape((-1, n_steps[timeSeries], n_inputs))
     return X, y, seq_length
 
 
@@ -44,13 +44,14 @@ def generateSetFromTable1TimeSeries(featuresTable, n_steps, n_inputs, timeSeries
     return X, y, seq_length
 
 
-def readPreprocessTable(name, timeSeriesName, chooseWaveletTable):
+def readPreprocessTable(name, chooseWaveletTable):
     waveletFiltering = ''
     if chooseWaveletTable:
         waveletFiltering = '_waveletFiltering'
     featuresTable = pd.read_csv("../data/{}{}_extra_columns.csv".format(name, waveletFiltering), index_col=0)
     # Renaming to use the column name to access a named tuple
-    featuresTable.rename(columns={'accel_walking_{}.json.items'.format(timeSeriesName): 'accel_walking_' + timeSeriesName}, inplace=True)
+    for timeSeriesName in ['outbound', 'rest', 'return']:
+        featuresTable.rename(columns={'accel_walking_{}.json.items'.format(timeSeriesName): 'accel_walking_' + timeSeriesName}, inplace=True)
     featuresTable.reset_index(inplace=True)
     return featuresTable
 
