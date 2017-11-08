@@ -7,8 +7,8 @@ from sklearn.ensemble import RandomForestClassifier
 def randomForestModel(graphs=False, showTest=False, balance_train=False, balance_test=False, balance_val=False):
     X_train, y_train = lu.load_data("train_waveletFiltering", balance_samples=balance_train)
 
-    #rnd_clf = RandomForestClassifier(n_estimators=20, max_depth=12, min_samples_split=4, n_jobs=-1)
-    rnd_clf = RandomForestClassifier(n_estimators=13, max_depth=5, min_samples_split=12, n_jobs=-1)     # smaller gap between validation and training
+    rnd_clf = RandomForestClassifier(n_estimators=13, max_depth=10, min_samples_split=12, n_jobs=-1)
+    # rnd_clf = RandomForestClassifier(n_estimators=13, max_depth=5, min_samples_split=12, n_jobs=-1)     # smaller gap between validation and training
     rnd_clf.fit(X_train, y_train)
     lu.metricsShow(X_train, y_train, rnd_clf, "training")
 

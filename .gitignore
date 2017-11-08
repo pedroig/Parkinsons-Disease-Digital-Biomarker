@@ -11,6 +11,8 @@ __pycache__/
 *.npy
 data/_features_processed/*
 RNN/tf_logs/*
+RNN/age_gender.py
+RNN/3timeseries.py
 
 # Temporary files
 Extra/

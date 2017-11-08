@@ -35,6 +35,8 @@ learning_rate = 0.001
 
 # Placeholder Tensors
 y = tf.placeholder(tf.int32, [None], name="y")
+gender = tf.placeholder(tf.float32, [None, 1], name="gender")
+age = tf.placeholder(tf.float32, [None, 1], name="age")
 X = {}
 seq_length = {}
 for timeSeriesName in timeSeries:
@@ -60,13 +62,15 @@ for timeSeriesName in timeSeries:
         top_layer_h_state[timeSeriesName] = states[timeSeriesName][-1][1]
         finalRNNlayers.append(top_layer_h_state[timeSeriesName])
 
-with tf.variable_scope("3Stages_mixed") as scope:
-    concat3_top_layer_h_states = tf.concat(finalRNNlayers, axis=1)
-    logits = tf.layers.dense(concat3_top_layer_h_states, n_outputs, name="logits")
+concat3_top_layer_h_states = tf.concat(finalRNNlayers, axis=1, name="3Stages_concat")
+finalLayerInput = tf.concat([concat3_top_layer_h_states, age, gender], axis=1, name="finalLayerInput")
+logits = tf.layers.dense(finalLayerInput, n_outputs, name="logits")
 
 with tf.name_scope("Cost_function") as scope:
     xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
     loss = tf.reduce_mean(xentropy, name="loss")
+
+with tf.name_scope("Train") as scope:
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
     training_op = optimizer.minimize(loss)
 
@@ -94,13 +98,17 @@ featuresTableVal = featuresTableVal.iloc[:n_val_size]
 
 # Reading time series for validation set
 X_val, y_val, seq_length_val = ru.generateSetFromTable(featuresTableVal, n_steps, n_inputs, waveletFileName=waveletFileName)
-feed_dict_val = {y: y_val}
+feed_dict_val = {
+    y: y_val,
+    age: np.asarray(featuresTableVal["age"]).reshape((-1, 1)),
+    gender: np.asarray(featuresTableVal["Male"]).reshape((-1, 1))
+}
 for timeSeriesName in timeSeries:
     feed_dict_val[X[timeSeriesName]] = X_val[timeSeriesName]
     feed_dict_val[seq_length[timeSeriesName]] = seq_length_val[timeSeriesName]
 
 # Training parameters
-n_epochs = 10
+n_epochs = 12
 batch_size = 1000
 n_batches = len(featuresTableTrain) // batch_size
 
@@ -114,7 +122,11 @@ with tf.Session() as sess:
             featuresTableBatch = featuresTableTrain[featuresTableTrain.index // batch_size == batch_index]
             X_batch, y_batch, seq_length_batch = ru.generateSetFromTable(
                 featuresTableBatch, n_steps, n_inputs, waveletFileName=waveletFileName)
-            feed_dict_batch = {y: y_batch}
+            feed_dict_batch = {
+                y: y_batch,
+                age: np.asarray(featuresTableBatch["age"]).reshape((-1, 1)),
+                gender: np.asarray(featuresTableBatch["Male"]).reshape((-1, 1))
+            }
             for timeSeriesName in timeSeries:
                 feed_dict_batch[X[timeSeriesName]] = X_batch[timeSeriesName]
                 feed_dict_batch[seq_length[timeSeriesName]] = seq_length_batch[timeSeriesName]
