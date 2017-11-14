@@ -9,6 +9,7 @@ __pycache__/
 *.session
 *.txt
 *.npy
+*._*
 data/_features_processed/*
 RNN/tf_logs/*
 RNN/age_gender.py

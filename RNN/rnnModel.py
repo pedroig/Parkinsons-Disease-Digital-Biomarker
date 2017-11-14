@@ -108,7 +108,7 @@ for timeSeriesName in timeSeries:
     feed_dict_val[seq_length[timeSeriesName]] = seq_length_val[timeSeriesName]
 
 # Training parameters
-n_epochs = 12
+n_epochs = 30
 batch_size = 1000
 n_batches = len(featuresTableTrain) // batch_size
 
