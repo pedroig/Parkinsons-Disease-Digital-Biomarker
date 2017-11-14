@@ -5,21 +5,25 @@ import features_utils as fu
 from sklearn.model_selection import train_test_split
 
 
-def rowFeaturise(row, features, timeSeriesName, wavelet=None, level=None):
+def rowFeaturise(row, features, timeSeriesName, wavelet, level):
     pointer = features.loc[row.name, timeSeriesName + '.json.items']
     if ~np.isnan(pointer):
         data = fu.readJSON_data(pointer, timeSeriesName)
         if (data is None) or data.empty:  # No file matching the pointer or data file Null
             features.loc[row.name, "Error"] = True
         else:
-            if timeSeriesName.startswith("accel"):
+            if timeSeriesName.startswith("deviceMotion"):
                 if len(data) < 300:     # Data too short
                     features.loc[row.name, "Error"] = True
                 else:
-                    if wavelet is not None and level is not None:
-                        fu.waveletFiltering(data, wavelet, level)
-                        fu.saveWavelet(data, pointer, timeSeriesName, wavelet, level)
-                    cf.createFeatureAcc(features, row.name, data, timeSeriesName)
+                    dataAcc, dataRot = fu.preprocessDeviceMotion(data)
+                    if wavelet is not '' and level is not None:
+                        fu.waveletFiltering(dataAcc, wavelet, level)
+                        fu.waveletFiltering(dataRot, wavelet, level)
+                    fu.saveTimeSeries(dataAcc, pointer, timeSeriesName, 'Accel', wavelet, level)
+                    fu.saveTimeSeries(dataRot, pointer, timeSeriesName, 'RotRate', wavelet, level)
+                    cf.createFeatures(features, row.name, dataRot, 'RotRate_' + timeSeriesName)
+                    cf.createFeatures(features, row.name, dataAcc, 'Accel_' + timeSeriesName)
             else:
                 cf.createFeaturePedo(features, row.name, data, timeSeriesName)
     else:
@@ -40,7 +44,7 @@ def dropExtraColumns(features):
                    ], axis=1, inplace=True)
 
 
-def generateFeatures(dataFraction=1, wavelet=None, level=None):
+def generateFeatures(dataFraction=1, wavelet='', level=None):
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
     # Dropping rows without answer for gender
     demographics[(demographics.gender == "Male") | (demographics.gender == "Female")]
@@ -111,14 +115,14 @@ def generateFeatures(dataFraction=1, wavelet=None, level=None):
     noSplitFeatures = pd.DataFrame()
 
     for features, featuresSplitName in listFeatures:
-        if wavelet is not None:
-            featuresSplitName += '_waveletFiltering'
+        if wavelet is not "":
+            featuresSplitName += fu.waveletName(wavelet, level)
 
         features.index.name = 'ROW_ID'
         features = features.sample(frac=dataFraction)
 
         features.loc[:, "Error"] = False
-        for namePrefix in ['accel_walking_', 'pedometer_walking_']:
+        for namePrefix in ['deviceMotion_walking_', 'pedometer_walking_']:
             for phase in ["outbound", "return", "rest"]:
                 timeSeriesName = namePrefix + phase
                 if timeSeriesName == 'pedometer_walking_rest':
@@ -142,8 +146,8 @@ def generateFeatures(dataFraction=1, wavelet=None, level=None):
         features.to_csv("../data/{}.csv".format(featuresSplitName))
 
     featuresName = 'features'
-    if wavelet is not None:
-        featuresName += '_waveletFiltering'
+    if wavelet is not "":
+        featuresName += fu.waveletName(wavelet, level)
     noSplitFeatures.to_csv("../data/{}.csv".format(featuresName + '_extra_columns'))
     dropExtraColumns(noSplitFeatures)
     noSplitFeatures.to_csv("../data/{}.csv".format(featuresName))

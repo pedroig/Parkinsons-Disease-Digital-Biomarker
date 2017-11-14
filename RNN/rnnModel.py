@@ -2,10 +2,7 @@ import tensorflow as tf
 import numpy as np
 import rnn_utils as ru
 from datetime import datetime
-import sys
 from sklearn import metrics
-sys.path.insert(0, '../Features')
-import features_utils as fu
 
 # Log directory for tensorboard
 now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
@@ -15,9 +12,8 @@ logdir = "{}/run-{}/".format(root_logdir, now)
 tf.reset_default_graph()
 
 # Choosing time-series to read
-wavelet = 'db9'
+wavelet = 'db9'  # Empty string for no wavelet
 level = 4
-waveletFileName = fu.genWaveletFileName(wavelet, level)
 
 # Hard-coded parameters
 timeSeries = ['outbound', 'rest', 'return']
@@ -26,7 +22,7 @@ n_steps = {
     'rest': 3603,
     'return': 3226
 }
-n_inputs = 3
+n_inputs = 6  # Rotation Rate (XYZ) and Acceleration (XYZ)
 n_neurons = 20
 n_outputs = 2
 n_layers = 1
@@ -87,8 +83,8 @@ loss_summary = tf.summary.scalar('Loss', loss)
 file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
 
 # Reading tables
-featuresTableTrain = ru.readPreprocessTable('train', len(waveletFileName) > 0)
-featuresTableVal = ru.readPreprocessTable('val', len(waveletFileName) > 0)
+featuresTableTrain = ru.readPreprocessTable('train')
+featuresTableVal = ru.readPreprocessTable('val')
 
 # Setting size of dataset
 n_train_size = 15000
@@ -97,7 +93,7 @@ featuresTableTrain = featuresTableTrain.iloc[:n_train_size]
 featuresTableVal = featuresTableVal.iloc[:n_val_size]
 
 # Reading time series for validation set
-X_val, y_val, seq_length_val = ru.generateSetFromTable(featuresTableVal, n_steps, n_inputs, waveletFileName=waveletFileName)
+X_val, y_val, seq_length_val = ru.generateSetFromTable(featuresTableVal, n_steps, n_inputs, wavelet, level)
 feed_dict_val = {
     y: y_val,
     age: np.asarray(featuresTableVal["age"]).reshape((-1, 1)),
@@ -108,7 +104,7 @@ for timeSeriesName in timeSeries:
     feed_dict_val[seq_length[timeSeriesName]] = seq_length_val[timeSeriesName]
 
 # Training parameters
-n_epochs = 30
+n_epochs = 12
 batch_size = 1000
 n_batches = len(featuresTableTrain) // batch_size
 
@@ -120,8 +116,7 @@ with tf.Session() as sess:
 
             # Building Batch
             featuresTableBatch = featuresTableTrain[featuresTableTrain.index // batch_size == batch_index]
-            X_batch, y_batch, seq_length_batch = ru.generateSetFromTable(
-                featuresTableBatch, n_steps, n_inputs, waveletFileName=waveletFileName)
+            X_batch, y_batch, seq_length_batch = ru.generateSetFromTable(featuresTableBatch, n_steps, n_inputs, wavelet, level)
             feed_dict_batch = {
                 y: y_batch,
                 age: np.asarray(featuresTableBatch["age"]).reshape((-1, 1)),

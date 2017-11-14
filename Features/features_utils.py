@@ -2,9 +2,12 @@ import pandas as pd
 import numpy as np
 import os
 import pywt
+import json
+import quaternion
 from datetime import datetime
 from sklearn.metrics import mutual_info_score
 from scipy import stats
+from pandas.io.json import json_normalize
 
 # Mixed dimensions
 
@@ -138,18 +141,32 @@ def generatePath(pointer, timeSeriesName):
     return path
 
 
-def readJSON_data(pointer, timeSeriesName, waveletFileName=''):
+def readJSON_data(pointer, timeSeriesName, fileName=''):
     path = generatePath(pointer, timeSeriesName)
     try:
-        if len(waveletFileName) > 0:
-            path += waveletFileName
+        if len(fileName) > 0:
+            path += fileName
             json_df = pd.read_json(path, orient='split')
         else:
             for fileName in os.listdir(path):
                 if fileName.startswith(timeSeriesName):
                     path += fileName
                     break
-            json_df = pd.read_json(path)
+            data = json.load(open(path))
+            json_df = json_normalize(data)
+            json_df.drop([
+                'magneticField.accuracy',
+                'magneticField.x',
+                'magneticField.y',
+                'magneticField.z',
+                'gravity.x',
+                'gravity.y',
+                'gravity.z'],
+                axis=1, inplace=True)
+            for feature in ['attitude', 'rotationRate', 'userAcceleration']:
+                for axis in ['x', 'y', 'z']:
+                    json_df.rename(columns={'{}.{}'.format(feature, axis): '{}{}'.format(feature, axis.upper())}, inplace=True)
+            json_df.rename(columns={'attitude.w': 'attitudeW'}, inplace=True)
     except:
         json_df = None
     return json_df
@@ -170,24 +187,54 @@ def loadUserInput():
 
     sampled = features.sample().iloc[0]
 
-    timeSeriesName = "accel_" + timeSeriesOptions[timeSeriesSelected]
-    pointerAccel = sampled[timeSeriesName + '.json.items']
-    dataAccel = readJSON_data(pointerAccel, timeSeriesName)
+    timeSeriesName = "deviceMotion_" + timeSeriesOptions[timeSeriesSelected]
+    pointerDeviceMotion = sampled[timeSeriesName + '.json.items']
+    dataDeviceMotion = readJSON_data(pointerDeviceMotion, timeSeriesName)
+    dataAcc, dataRot = preprocessDeviceMotion(dataDeviceMotion)
 
-    timeSeriesName = "pedometer_" + timeSeriesOptions[timeSeriesSelected]
-    pointerPedo = sampled[timeSeriesName + '.json.items']
-    dataPedo = readJSON_data(pointerPedo, timeSeriesName)
-    return dataAccel, dataPedo
+    if timeSeriesSelected == 2:
+        dataPedo = None
+    else:
+        timeSeriesName = "pedometer_" + timeSeriesOptions[timeSeriesSelected]
+        pointerPedo = sampled[timeSeriesName + '.json.items']
+        dataPedo = readJSON_data(pointerPedo, timeSeriesName)
+
+    mainData = int(input('\n0 for Rotation Rate or 1 for Acceleration: '))
+    if mainData == 0:
+        return dataRot, dataPedo
+    else:
+        return dataAcc, dataPedo
 
 
-def genWaveletFileName(wavelet, level):
+def waveletName(wavelet, level):
+    return '-{}-level{}'.format(wavelet, str(level))
+
+
+def genFileName(sampleType, wavelet, level):
     if wavelet == "":
-        return ""
-    waveletFileName = '{}-level{}.json'.format(wavelet, str(level))
+        return '{}.json'.format(sampleType)
+    waveletFileName = '{}{}.json'.format(sampleType, waveletName(wavelet, level))
     return waveletFileName
 
 
-def saveWavelet(data, pointer, timeSeriesName, wavelet, level):
+def saveTimeSeries(data, pointer, timeSeriesName, sampleType, wavelet, level):
     path = generatePath(pointer, timeSeriesName)
-    waveletFileName = genWaveletFileName(wavelet, level)
-    data.to_json(path + waveletFileName, orient='split')
+    fileName = genFileName(sampleType, wavelet, level)
+    data.to_json(path + fileName, orient='split')
+
+# Extra to preprocess Device Motion data
+
+
+def preprocessDeviceMotion(data):
+    dataAcc = data['timestamp'].to_frame()
+    dataRot = data['timestamp'].to_frame()
+    for index, row in enumerate(data.itertuples()):
+        q = quaternion.Quaternion(row.attitudeW, row.attitudeX, row.attitudeY, row.attitudeZ)
+        rotRate = quaternion.Quaternion(0, row.rotationRateX, row.rotationRateY, row.rotationRateZ)
+        userAccel = quaternion.Quaternion(0, row.userAccelerationX, row.userAccelerationY, row.userAccelerationZ)
+        rotRate = (q * rotRate * q.inverse()).im
+        userAccel = (q * userAccel * q.inverse()).im
+        for axisNum, axis in enumerate(['x', 'y', 'z']):
+            dataRot.loc[index, axis] = rotRate[axisNum]
+            dataAcc.loc[index, axis] = userAccel[axisNum]
+    return dataAcc, dataRot

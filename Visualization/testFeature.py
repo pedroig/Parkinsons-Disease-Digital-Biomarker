@@ -46,7 +46,7 @@ class RawFeature(TestFeature):
         super(RawFeature, self).__init__(data)
         self.x = self.data.timestamp
         self.y = self.data.loc[:, axis]
-        self.ylabel = 'Acceleration in axis ' + axis
+        self.ylabel = 'Axis ' + axis
         self.xlabel = 'time'
 
 
@@ -86,7 +86,7 @@ class Frequency(TestFeature):
         super(Frequency, self).__init__(data)
         self.y = np.abs(np.fft.fft(self.data[axis]))
         self.x = np.fft.fftfreq(len(self.data), d=0.01)
-        self.ylabel = 'Acceleration in frequency domain ' + axis
+        self.ylabel = 'Frequency domain Amplitude' + axis
         self.xlabel = 'Frequency'
 
 # Level 3
@@ -113,7 +113,7 @@ class CrossEntropy(Feature2dBins):
 class RadialDistance(RawSpherical):
     def __init__(self, data=None):
         super(RadialDistance, self).__init__(data)
-        self.ylabel = 'Radial Distance of the acceleration'
+        self.ylabel = 'Radial Distance'
 
     def mainCalc(self):
         return fu.cart2sphRadialDist(self.data, raw=True)
@@ -122,7 +122,7 @@ class RadialDistance(RawSpherical):
 class PolarAngle(RawSpherical):
     def __init__(self, data=None):
         super(PolarAngle, self).__init__(data)
-        self.ylabel = 'Polar Angle of the acceleration'
+        self.ylabel = 'Polar Angle'
 
     def mainCalc(self):
         return fu.cart2sphPolarAngle(self.data, raw=True)
@@ -131,7 +131,7 @@ class PolarAngle(RawSpherical):
 class AzimuthAngle(RawSpherical):
     def __init__(self, data=None):
         super(AzimuthAngle, self).__init__(data)
-        self.ylabel = 'Azimuth Angle of the acceleration'
+        self.ylabel = 'Azimuth Angle'
 
     def mainCalc(self):
         return fu.cart2sphAzimuthAngle(self.data, raw=True)
@@ -141,7 +141,7 @@ class AzimuthAngle(RawSpherical):
 
 class Overview():
     def __init__(self, segments=False, totalAvgStep=False):
-        self.dataAcc, self.dataPedo = fu.loadUserInput()
+        self.data, self.dataPedo = fu.loadUserInput()
         self.segments = segments
         self.totalAvgStep = totalAvgStep
         self.waveletList = []
@@ -157,10 +157,10 @@ class Overview():
     def show(self):
         for index, axis in enumerate(['x', 'y', 'z']):
             plt.subplot(2, 2, index + 1)
-            obj = RawFeature(axis, self.dataAcc)
+            obj = RawFeature(axis, self.data)
             self.overiewPlotting(obj)
         plt.subplot(2, 2, 4)
-        obj = RadialDistance(self.dataAcc)
+        obj = RadialDistance(self.data)
         self.overiewPlotting(obj)
         plt.show()
 

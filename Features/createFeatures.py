@@ -1,7 +1,7 @@
 import features_utils as fu
 
 
-def createFeatureAcc(features, index, data, timeSeriesName):
+def createFeatures(features, index, data, timeSeriesName):
 
     # Mixed dimensions
     nameSuffix = "_" + timeSeriesName
