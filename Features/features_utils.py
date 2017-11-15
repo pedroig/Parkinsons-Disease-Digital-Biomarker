@@ -152,21 +152,24 @@ def readJSON_data(pointer, timeSeriesName, fileName=''):
                 if fileName.startswith(timeSeriesName):
                     path += fileName
                     break
-            data = json.load(open(path))
-            json_df = json_normalize(data)
-            json_df.drop([
-                'magneticField.accuracy',
-                'magneticField.x',
-                'magneticField.y',
-                'magneticField.z',
-                'gravity.x',
-                'gravity.y',
-                'gravity.z'],
-                axis=1, inplace=True)
-            for feature in ['attitude', 'rotationRate', 'userAcceleration']:
-                for axis in ['x', 'y', 'z']:
-                    json_df.rename(columns={'{}.{}'.format(feature, axis): '{}{}'.format(feature, axis.upper())}, inplace=True)
-            json_df.rename(columns={'attitude.w': 'attitudeW'}, inplace=True)
+            if timeSeriesName.startswith('deviceMotion'):
+                data = json.load(open(path))
+                json_df = json_normalize(data)
+                json_df.drop([
+                    'magneticField.accuracy',
+                    'magneticField.x',
+                    'magneticField.y',
+                    'magneticField.z',
+                    'gravity.x',
+                    'gravity.y',
+                    'gravity.z'],
+                    axis=1, inplace=True)
+                for feature in ['attitude', 'rotationRate', 'userAcceleration']:
+                    for axis in ['x', 'y', 'z']:
+                        json_df.rename(columns={'{}.{}'.format(feature, axis): '{}{}'.format(feature, axis.upper())}, inplace=True)
+                json_df.rename(columns={'attitude.w': 'attitudeW'}, inplace=True)
+            else:
+                json_df = pd.read_json(path)
     except:
         json_df = None
     return json_df
