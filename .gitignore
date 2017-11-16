@@ -15,5 +15,6 @@ RNN/tf_logs/*
 RNN/age_gender.py
 RNN/3timeseries.py
 
+Features/featurise.py
 # Temporary files
 Extra/

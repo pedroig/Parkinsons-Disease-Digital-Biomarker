@@ -2,12 +2,12 @@ import pandas as pd
 import numpy as np
 import sys
 sys.path.insert(0, '../Features')
-import features_utils as fu
+import utils
 
 
 def generateSetFromTable(featuresTable, n_steps, n_inputs, wavelet, level):
-    fileNameRotRate = fu.genFileName('RotRate', wavelet, level)
-    fileNameAccel = fu.genFileName('Accel', wavelet, level)
+    fileNameRotRate = utils.genFileName('RotRate', wavelet, level)
+    fileNameAccel = utils.genFileName('Accel', wavelet, level)
     axes = ['x', 'y', 'z']
     y = featuresTable.Target
     y = np.array(y)
@@ -22,14 +22,14 @@ def generateSetFromTable(featuresTable, n_steps, n_inputs, wavelet, level):
         X[timeSeries] = pd.DataFrame(columns=columns)
         seq_length[timeSeries] = np.array([])
         for row in featuresTable.itertuples():
-            dataAccel = fu.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameAccel)
+            dataAccel = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameAccel)
             dataAccel.rename(inplace=True,
                              columns={
                                  'x': 'Accel_x',
                                  'y': 'Accel_y',
                                  'z': 'Accel_z'
                              })
-            dataRotRate = fu.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameRotRate)
+            dataRotRate = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameRotRate)
             dataRotRate.rename(inplace=True,
                                columns={
                                    'x': 'RotRate_',
@@ -70,7 +70,7 @@ def findMaximumLength(timeSeriesName):
     featuresTable.rename(columns={timeSeriesName + '.json.items': timeSeriesName}, inplace=True)
 
     for row in featuresTable.itertuples():
-        data = fu.readJSON_data(getattr(row, timeSeriesName), timeSeriesName)
+        data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName)
         maximumLength = max(maximumLength, len(data))
 
     return maximumLength

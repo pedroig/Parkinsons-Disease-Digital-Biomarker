@@ -5,6 +5,7 @@ import sys
 import pywt
 sys.path.insert(0, '../Features')
 import features_utils as fu
+import utils
 
 # Level 1
 
@@ -12,7 +13,7 @@ import features_utils as fu
 class TestFeature:
     def __init__(self, data=None):
         if(data is None):
-            self.data, _ = fu.loadUserInput()
+            self.data, _ = utils.loadUserInput()
         else:
             self.data = data
         self.data.timestamp -= self.data.timestamp.iloc[0]
@@ -141,7 +142,7 @@ class AzimuthAngle(RawSpherical):
 
 class Overview():
     def __init__(self, segments=False, totalAvgStep=False):
-        self.data, self.dataPedo = fu.loadUserInput()
+        self.data, self.dataPedo = utils.loadUserInput()
         self.segments = segments
         self.totalAvgStep = totalAvgStep
         self.waveletList = []
