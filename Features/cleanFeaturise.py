@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import createFeatures as cf
 import utils
+import time
 from sklearn.model_selection import train_test_split
 
 
@@ -45,6 +46,7 @@ def dropExtraColumns(features):
 
 
 def generateFeatures(dataFraction=1, wavelet='', level=None):
+    startTime = time.time()
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
     # Dropping rows without answer for gender
     demographics[(demographics.gender == "Male") | (demographics.gender == "Female")]
@@ -123,7 +125,7 @@ def generateFeatures(dataFraction=1, wavelet='', level=None):
 
         features.loc[:, "Error"] = False
         for namePrefix in ['deviceMotion_walking_', 'pedometer_walking_']:
-            for phase in ["outbound", "return", "rest"]:
+            for phase in ["outbound", "rest"]:  # , "return"]:
                 timeSeriesName = namePrefix + phase
                 if timeSeriesName == 'pedometer_walking_rest':
                     continue
@@ -153,3 +155,4 @@ def generateFeatures(dataFraction=1, wavelet='', level=None):
     noSplitFeatures.to_csv("../data/{}.csv".format(featuresName))
 
     print(len(walking_activity) - len(noSplitFeatures), "rows dropped")
+    print("Total time:", time.time() - startTime)

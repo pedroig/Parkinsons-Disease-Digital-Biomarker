@@ -5,7 +5,7 @@ import utils
 
 def rowCleanPreprocess(row, table, timeSeriesName, wavelet, level):
     pointer = table.loc[row.name, timeSeriesName + '.json.items']
-    print(pointer)
+    print(row.name / len(table), "%", "Pointer:", pointer)
     if ~np.isnan(pointer):
         data = utils.readJSON_data(pointer, timeSeriesName)
         if (data is None) or data.empty:  # No file matching the pointer or data file Null
@@ -24,7 +24,7 @@ def rowCleanPreprocess(row, table, timeSeriesName, wavelet, level):
         table.loc[row.name, "Error"] = True
 
 
-def preprocessTimeSeries(wavelet='', level=None):
+def preprocessTimeSeries(phaseNumber, wavelet='', level=None):
     walking_activity = pd.read_csv("../data/walking_activity.csv", index_col=0)
     columns_to_keep_walking = [
         # 'ROW_VERSION',
@@ -50,10 +50,8 @@ def preprocessTimeSeries(wavelet='', level=None):
 
     walking_activity.loc[:, "Error"] = False
 
-    phases = ["outbound", "return", "rest"]
-    for index, phase in enumerate(phases):
-        print(index, phase)
-    phase = phases[int(input("Select the corresponding number: "))]
+    phases = ["outbound", "rest", "return"]
+    phase = phases[phaseNumber]
 
     timeSeriesName = 'deviceMotion_walking_' + phase
     walking_activity.apply(rowCleanPreprocess, axis=1, args=(walking_activity, timeSeriesName, wavelet, level))
