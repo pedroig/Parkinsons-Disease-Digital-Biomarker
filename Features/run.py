@@ -1,11 +1,7 @@
 import cleanFeaturise
-import cleanPreprocessTimeSeries
 
 # testing
-cleanFeaturise.generateFeatures(dataFraction=0.001)
+cleanFeaturise.generateFeatures(16, dataFraction=0.001)
 
 # full
-# cleanFeaturise.generateFeatures()
-
-# segmented pipeline
-# cleanPreprocessTimeSeries.preprocessTimeSeries(0)
+# cleanFeaturise.generateFeatures(16)

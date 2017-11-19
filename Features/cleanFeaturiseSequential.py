@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 
 def rowFeaturise(row, features, timeSeriesName, wavelet, level):
     pointer = features.loc[row.name, timeSeriesName + '.json.items']
+    print(pointer)
     if ~np.isnan(pointer):
         data = utils.readJSON_data(pointer, timeSeriesName)
         if (data is None) or data.empty:  # No file matching the pointer or data file Null
