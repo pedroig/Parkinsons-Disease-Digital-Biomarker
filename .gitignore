@@ -7,14 +7,8 @@ __pycache__/
 *.tmp
 *.csv
 *.session
-*.txt
 *.npy
 *._*
-data/_features_processed/*
-RNN/tf_logs/*
-RNN/age_gender.py
-RNN/3timeseries.py
 
-Features/featurise.py
 # Temporary files
-Extra/
+Extra/Roteiro.txt

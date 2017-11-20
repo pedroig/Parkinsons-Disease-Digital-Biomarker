@@ -3,12 +3,28 @@ import numpy as np
 import createFeatures as cf
 import utils
 import time
+import multiprocessing
 from sklearn.model_selection import train_test_split
+
+
+def apply_df(args):
+    df, func, kwargs = args
+    timeSeriesName, wavelet, level = kwargs["args"]
+    args = df, timeSeriesName, wavelet, level
+    return df.apply(func, args=args, axis=1)
+
+
+def apply_by_multiprocessing(df, func, **kwargs):
+    workers = kwargs.pop('workers')
+    pool = multiprocessing.Pool(processes=workers)
+    result = pool.map(apply_df, [(d, func, kwargs)
+                                 for d in np.array_split(df, workers)])
+    pool.close()
+    return pd.concat(list(result))
 
 
 def rowFeaturise(row, features, timeSeriesName, wavelet, level):
     pointer = features.loc[row.name, timeSeriesName + '.json.items']
-    print(pointer)
     if ~np.isnan(pointer):
         data = utils.readJSON_data(pointer, timeSeriesName)
         if (data is None) or data.empty:  # No file matching the pointer or data file Null
@@ -30,23 +46,24 @@ def rowFeaturise(row, features, timeSeriesName, wavelet, level):
                 cf.createFeaturePedo(features, row.name, data, timeSeriesName)
     else:
         features.loc[row.name, "Error"] = True
+    return features.loc[row.name]
 
 
 def dropExtraColumns(features):
     features.drop(['healthCode',
-                   'accel_walking_outbound.json.items',
+                   # 'accel_walking_outbound.json.items',
                    'deviceMotion_walking_outbound.json.items',
                    'pedometer_walking_outbound.json.items',
-                   'accel_walking_return.json.items',
-                   'deviceMotion_walking_return.json.items',
-                   'pedometer_walking_return.json.items',
-                   'accel_walking_rest.json.items',
+                   # 'accel_walking_return.json.items',
+                   # 'deviceMotion_walking_return.json.items',
+                   # 'pedometer_walking_return.json.items',
+                   # 'accel_walking_rest.json.items',
                    'deviceMotion_walking_rest.json.items',
                    'medTimepoint'
                    ], axis=1, inplace=True)
 
 
-def generateFeatures(dataFraction=1, wavelet='', level=None):
+def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
     startTime = time.time()
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
     # Dropping rows without answer for gender
@@ -96,13 +113,13 @@ def generateFeatures(dataFraction=1, wavelet='', level=None):
         # 'createdOn',
         # 'appVersion',
         # 'phoneInfo',
-        'accel_walking_outbound.json.items',
+        # 'accel_walking_outbound.json.items',
         'deviceMotion_walking_outbound.json.items',
         'pedometer_walking_outbound.json.items',
-        'accel_walking_return.json.items',
-        'deviceMotion_walking_return.json.items',
-        'pedometer_walking_return.json.items',
-        'accel_walking_rest.json.items',
+        # 'accel_walking_return.json.items',
+        # 'deviceMotion_walking_return.json.items',
+        # 'pedometer_walking_return.json.items',
+        # 'accel_walking_rest.json.items',
         'deviceMotion_walking_rest.json.items',
         'medTimepoint'
     ]
@@ -124,14 +141,16 @@ def generateFeatures(dataFraction=1, wavelet='', level=None):
         features.index.name = 'ROW_ID'
         features = features.sample(frac=dataFraction)
 
-        features.loc[:, "Error"] = False
+        features["Error"] = False
         for namePrefix in ['deviceMotion_walking_', 'pedometer_walking_']:
             for phase in ["outbound", "rest"]:  # , "return"]:
                 timeSeriesName = namePrefix + phase
                 if timeSeriesName == 'pedometer_walking_rest':
                     continue
-                print("Working on " + timeSeriesName)
-                features.apply(rowFeaturise, axis=1, args=(features, timeSeriesName, wavelet, level))
+                print("Working on {} from {}.".format(timeSeriesName, featuresSplitName))
+                args = (timeSeriesName, wavelet, level)
+                features = apply_by_multiprocessing(features, rowFeaturise, args=args, workers=num_cores)
+
                 # Dropping rows with errors
                 features = features[features.loc[:, "Error"] == False]
 

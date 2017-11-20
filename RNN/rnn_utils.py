@@ -17,7 +17,7 @@ def generateSetFromTable(featuresTable, n_steps, n_inputs, wavelet, level):
         for axis in axes:
             columns.append(feature + axis)
     seq_length = {}
-    for timeSeries in ['outbound', 'rest', 'return']:
+    for timeSeries in ['outbound', 'rest']:  # , 'return']:
         timeSeriesName = 'deviceMotion_walking_' + timeSeries
         X[timeSeries] = pd.DataFrame(columns=columns)
         seq_length[timeSeries] = np.array([])
@@ -49,7 +49,7 @@ def generateSetFromTable(featuresTable, n_steps, n_inputs, wavelet, level):
 def readPreprocessTable(name):
     featuresTable = pd.read_csv("../data/{}_extra_columns.csv".format(name), index_col=0)
     # Renaming to use the column name to access a named tuple
-    for timeSeriesName in ['outbound', 'rest', 'return']:
+    for timeSeriesName in ['outbound', 'rest']:  # , 'return']:
         featuresTable.rename(columns={'deviceMotion_walking_{}.json.items'.format(timeSeriesName): 'deviceMotion_walking_' + timeSeriesName}, inplace=True)
     featuresTable.reset_index(inplace=True)
     return featuresTable

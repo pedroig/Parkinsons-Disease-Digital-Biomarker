@@ -1,7 +1,8 @@
 import cleanFeaturise
 
-# testing
-cleanFeaturise.generateFeatures(16, dataFraction=0.001)
+if __name__ == '__main__':
+    # testing
+    cleanFeaturise.generateFeatures(num_cores=16, dataFraction=0.0005)
 
-# full
-# cleanFeaturise.generateFeatures(16)
+    # full
+    # cleanFeaturise.generateFeatures(num_cores=16)

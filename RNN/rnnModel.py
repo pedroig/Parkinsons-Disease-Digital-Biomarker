@@ -16,7 +16,7 @@ wavelet = 'db9'  # Empty string for no wavelet
 level = 4
 
 # Hard-coded parameters
-timeSeries = ['outbound', 'rest', 'return']
+timeSeries = ['outbound', 'rest']  # , 'return']
 n_steps = {
     'outbound': 3159,
     'rest': 3603,

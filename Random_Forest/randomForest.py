@@ -5,18 +5,18 @@ from sklearn.ensemble import RandomForestClassifier
 
 
 def randomForestModel(graphs=False, showTest=False, balance_train=False, balance_test=False, balance_val=False):
-    X_train, y_train = lu.load_data("train_waveletFiltering", balance_samples=balance_train)
+    X_train, y_train = lu.load_data("train", balance_samples=balance_train)
 
     rnd_clf = RandomForestClassifier(n_estimators=13, max_depth=10, min_samples_split=12, n_jobs=-1)
     # rnd_clf = RandomForestClassifier(n_estimators=13, max_depth=5, min_samples_split=12, n_jobs=-1)     # smaller gap between validation and training
     rnd_clf.fit(X_train, y_train)
     lu.metricsShow(X_train, y_train, rnd_clf, "training")
 
-    X_val, y_val = lu.load_data("val_waveletFiltering", balance_samples=balance_val)
+    X_val, y_val = lu.load_data("val", balance_samples=balance_val)
     lu.metricsShow(X_val, y_val, rnd_clf, "validation")
 
     if showTest:
-        X_test, y_test = lu.load_data("test_waveletFiltering", balance_samples=balance_test)
+        X_test, y_test = lu.load_data("test", balance_samples=balance_test)
         lu.metricsShow(X_test, y_test, rnd_clf, "test")
 
     print('\nRanking feature importances')

@@ -1,0 +1,66 @@
+Size of file or folder
+du -sh file_path
+
+processes from user pao3
+top -U pao3
+
+uptime
+
+tmux detach
+tmux a
+tmux ls
+
+send the process into the background (&) and also generates a log (nohup.out)
+nohup command &
+
+problem@rice.edu
+sftp pao3@ssh.clear.rice.edu
+put (nameOfFile)
+get (nameOfFile)
+ssh pao3@ssh.clear.rice.edu
+
+sftp pao3@ssh.clear.rice.edu:/clear/apps/pao3-scratch
+sftp pao3@nots.rice.edu:/storage/hpc/work/devika/pao3
+
+rm [folder] -r -f
+
+tar -xvf [tarball]  --directory=[Path]
+https://www.interserver.net/tips/kb/use-tar-command-linux-examples/
+
+
+
+
+
+
+
+NOTS
+
+module purge 	-> clear all the modules
+
+module spider python -> help function for python modules
+
+module spider Python/3.6.2
+
+module load GCC/6.4.0 OpenMPI/2.1.1 Python/3.6.2
+
+module list
+
+pip list    -> list python packages
+
+pip install --user [packageName]
+
+cd /opt/apps/examples/
+
+sbatch 	[slurmFile]  -> submit job
+
+squeue -u [userName]
+
+sinfo	-> check all the nodes
+
+scancel [jobID]    ->  kill job
+
+interactive -> see documentation
+srun --pty --ntasks=1 --mem-per-cpu=1000m --time=00:30:00 $SHELL
+
+Show job usage data
+sacct -j jobID --format=JobID,JobName,Partition,Account,AllocCPUS,State,ExitCode,MaxRSS,MaxVMSize
