@@ -5,23 +5,28 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 
 
-def randomForestTesting(balance_train=False, balance_val=False):
-    X_train, y_train = lu.load_data("train", balance_samples=balance_train)
-    X_val, y_val = lu.load_data("val", balance_samples=balance_val)
+def randomForestTesting(undersampling_train=False, oversampling_train=False,
+                        oldAgeTrain=False, oldAgeVal=False,
+                        dropAge=False, criterion='gini'):
+
+    X_train, y_train, _ = lu.load_data("train", selectOldAge=oldAgeTrain, dropAge=dropAge,
+                                       balance_undersampling=undersampling_train,
+                                       balance_oversampling=oversampling_train)
+    X_val, y_val, _ = lu.load_data("val", selectOldAge=oldAgeVal, dropAge=dropAge)
 
     roc_auc_cross = []
     roc_auc_val = []
 
     std_values = {
-        "max_depth": 12,
-        "n_estimators": 20,
-        "min_samples_split": 4
+        "max_depth": 7,
+        "n_estimators": 13,
+        "min_samples_split": 12
     }
 
     seq = {
-        "max_depth": range(2, 30, 2),
-        "n_estimators": range(1, 70, 2),
-        "min_samples_split": range(2, 20, 2)
+        "max_depth": range(2, 20, 1),
+        "n_estimators": range(1, 30, 1),
+        "min_samples_split": range(2, 20, 1)
     }
 
     hyperparameterOptions = ["max_depth",
@@ -38,6 +43,7 @@ def randomForestTesting(balance_train=False, balance_val=False):
         rnd_clf = RandomForestClassifier(n_estimators=std_values["n_estimators"],
                                          max_depth=std_values["max_depth"],
                                          min_samples_split=std_values["min_samples_split"],
+                                         criterion=criterion,
                                          n_jobs=-1)
 
         scores = cross_validate(rnd_clf, X_train, y_train, scoring="roc_auc", cv=10, return_train_score=False)
@@ -52,10 +58,19 @@ def randomForestTesting(balance_train=False, balance_val=False):
     plt.xlabel(hyperparameter)
     plt.ylabel("ROC score")
     plt.legend()
-    fileName = 'roc_score_' + hyperparameter
-    if balance_train:
-        fileName += '_balancedTrain'
-    if balance_val:
-        fileName += '_balancedValidation'
+    fileName = 'roc_score_{}_{}'.format(hyperparameter, criterion)
+
+    if undersampling_train:
+        fileName += '_undersampling'
+    elif oversampling_train:
+        fileName += '_oversampling'
+
+    if oldAgeTrain:
+        fileName += '_TrainAbove56years'
+    if oldAgeVal:
+        fileName += '_ValAbove56years'
+    if dropAge:
+        fileName += '_withoutAgeFeature'
+
     plt.savefig('Forest_Graphs/{}.png'.format(fileName))
     plt.show()

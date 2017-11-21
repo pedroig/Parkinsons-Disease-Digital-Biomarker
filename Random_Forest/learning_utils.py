@@ -1,8 +1,9 @@
-from sklearn import metrics
 import numpy as np
 import pandas as pd
-from sklearn import tree
 import os
+from sklearn import tree
+from sklearn import metrics
+from imblearn.over_sampling import SMOTE
 
 
 def metricsShow(X_test, y_test, clf, setName):
@@ -31,25 +32,37 @@ def exportTreeGraphs(folder, trees, names):
                                            filled=True)
 
 
-def load_data(featuresSplitName, balance_samples=False):
+def load_data(featuresSplitName, selectOldAge=False, dropAge=False,
+              balance_undersampling=False, balance_oversampling=False):
+
     X = pd.read_csv("../data/{}.csv".format(featuresSplitName), index_col=0)
 
-    if balance_samples:
-        X = X[X.loc[:, "age"] > 60]
-        pd_indices = X[X.Target == 1].index
-        healthy_indices = X[X.Target == 0].index
+    if selectOldAge:
+        X = X[X.age > 56]
+    if dropAge:
+        X = X.drop(["age"], axis=1)
+
+    y = X.Target
+    X = X.drop("Target", axis=1)
+
+    feature_names = X.axes[1]
+
+    if balance_undersampling:
+        pd_indices = X[y].index
+        healthy_indices = X[~y].index
         if len(pd_indices) > len(healthy_indices):
             random_pd_indices = np.random.choice(pd_indices, len(healthy_indices), replace=False)
             balanced_indices = np.append(random_pd_indices, healthy_indices)
         else:
             random_healthy_indices = np.random.choice(pd_indices, len(pd_indices), replace=False)
             balanced_indices = np.append(random_healthy_indices, pd_indices)
-
         X = X.loc[balanced_indices, :]
+        y = y[balanced_indices]
+        y = np.asarray(y.values, dtype=np.int8)
+    elif balance_oversampling:
+        sm = SMOTE(ratio='minority')
+        X, y = sm.fit_sample(X, y)
+    else:
+        y = np.asarray(y.values, dtype=np.int8)
 
-    X = X.sample(frac=1)
-    y = X.Target
-    y = np.asarray(y.values, dtype=np.int8)
-    X = X.drop("Target", axis=1)
-    # X = X.drop(["age", "Male"], axis=1)
-    return X, y
+    return X, y, feature_names

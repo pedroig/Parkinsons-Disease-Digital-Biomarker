@@ -1,0 +1,11 @@
+*FIXED
+	-> oldAgeVal
+->Normal
+->Under
+->Over
+
+*FIXED
+	-> Over
+
+
+randomForestModel(oldAgeVal=True, oversamplig_train=True, dropAge=True)

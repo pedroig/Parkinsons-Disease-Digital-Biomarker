@@ -12,7 +12,7 @@ logdir = "{}/run-{}/".format(root_logdir, now)
 tf.reset_default_graph()
 
 # Choosing time-series to read
-wavelet = 'db9'  # Empty string for no wavelet
+wavelet = ''  # Empty string for no wavelet
 level = 4
 
 # Hard-coded parameters
