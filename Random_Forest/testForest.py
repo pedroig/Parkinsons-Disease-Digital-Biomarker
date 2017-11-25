@@ -50,8 +50,8 @@ def randomForestTesting(undersampling_train=False, oversampling_train=False,
         roc_auc_cross.append(scores["test_score"].mean())
 
         rnd_clf.fit(X_train, y_train)
-        y_pred = rnd_clf.predict(X_val)
-        roc_auc_val.append(metrics.roc_auc_score(y_val, y_pred))
+        y_prob = rnd_clf.predict_proba(X_val)
+        roc_auc_val.append(metrics.roc_auc_score(y_val, y_prob[:, 1]))
 
     plt.plot(seq[hyperparameter], roc_auc_cross, color='red', label='Cross-validation (Training)', marker='o')
     plt.plot(seq[hyperparameter], roc_auc_val, color='blue', label='Validation set', marker='o')

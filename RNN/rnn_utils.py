@@ -32,9 +32,9 @@ def generateSetFromTable(featuresTable, n_steps, n_inputs, wavelet, level):
             dataRotRate = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameRotRate)
             dataRotRate.rename(inplace=True,
                                columns={
-                                   'x': 'RotRate_',
-                                   'y': 'RotRate_',
-                                   'z': 'RotRate_'
+                                   'x': 'RotRate_x',
+                                   'y': 'RotRate_y',
+                                   'z': 'RotRate_z'
                                })
             data = pd.merge(dataAccel, dataRotRate, on="timestamp")
             seq_length[timeSeries] = np.append(seq_length[timeSeries], len(data))

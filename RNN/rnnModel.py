@@ -73,7 +73,7 @@ with tf.name_scope("Train") as scope:
 with tf.name_scope("Metrics") as scope:
     correct = tf.nn.in_top_k(logits, y, 1)
     accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
-    prediction = tf.argmax(logits, axis=1)
+    positiveClass_probability = tf.sigmoid(logits[:, 1] - logits[:, 0])
 
 init = tf.global_variables_initializer()  # prepare an init node
 
@@ -104,7 +104,7 @@ for timeSeriesName in timeSeries:
     feed_dict_val[seq_length[timeSeriesName]] = seq_length_val[timeSeriesName]
 
 # Training parameters
-n_epochs = 12
+n_epochs = 30
 batch_size = 1000
 n_batches = len(featuresTableTrain) // batch_size
 
@@ -112,6 +112,7 @@ with tf.Session() as sess:
     init.run()  # actually initialize all the variables
     for epoch in range(n_epochs):
         acc_train = np.array([])
+        auc_train = np.array([])
         for batch_index in range(n_batches):
 
             # Building Batch
@@ -127,8 +128,9 @@ with tf.Session() as sess:
                 feed_dict_batch[seq_length[timeSeriesName]] = seq_length_batch[timeSeriesName]
 
             # Training operation
-            _, acc_batch = sess.run([training_op, accuracy], feed_dict=feed_dict_batch)
+            _, acc_batch, prob_batch = sess.run([training_op, accuracy, positiveClass_probability], feed_dict=feed_dict_batch)
             acc_train = np.append(acc_train, acc_batch)
+            auc_train = np.append(auc_train, metrics.roc_auc_score(y_batch, prob_batch))
 
             # Tensorboard summary
             if batch_index % 4 == 0:
@@ -137,8 +139,14 @@ with tf.Session() as sess:
                 file_writer.add_summary(summary_str, step)
 
         # Validation set metrics for current epoch
-        acc_val, y_pred = sess.run([accuracy, prediction], feed_dict=feed_dict_val)
-        auc_val = metrics.roc_auc_score(y_val, y_pred)
-        print(epoch, "Train accuracy:", acc_train.mean(), "Validation accuracy:", acc_val, "Validation AUC score:", auc_val)
+        acc_val, y_prob = sess.run([accuracy, positiveClass_probability], feed_dict=feed_dict_val)
+        auc_val = metrics.roc_auc_score(y_val, y_prob)
+        print("Epoch:", epoch)
+        print("\tTraining")
+        print("\t\tAccuracy:", acc_train.mean())
+        print("\t\tROC AUC:", auc_train.mean())
+        print("\tValidation")
+        print("\t\tAccuracy:", acc_val)
+        print("\t\tROC AUC:", auc_val)
 
 file_writer.close()

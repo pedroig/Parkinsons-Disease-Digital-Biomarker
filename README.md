@@ -61,11 +61,13 @@ All the code related to the cleaning procedures above are part of the function [
 
 It's also worth mentioning that most of the demographics data were incomplete, so only the age, the gender and professional diagnosis (target) were kept.
 
+After executing all the cleaning procedures described above, 2,225 samples from a total of 34,631 were dropped.
+
 #### 1.2 Data Preprocessing
 
 All the data provided for the acceleration and the rotation rate used the coordinate system from the cellphone as the reference. This coordinate system is pictured below:
 
-| ![Cellphone's coordinate frame](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Extra/Figures/Dimension_Reduction/Figures/SmartPhoneSensors.gif "Cellphone's coordinate frame") |
+| ![Cellphone's coordinate frame](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Extra/Figures/SmartPhoneSensors.gif "Cellphone's coordinate frame") |
 |:----:|
 | Cellphone's coordinate frame |
 
@@ -137,7 +139,7 @@ Other features of interest to be included:
 
 #### 1.4 Parallelization
 
-Given the number of data samples (34,631), the length of each time-series (up to 3603) for x, y, z components from the rotation rate and the acceleration in the stages considered (walking outbound and rest) and the heavy computing necessary to perform the cleaning, the preprocessing and the feature generation, a parallelized implementation is used in all steps described above. The number of processes created for the parallelization is specified by the user in the [run code](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/run.py). This parallelization was also important to make an efficient use of the batch scheduled HTC cluster used in this work, the NOTS at the Center of Research Computing from Rice University.
+Given the number of data samples (34,631), the length of each time-series (up to 3603) for x, y, z components from the rotation rate and the acceleration in the stages considered (walking outbound and rest) and the heavy computing necessary to perform the cleaning, the preprocessing and the feature generation, a parallelized implementation is used in all steps described above. The number of processes created for the parallelization is specified by the user in the [run code](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/run.py). This parallelization was also important to make an efficient use of the batch scheduled HTC cluster used in this work, the NOTS at the Center of Research Computing from Rice University. However, it's worth highlighting that even with the creation of 16 processes on the NOTS system, the total run time is around 5 hours and 25 minutes.
 
 #### 1.5 Code structure
 
@@ -152,18 +154,21 @@ The code responsible for the feature generation is divided into 3 parts:
 ### 2 Machine Learning Modeling
 
 #### 2.1. Random Forest
+//NOT THE FINAL VERSION
 
 The first attempt to apply the random forest algorithm to the features listed above had a ROC score at the validation set above 90% even before any hyperparameter tuning. However, this result was outstanding enough to cause skepticism about the validity of the metric used. After a reanalysis of the procedure employed, a data leakage was discovered. Even though the dataset was divided into training and test and a cross-validation method was being employed for hyperparameter tuning, the fact that the same person could participate in the experiment multiple times created an intersection between the set that led to incoherent results. This problem was solved by taking account of the healthcode during the creation of the sets and by avoiding the use of cross-validation with the creation of a validation set.
 
-After applying the solution to the data leakage, the ROC score dropped to about 75% on the validation set even after hyperparameter tuning, while the training ROC score remained above 90% which suggested overfitting. With this 		((((CONTINUE))))
+After applying the solution to the data leakage, the ROC score dropped to about 78% on the validation set even after hyperparameter tuning, while the training ROC score remained above 98%. Of course, this model is clearly overfitting, but before applying regularization, it was also observed in the feature importance (the normalized total reduction of the criterion brought by that feature) ranking that the age is by far the most important feature. This result was expected given the nature of the Parkinson's disease, however, it was favoring a model that does not work properly for the prediction of the disease in older people which is the main group of interest. For this reason this reason, it was opted to only consider samples from people older 56 years old in the validation and test sets in the experiments that followed in this model. The addition of this restriction caused a reduction of around 31% in the size of the sets.
 
-#### 2.2 RNN
+The immediate impact of this change in the validation set was a big decrease to the ROC score on the validation set to around 0.53, almost random guessing! An improvement to this current performance came from the observation of yet another problem in the dataset: unbalanced label distribution. 19,275 samples from a total of 22,324 samples from people older than 56 years old had a positive diagnosis of Parkinsons Disease. Therefore, the improvement was to balance the training set. The first and simpler approach was undersampling the majority class by randomly selecting samples from the majority class, equating ratio between the two. Undersampling bumped the validation ROC score to the range from 0.56 to 0.63. The Second approach used was oversampling the minority class using the [SMOTE](http://contrib.scikit-learn.org/imbalanced-learn/stable/over_sampling.html#from-random-over-sampling-to-smote-and-adasyn) method which increased, even more, the ROC score to the range from 0.60 to 0.67. Given the greater success of the latter, it was chosen in all the next experiments in this model.
+
+#### 2.2 Recurrent Neural Network
 
 [Deep Learning for Time-Series Analysis](https://arxiv.org/abs/1701.01887#)
 
 [Time series classification with Tensorflow](https://burakhimmetoglu.com/2017/08/22/time-series-classification-with-tensorflow/)
 
-### 2.3 CNN
+### 2.3 Convolutional Neural Network
 
 [GuanLab's solution to the 2017 Parkinson's Disease Digital Biomarker DREAM Challenge](https://www.synapse.org/#!Synapse:syn10146135/wiki/448409)
 
@@ -171,9 +176,7 @@ After applying the solution to the data leakage, the ROC score dropped to about 
 
 #### 2.4 Unsupervised Learning
 
-[Time Series Classification and Clustering with Python](http://alexminnaar.com/time-series-classification-and-clustering-with-python.html)
-
-[k-Shape](http://www1.cs.columbia.edu/~jopa/Papers/PaparrizosSIGMOD2015.pdf)
+The idea was to apply unsupervised learning on the raw data and verify separability between the two target labels. However, the bottleneck for this approach was the lack of a similarity function computationally inexpensive enough to make it viable: [Dynamic Time Warping](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Unsupervised_Learning/dynamicTimeWarping.py) despite the attempted optimizations is too expensive; even the simple [Euclidean Distance](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Unsupervised_Learning/precomputeEuclideanDistances.py) is not fast enough. For this reason, this model was dropped.
 
 ### 3 Extra
 

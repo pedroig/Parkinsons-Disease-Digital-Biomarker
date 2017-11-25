@@ -163,14 +163,14 @@ def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
         features = features.dropna(axis=0, how='any')
 
         noSplitFeatures = pd.concat([features, noSplitFeatures])
-        features.to_csv("../data/{}.csv".format(featuresSplitName + '_extra_columns'))
+        features.to_csv("../data/{}_extra_columns.csv".format(featuresSplitName))
         dropExtraColumns(features)
         features.to_csv("../data/{}.csv".format(featuresSplitName))
 
     featuresName = 'features'
     if wavelet is not "":
         featuresName += utils.waveletName(wavelet, level)
-    noSplitFeatures.to_csv("../data/{}.csv".format(featuresName + '_extra_columns'))
+    noSplitFeatures.to_csv("../data/{}_extra_columns.csv".format(featuresName))
     dropExtraColumns(noSplitFeatures)
     noSplitFeatures.to_csv("../data/{}.csv".format(featuresName))
 

@@ -9,15 +9,17 @@ from imblearn.over_sampling import SMOTE
 def metricsShow(X_test, y_test, clf, setName):
     print("\nMetrics on {} Set".format(setName))
     y_pred = clf.predict(X_test)
-    metricsPrint(y_test, y_pred)
+    y_prob = clf.predict_proba(X_test)
+    y_prob_positiveClass = y_prob[:, 1]
+    metricsPrint(y_test, y_pred, y_prob_positiveClass)
 
 
-def metricsPrint(y_test, y_pred):
+def metricsPrint(y_test, y_pred, y_prob):
     print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
     print("Precision:", metrics.precision_score(y_test, y_pred))
     print("Recall:", metrics.recall_score(y_test, y_pred))
     print("F1 Score:", metrics.f1_score(y_test, y_pred))
-    print("ROC score:", metrics.roc_auc_score(y_test, y_pred))
+    print("ROC score:", metrics.roc_auc_score(y_test, y_prob))
 
 
 def exportTreeGraphs(folder, trees, names):

@@ -33,7 +33,10 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
                                                    balance_undersampling=undersampling_train,
                                                    balance_oversampling=oversampling_train)
 
-    rnd_clf = RandomForestClassifier(n_estimators=13, criterion=criterion, max_depth=7, min_samples_split=12, n_jobs=-1)
+    # rnd_clf = RandomForestClassifier(n_estimators=13, criterion=criterion, max_depth=2, min_samples_split=120, n_jobs=-1)  # overregularization
+    rnd_clf = RandomForestClassifier(n_estimators=13, criterion=criterion, max_depth=7, min_samples_split=12, n_jobs=-1)  # normal
+    # rnd_clf = RandomForestClassifier(n_estimators=20, criterion=criterion, n_jobs=-1)  # overfitting
+
     rnd_clf.fit(X_train, y_train)
     lu.metricsShow(X_train, y_train, rnd_clf, "training")
 
