@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH --job-name=cleanFeaturise
+#SBATCH --job-name=CNNmodel
 
 # This value can be adjusted to run in a condo if applicable
 # or commons if the max walltime is more than 4 hours
-#SBATCH --partition=commons
+#SBATCH --partition=scavenge
 
 #SBATCH --account=commons
 
@@ -14,13 +14,16 @@
 #SBATCH --threads-per-core=1
 
 # This value can be adjusted if a different thread count is required
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=1
 
 # This value can be adjusted if a different amount of memory is required
 #SBATCH --mem-per-cpu=4G
 
+# This value can be adjusted if a different GPU count is required
+#SBATCH --gres=gpu:1
+
 # This value can be adjusted if a different maximum wall time is required
-#SBATCH --time=05:30:00
+#SBATCH --time=00:08:00
 
 #SBATCH --mail-user=pao3@rice.edu
 
@@ -28,7 +31,10 @@
 
 module purge
 
+# load the GCC-OpenMPI-MKL-CUDA toolchain and the default TensorFlow module
+module load gomklc/2017a TensorFlow
+
 module load GCC/6.4.0 OpenMPI/2.1.1 Python/3.6.2
 pip install --user sklearn
 
-srun python run.py > output.txt
+srun python cnnModel.py > output.txt

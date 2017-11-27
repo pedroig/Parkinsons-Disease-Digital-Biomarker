@@ -11,22 +11,19 @@ logdir = "{}/run-{}/".format(root_logdir, now)
 
 tf.reset_default_graph()
 
-# Choosing time-series to read
-wavelet = ''  # Empty string for no wavelet
-level = 4
-
 # Hard-coded parameters
 timeSeries = ['outbound', 'rest']  # , 'return']
-n_steps = {
-    'outbound': 3159,
-    'rest': 3603,
-    'return': 3226
-}
+n_steps = 4000
 n_inputs = 6  # Rotation Rate (XYZ) and Acceleration (XYZ)
 n_neurons = 20
 n_outputs = 2
 n_layers = 1
 learning_rate = 0.001
+# Choosing time-series to read
+wavelet = ''  # Empty string for no wavelet
+level = 4
+dataFractionTrain = 1
+dataFractionVal = 1
 
 
 # Placeholder Tensors
@@ -37,7 +34,7 @@ X = {}
 seq_length = {}
 for timeSeriesName in timeSeries:
     with tf.name_scope(timeSeriesName + "_placeholders") as scope:
-        X[timeSeriesName] = tf.placeholder(tf.float32, [None, n_steps[timeSeriesName], n_inputs])
+        X[timeSeriesName] = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
         seq_length[timeSeriesName] = tf.placeholder(tf.int32, [None])
 
 # Model
@@ -77,7 +74,6 @@ with tf.name_scope("Metrics") as scope:
 
 init = tf.global_variables_initializer()  # prepare an init node
 
-
 # Summary definition for tensorboard
 loss_summary = tf.summary.scalar('Loss', loss)
 file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
@@ -87,10 +83,8 @@ featuresTableTrain = ru.readPreprocessTable('train')
 featuresTableVal = ru.readPreprocessTable('val')
 
 # Setting size of dataset
-n_train_size = 15000
-n_val_size = 1773
-featuresTableTrain = featuresTableTrain.iloc[:n_train_size]
-featuresTableVal = featuresTableVal.iloc[:n_val_size]
+featuresTableTrain = featuresTableTrain.sample(frac=dataFractionTrain)
+featuresTableVal = featuresTableVal.sample(frac=dataFractionVal)
 
 # Reading time series for validation set
 X_val, y_val, seq_length_val = ru.generateSetFromTable(featuresTableVal, n_steps, n_inputs, wavelet, level)

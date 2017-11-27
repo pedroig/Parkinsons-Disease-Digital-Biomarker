@@ -39,10 +39,10 @@ def generateSetFromTable(featuresTable, n_steps, n_inputs, wavelet, level):
             data = pd.merge(dataAccel, dataRotRate, on="timestamp")
             seq_length[timeSeries] = np.append(seq_length[timeSeries], len(data))
             XElement = data.loc[:, columns]
-            zeros = pd.DataFrame(0, index=np.arange(n_steps[timeSeries] - len(data)), columns=columns)
+            zeros = pd.DataFrame(0, index=np.arange(n_steps - len(data)), columns=columns)
             X[timeSeries] = pd.concat([X[timeSeries], XElement, zeros])
         X[timeSeries] = np.asarray(X[timeSeries])
-        X[timeSeries] = X[timeSeries].reshape((-1, n_steps[timeSeries], n_inputs))
+        X[timeSeries] = X[timeSeries].reshape((-1, n_steps, n_inputs))
     return X, y, seq_length
 
 
