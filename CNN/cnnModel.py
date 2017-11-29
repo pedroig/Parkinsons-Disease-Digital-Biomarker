@@ -1,8 +1,8 @@
 import tensorflow as tf
 import cnn_utils as cnnu
 import numpy as np
+import time
 from datetime import datetime
-from sklearn import metrics
 
 # Log directory for tensorboard
 now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
@@ -67,18 +67,26 @@ with tf.name_scope("train"):
     training_op = optimizer.minimize(loss)
 
 with tf.name_scope("eval"):
-    correct = tf.nn.in_top_k(logits, y, 1)
-    accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
     positiveClass_probability = tf.sigmoid(logits[:, 1] - logits[:, 0])
+    auc, auc_update_op = tf.metrics.auc(labels=y, predictions=positiveClass_probability, num_thresholds=10000)
+    precision, precision_update_op = tf.metrics.precision_at_thresholds(labels=y, thresholds=[0.5],
+                                                                        predictions=positiveClass_probability)
+    recall, recall_update_op = tf.metrics.recall_at_thresholds(labels=y, thresholds=[0.5],
+                                                               predictions=positiveClass_probability)
 
 with tf.name_scope("init_and_save"):
-    init = tf.global_variables_initializer()  # prepare an init node
+    init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
     saver = tf.train.Saver()
 
-
-# Summary definition for tensorboard
-loss_summary = tf.summary.scalar('Loss', loss)
-file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
+with tf.name_scope("tensorboard"):
+    loss_summary = tf.summary.scalar('Loss', loss)
+    auc_train_summary = tf.summary.scalar('AUC_Training', auc)
+    auc_val_summary = tf.summary.scalar('AUC_Validation', auc)
+    precision_train_summary = tf.summary.scalar('Precision_Training', precision[0])
+    precision_val_summary = tf.summary.scalar('Precision_Validation', precision[0])
+    recall_train_summary = tf.summary.scalar('Recall_Training', recall[0])
+    recall_val_summary = tf.summary.scalar('Recall_Validation', recall[0])
+    file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
 
 # Reading tables
 featuresTableTrain = cnnu.readPreprocessTable('train')
@@ -90,6 +98,8 @@ if validateOnOldAgeGroup:
 # Setting size of dataset
 featuresTableTrain = featuresTableTrain.sample(frac=dataFractionTrain)
 featuresTableVal = featuresTableVal.sample(frac=dataFractionVal)
+featuresTableTrain.reset_index(inplace=True)
+featuresTableVal.reset_index(inplace=True)
 
 # Reading time series for validation set
 X_val, y_val = cnnu.generateSetFromTable(featuresTableVal, wavelet, level, timeSeries, channels_input, timeSeriesPaddedLength)
@@ -102,27 +112,32 @@ n_batches = len(featuresTableTrain) // batch_size
 best_loss_val = np.infty
 check_interval = 50
 checks_since_last_progress = 0
-max_checks_without_progress = 10
+max_checks_without_progress = 500
 
 with tf.Session() as sess:
-    init.run()  # actually initialize all the variables
+
+    # initialize all the trainable variables and all the local variables used for metrics
+    init.run()
+
     for epoch in range(n_epochs):
-        acc_train = np.array([])
-        auc_train = np.array([])
+
+        # reset the local variables used for metrics
+        sess.run(tf.local_variables_initializer())
+
+        epoch_start_time = time.time()
+
         for batch_index in range(n_batches):
 
             # Building Batch
             featuresTableBatch = featuresTableTrain[featuresTableTrain.index // batch_size == batch_index]
-            X_batch, y_batch = cnnu.generateSetFromTable(featuresTableVal, wavelet, level, timeSeries, channels_input, timeSeriesPaddedLength)
+            X_batch, y_batch = cnnu.generateSetFromTable(featuresTableBatch, wavelet, level, timeSeries, channels_input, timeSeriesPaddedLength)
             feed_dict_batch = {
                 y: y_batch,
                 X: X_batch
             }
 
-            # Training operation
-            _, acc_batch, prob_batch = sess.run([training_op, accuracy, positiveClass_probability], feed_dict=feed_dict_batch)
-            acc_train = np.append(acc_train, acc_batch)
-            auc_train = np.append(auc_train, metrics.roc_auc_score(y_batch, prob_batch))
+            # Training operation and metrics updates
+            sess.run([training_op, auc_update_op, precision_update_op, recall_update_op], feed_dict=feed_dict_batch)
 
             # Tensorboard summary
             if batch_index % 4 == 0:
@@ -138,19 +153,33 @@ with tf.Session() as sess:
                 else:
                     checks_since_last_progress += 1
 
-        # Validation set metrics for current epoch
-        acc_val, y_prob = sess.run([accuracy, positiveClass_probability], feed_dict=feed_dict_val)
-        auc_val = metrics.roc_auc_score(y_val, y_prob)
-        print("Epoch:", epoch)
+        # Metrics
+        print("Epoch: {}, Execution time: {} seconds".format(epoch, time.time() - epoch_start_time))
+
+        # Metrics on training data
         print("\tTraining")
-        print("\t\tAccuracy:", acc_train.mean())
-        print("\t\tROC AUC:", auc_train.mean())
+        file_writer.add_summary(auc_train_summary.eval(), epoch)
+        file_writer.add_summary(precision_train_summary.eval(), epoch)
+        file_writer.add_summary(recall_train_summary.eval(), epoch)
+        print("\t\tROC AUC:", auc.eval())
+        print("\t\tPrecision:", precision.eval()[0])
+        print("\t\tRecall:", recall.eval()[0])
+
+        # Validation set metrics for current epoch
         print("\tValidation")
-        print("\t\tAccuracy:", acc_val)
+        sess.run(tf.local_variables_initializer())
+        precision_val, auc_val, recall_val = sess.run([precision_update_op, auc_update_op, recall_update_op], feed_dict=feed_dict_val)
+        file_writer.add_summary(auc_val_summary.eval(), epoch)
+        file_writer.add_summary(precision_val_summary.eval(), epoch)
+        file_writer.add_summary(recall_val_summary.eval(), epoch)
         print("\t\tROC AUC:", auc_val)
+        print("\t\tPrecision:", precision_val[0])
+        print("\t\tRecall:", recall_val[0])
 
         if checks_since_last_progress > max_checks_without_progress:
             print("Early stopping!")
             break
+
+    save_path = saver.save(sess, "./checkpoints/run-{}/model.ckpt".format(now))
 
 file_writer.close()

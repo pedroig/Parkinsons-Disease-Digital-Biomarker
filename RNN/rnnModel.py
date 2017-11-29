@@ -1,8 +1,8 @@
 import tensorflow as tf
 import numpy as np
 import rnn_utils as ru
+import time
 from datetime import datetime
-from sklearn import metrics
 
 # Log directory for tensorboard
 now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
@@ -19,11 +19,18 @@ n_neurons = 20
 n_outputs = 2
 n_layers = 1
 learning_rate = 0.001
-# Choosing time-series to read
+
 wavelet = ''  # Empty string for no wavelet
 level = 4
+
 dataFractionTrain = 1
 dataFractionVal = 1
+validateOnOldAgeGroup = True
+useDemographics = False
+
+# Training parameters
+n_epochs = 30
+batch_size = 1000
 
 
 # Placeholder Tensors
@@ -56,7 +63,10 @@ for timeSeriesName in timeSeries:
         finalRNNlayers.append(top_layer_h_state[timeSeriesName])
 
 concat3_top_layer_h_states = tf.concat(finalRNNlayers, axis=1, name="3Stages_concat")
-finalLayerInput = tf.concat([concat3_top_layer_h_states, age, gender], axis=1, name="finalLayerInput")
+if useDemographics:
+    finalLayerInput = tf.concat([concat3_top_layer_h_states, age, gender], axis=1, name="finalLayerInput")
+else:
+    finalLayerInput = tf.concat([concat3_top_layer_h_states], axis=1, name="finalLayerInput")
 logits = tf.layers.dense(finalLayerInput, n_outputs, name="logits")
 
 with tf.name_scope("Cost_function") as scope:
@@ -67,24 +77,40 @@ with tf.name_scope("Train") as scope:
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
     training_op = optimizer.minimize(loss)
 
-with tf.name_scope("Metrics") as scope:
-    correct = tf.nn.in_top_k(logits, y, 1)
-    accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
+with tf.name_scope("eval"):
     positiveClass_probability = tf.sigmoid(logits[:, 1] - logits[:, 0])
+    auc, auc_update_op = tf.metrics.auc(labels=y, predictions=positiveClass_probability, num_thresholds=10000)
+    precision, precision_update_op = tf.metrics.precision_at_thresholds(labels=y, thresholds=[0.5],
+                                                                        predictions=positiveClass_probability)
+    recall, recall_update_op = tf.metrics.recall_at_thresholds(labels=y, thresholds=[0.5],
+                                                               predictions=positiveClass_probability)
 
-init = tf.global_variables_initializer()  # prepare an init node
+with tf.name_scope("init_and_save"):
+    init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
+    saver = tf.train.Saver()
 
-# Summary definition for tensorboard
-loss_summary = tf.summary.scalar('Loss', loss)
-file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
+with tf.name_scope("tensorboard"):
+    loss_summary = tf.summary.scalar('Loss', loss)
+    auc_train_summary = tf.summary.scalar('AUC_Training', auc)
+    auc_val_summary = tf.summary.scalar('AUC_Validation', auc)
+    precision_train_summary = tf.summary.scalar('Precision_Training', precision[0])
+    precision_val_summary = tf.summary.scalar('Precision_Validation', precision[0])
+    recall_train_summary = tf.summary.scalar('Recall_Training', recall[0])
+    recall_val_summary = tf.summary.scalar('Recall_Validation', recall[0])
+    file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
 
 # Reading tables
 featuresTableTrain = ru.readPreprocessTable('train')
 featuresTableVal = ru.readPreprocessTable('val')
 
+if validateOnOldAgeGroup:
+    featuresTableVal = featuresTableVal[featuresTableVal.age > 56]
+
 # Setting size of dataset
 featuresTableTrain = featuresTableTrain.sample(frac=dataFractionTrain)
 featuresTableVal = featuresTableVal.sample(frac=dataFractionVal)
+featuresTableTrain.reset_index(inplace=True)
+featuresTableVal.reset_index(inplace=True)
 
 # Reading time series for validation set
 X_val, y_val, seq_length_val = ru.generateSetFromTable(featuresTableVal, n_steps, n_inputs, wavelet, level)
@@ -97,16 +123,19 @@ for timeSeriesName in timeSeries:
     feed_dict_val[X[timeSeriesName]] = X_val[timeSeriesName]
     feed_dict_val[seq_length[timeSeriesName]] = seq_length_val[timeSeriesName]
 
-# Training parameters
-n_epochs = 30
-batch_size = 1000
 n_batches = len(featuresTableTrain) // batch_size
 
 with tf.Session() as sess:
-    init.run()  # actually initialize all the variables
+
+    init.run()
+
     for epoch in range(n_epochs):
-        acc_train = np.array([])
-        auc_train = np.array([])
+
+        # reset the local variables used for metrics
+        sess.run(tf.local_variables_initializer())
+
+        epoch_start_time = time.time()
+
         for batch_index in range(n_batches):
 
             # Building Batch
@@ -121,10 +150,8 @@ with tf.Session() as sess:
                 feed_dict_batch[X[timeSeriesName]] = X_batch[timeSeriesName]
                 feed_dict_batch[seq_length[timeSeriesName]] = seq_length_batch[timeSeriesName]
 
-            # Training operation
-            _, acc_batch, prob_batch = sess.run([training_op, accuracy, positiveClass_probability], feed_dict=feed_dict_batch)
-            acc_train = np.append(acc_train, acc_batch)
-            auc_train = np.append(auc_train, metrics.roc_auc_score(y_batch, prob_batch))
+            # Training operation and metrics updates
+            sess.run([training_op, auc_update_op, precision_update_op, recall_update_op], feed_dict=feed_dict_batch)
 
             # Tensorboard summary
             if batch_index % 4 == 0:
@@ -132,15 +159,29 @@ with tf.Session() as sess:
                 step = epoch * n_batches + batch_index
                 file_writer.add_summary(summary_str, step)
 
-        # Validation set metrics for current epoch
-        acc_val, y_prob = sess.run([accuracy, positiveClass_probability], feed_dict=feed_dict_val)
-        auc_val = metrics.roc_auc_score(y_val, y_prob)
-        print("Epoch:", epoch)
+        # Metrics
+        print("Epoch: {}, Execution time: {} seconds".format(epoch, time.time() - epoch_start_time))
+
+        # Metrics on training data
         print("\tTraining")
-        print("\t\tAccuracy:", acc_train.mean())
-        print("\t\tROC AUC:", auc_train.mean())
+        file_writer.add_summary(auc_train_summary.eval(), epoch)
+        file_writer.add_summary(precision_train_summary.eval(), epoch)
+        file_writer.add_summary(recall_train_summary.eval(), epoch)
+        print("\t\tROC AUC:", auc.eval())
+        print("\t\tPrecision:", precision.eval()[0])
+        print("\t\tRecall:", recall.eval()[0])
+
+        # Validation set metrics for current epoch
         print("\tValidation")
-        print("\t\tAccuracy:", acc_val)
+        sess.run(tf.local_variables_initializer())
+        precision_val, auc_val, recall_val = sess.run([precision_update_op, auc_update_op, recall_update_op], feed_dict=feed_dict_val)
+        file_writer.add_summary(auc_val_summary.eval(), epoch)
+        file_writer.add_summary(precision_val_summary.eval(), epoch)
+        file_writer.add_summary(recall_val_summary.eval(), epoch)
         print("\t\tROC AUC:", auc_val)
+        print("\t\tPrecision:", precision_val[0])
+        print("\t\tRecall:", recall_val[0])
+
+    save_path = saver.save(sess, "./checkpoints/run-{}/model.ckpt".format(now))
 
 file_writer.close()

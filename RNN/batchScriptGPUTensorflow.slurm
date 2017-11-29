@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=CNNmodel
+#SBATCH --job-name=RNNmodel
 
 # This value can be adjusted to run in a condo if applicable
 # or commons if the max walltime is more than 4 hours

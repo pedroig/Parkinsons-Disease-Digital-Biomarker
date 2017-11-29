@@ -168,7 +168,7 @@ The immediate impact of this change in the validation set was a big decrease to 
 
 [Time series classification with Tensorflow](https://burakhimmetoglu.com/2017/08/22/time-series-classification-with-tensorflow/)
 
-### 2.3 Convolutional Neural Network
+#### 2.3 Convolutional Neural Network
 
 [GuanLab's solution to the 2017 Parkinson's Disease Digital Biomarker DREAM Challenge](https://www.synapse.org/#!Synapse:syn10146135/wiki/448409)
 
