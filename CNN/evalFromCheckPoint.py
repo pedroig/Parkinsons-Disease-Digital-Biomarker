@@ -9,7 +9,7 @@ timeSeries = 'rest'
 wavelet = ''
 level = 4
 validateOnOldAgeGroup = True
-folderCode = '20171129030924'
+folderCode = '20171130144052'
 
 tf.reset_default_graph()
 
@@ -66,7 +66,7 @@ with tf.name_scope("init_and_save"):
     init = tf.group(tf.local_variables_initializer())
     saver = tf.train.Saver()
 
-featuresTableVal = cnnu.readPreprocessTable('test')
+featuresTableVal = cnnu.readPreprocessTable('val')
 
 if validateOnOldAgeGroup:
     featuresTableVal = featuresTableVal[featuresTableVal.age > 56]

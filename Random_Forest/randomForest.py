@@ -46,6 +46,9 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
     if showTest:
         X_test, y_test, _ = lu.load_data("test", selectOldAge=oldAgeTest, dropAge=dropAge)
         lu.metricsShow(X_test, y_test, rnd_clf, "test")
+        X_val_test = np.concatenate((X_val, X_test))
+        y_val_test = np.concatenate((y_val, y_test))
+        lu.metricsShow(X_val_test, y_val_test, rnd_clf, "validation+test")
 
     print('\nRanking feature importances')
     importances = rnd_clf.feature_importances_

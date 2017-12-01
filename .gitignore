@@ -13,3 +13,4 @@ __pycache__/
 # Temporary files
 Extra/Roteiro.txt
 RNN/age.py
+CNN/restoring.py

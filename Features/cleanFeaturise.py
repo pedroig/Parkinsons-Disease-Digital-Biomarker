@@ -4,7 +4,6 @@ import createFeatures as cf
 import utils
 import time
 import multiprocessing
-from sklearn.model_selection import train_test_split
 
 
 def apply_df(args):
@@ -49,62 +48,8 @@ def rowFeaturise(row, features, timeSeriesName, wavelet, level):
     return features.loc[row.name]
 
 
-def dropExtraColumns(features):
-    features.drop(['healthCode',
-                   # 'accel_walking_outbound.json.items',
-                   'deviceMotion_walking_outbound.json.items',
-                   'pedometer_walking_outbound.json.items',
-                   # 'accel_walking_return.json.items',
-                   # 'deviceMotion_walking_return.json.items',
-                   # 'pedometer_walking_return.json.items',
-                   # 'accel_walking_rest.json.items',
-                   'deviceMotion_walking_rest.json.items',
-                   'medTimepoint'
-                   ], axis=1, inplace=True)
-
-
 def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
     startTime = time.time()
-    demographics = pd.read_csv("../data/demographics.csv", index_col=0)
-    # Dropping rows without answer for gender
-    demographics[(demographics.gender == "Male") | (demographics.gender == "Female")]
-    demographics = demographics.join(pd.get_dummies(demographics["gender"]).Male)
-    columns_to_keep_demographics = [
-        # 'ROW_VERSION',
-        # 'recordId',
-        'healthCode',
-        # 'appVersion',
-        # 'phoneInfo',
-        'age',
-        # 'are-caretaker',
-        # 'deep-brain-stimulation',
-        # 'diagnosis-year',
-        # 'education',
-        # 'employment',
-        # 'health-history',
-        # 'healthcare-provider',
-        # 'home-usage',
-        # 'last-smoked',
-        # 'maritalStatus',
-        # 'medical-usage',
-        # 'medical-usage-yesterday',
-        # 'medication-start-year',
-        # 'onset-year',
-        # 'packs-per-day',
-        # 'past-participation',
-        # 'phone-usage',
-        'professional-diagnosis',
-        # 'race',
-        # 'smartphone',
-        # 'smoked',
-        # 'surgery',
-        # 'video-usage',
-        # 'years-smoking'
-        # 'gender',
-        'Male'
-    ]
-    demographics = demographics[columns_to_keep_demographics]
-
     walking_activity = pd.read_csv("../data/walking_activity.csv", index_col=0)
     columns_to_keep_walking = [
         # 'ROW_VERSION',
@@ -113,66 +58,46 @@ def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
         # 'createdOn',
         # 'appVersion',
         # 'phoneInfo',
-        # 'accel_walking_outbound.json.items',
+        'accel_walking_outbound.json.items',
         'deviceMotion_walking_outbound.json.items',
         'pedometer_walking_outbound.json.items',
-        # 'accel_walking_return.json.items',
-        # 'deviceMotion_walking_return.json.items',
-        # 'pedometer_walking_return.json.items',
-        # 'accel_walking_rest.json.items',
+        'accel_walking_return.json.items',
+        'deviceMotion_walking_return.json.items',
+        'pedometer_walking_return.json.items',
+        'accel_walking_rest.json.items',
         'deviceMotion_walking_rest.json.items',
         'medTimepoint'
     ]
-    walking_activity = walking_activity[columns_to_keep_walking]
+    walking_activity_features = walking_activity[columns_to_keep_walking]
 
-    demographics_train, demographics_test_val = train_test_split(demographics, test_size=0.2)
-    demographics_test, demographics_val = train_test_split(demographics_test_val, test_size=0.5)
-    train = pd.merge(walking_activity, demographics_train, on="healthCode")
-    test = pd.merge(walking_activity, demographics_test, on="healthCode")
-    val = pd.merge(walking_activity, demographics_val, on="healthCode")
-    listFeatures = [(train, 'train'), (test, 'test'), (val, 'val')]
+    walking_activity_features.index.name = 'ROW_ID'
+    walking_activity_features = walking_activity_features.sample(frac=dataFraction)
 
-    noSplitFeatures = pd.DataFrame()
+    walking_activity_features["Error"] = False
+    for namePrefix in ['deviceMotion_walking_', 'pedometer_walking_']:
+        for phase in ["outbound", "rest"]:  # , "return"]:
+            timeSeriesName = namePrefix + phase
+            if timeSeriesName == 'pedometer_walking_rest':
+                continue
+            print("Working on {}.".format(timeSeriesName))
+            args = (timeSeriesName, wavelet, level)
+            walking_activity_features = apply_by_multiprocessing(walking_activity_features, rowFeaturise, args=args, workers=num_cores)
 
-    for features, featuresSplitName in listFeatures:
-        if wavelet is not "":
-            featuresSplitName += utils.waveletName(wavelet, level)
+            # Dropping rows with errors
+            walking_activity_features = walking_activity_features[walking_activity_features.loc[:, "Error"] == False]
 
-        features.index.name = 'ROW_ID'
-        features = features.sample(frac=dataFraction)
+    walking_activity_features.drop('Error', axis=1, inplace=True)
 
-        features["Error"] = False
-        for namePrefix in ['deviceMotion_walking_', 'pedometer_walking_']:
-            for phase in ["outbound", "rest"]:  # , "return"]:
-                timeSeriesName = namePrefix + phase
-                if timeSeriesName == 'pedometer_walking_rest':
-                    continue
-                print("Working on {} from {}.".format(timeSeriesName, featuresSplitName))
-                args = (timeSeriesName, wavelet, level)
-                features = apply_by_multiprocessing(features, rowFeaturise, args=args, workers=num_cores)
+    walking_activity_features.rename(columns={'professional-diagnosis': 'Target'}, inplace=True)
 
-                # Dropping rows with errors
-                features = features[features.loc[:, "Error"] == False]
+    # Dropping rows with invalid values
+    walking_activity_features.replace([np.inf, -np.inf], np.nan, inplace=True)
+    walking_activity_features.dropna(axis=0, how='any', inplace=True)
 
-        features = features.drop('Error', axis=1)
-
-        features.rename(columns={'professional-diagnosis': 'Target'}, inplace=True)
-
-        # Dropping rows with invalid values
-        features = features.replace([np.inf, -np.inf], np.nan)
-        features = features.dropna(axis=0, how='any')
-
-        noSplitFeatures = pd.concat([features, noSplitFeatures])
-        features.to_csv("../data/{}_extra_columns.csv".format(featuresSplitName))
-        dropExtraColumns(features)
-        features.to_csv("../data/{}.csv".format(featuresSplitName))
-
-    featuresName = 'features'
+    fileName = 'walking_activity_features'
     if wavelet is not "":
-        featuresName += utils.waveletName(wavelet, level)
-    noSplitFeatures.to_csv("../data/{}_extra_columns.csv".format(featuresName))
-    dropExtraColumns(noSplitFeatures)
-    noSplitFeatures.to_csv("../data/{}.csv".format(featuresName))
+        fileName += utils.waveletName(wavelet, level)
+    walking_activity_features.to_csv("../data/{}.csv".format(fileName))
 
-    print(len(walking_activity) - len(noSplitFeatures), "rows dropped")
+    print(len(walking_activity) - len(walking_activity_features), "rows dropped")
     print("Total time:", time.time() - startTime)
