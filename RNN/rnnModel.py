@@ -182,6 +182,9 @@ with tf.Session() as sess:
         print("\t\tPrecision:", precision_val[0])
         print("\t\tRecall:", recall_val[0])
 
+        if epoch >= 14:
+            save_path = saver.save(sess, "./checkpoints/run-{}/model.ckpt".format(now))
+
     save_path = saver.save(sess, "./checkpoints/run-{}/model.ckpt".format(now))
 
 file_writer.close()

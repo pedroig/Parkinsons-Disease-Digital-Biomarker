@@ -58,13 +58,13 @@ def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
         # 'createdOn',
         # 'appVersion',
         # 'phoneInfo',
-        'accel_walking_outbound.json.items',
+        # 'accel_walking_outbound.json.items',
         'deviceMotion_walking_outbound.json.items',
         'pedometer_walking_outbound.json.items',
-        'accel_walking_return.json.items',
-        'deviceMotion_walking_return.json.items',
-        'pedometer_walking_return.json.items',
-        'accel_walking_rest.json.items',
+        # 'accel_walking_return.json.items',
+        # 'deviceMotion_walking_return.json.items',
+        # 'pedometer_walking_return.json.items',
+        # 'accel_walking_rest.json.items',
         'deviceMotion_walking_rest.json.items',
         'medTimepoint'
     ]
