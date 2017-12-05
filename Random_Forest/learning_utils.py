@@ -1,17 +1,24 @@
 import numpy as np
 import pandas as pd
-import os
-from sklearn import tree
 from sklearn import metrics
 from imblearn.over_sampling import SMOTE
 
 
-def metricsShow(X_test, y_test, clf, setName):
+def metricsAcumulate(X, y, clf, metrics_total):
+    y_pred = clf.predict(X)
+    y_prob = clf.predict_proba(X)
+    y_prob = y_prob[:, 1]  # positiveClass
+    metrics_total["Accuracy"] += metrics.accuracy_score(y, y_pred)
+    metrics_total["Precision"] += metrics.precision_score(y, y_pred)
+    metrics_total["Recall"] += metrics.recall_score(y, y_pred)
+    metrics_total["F1 Score"] += metrics.f1_score(y, y_pred)
+    metrics_total["ROC score"] += metrics.roc_auc_score(y, y_prob)
+
+
+def metricsShowAcumulate(metrics_total, setName, ensemble_size):
     print("\nMetrics on {} Set".format(setName))
-    y_pred = clf.predict(X_test)
-    y_prob = clf.predict_proba(X_test)
-    y_prob_positiveClass = y_prob[:, 1]
-    metricsPrint(y_test, y_pred, y_prob_positiveClass)
+    for metric in ["Accuracy", "Precision", "Recall", "F1 Score", "ROC score"]:
+        print("{}: {}".format(metric, metrics_total[metric] / ensemble_size))
 
 
 def metricsPrint(y_test, y_pred, y_prob):
@@ -22,16 +29,12 @@ def metricsPrint(y_test, y_pred, y_prob):
     print("ROC score:", metrics.roc_auc_score(y_test, y_prob))
 
 
-def exportTreeGraphs(folder, trees, names):
-    for i_tree, tree_clf in enumerate(trees):
-        path = '{}/{}/tree_{}.dot'.format(os.getcwd(), folder, str(i_tree))
-        with open(path, 'w') as my_file:
-            my_file = tree.export_graphviz(tree_clf,
-                                           out_file=my_file,
-                                           feature_names=names,
-                                           class_names=['Normal', 'Parkinsons'],
-                                           rounded=True,
-                                           filled=True)
+def metricsShowEnsemble(y_test, y_prob_total, setName, ensemble_size, threshold=0.5):
+    print("\nMetrics on {} Set".format(setName))
+    y_prob = y_prob_total / ensemble_size
+    y_prob = y_prob[:, 1]  # positiveClass
+    y_pred = y_prob > threshold
+    metricsPrint(y_test, y_pred, y_prob)
 
 
 def load_data(featuresSplitName, selectOldAge=False, dropAge=False,

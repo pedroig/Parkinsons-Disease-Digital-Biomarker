@@ -88,8 +88,6 @@ def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
 
     walking_activity_features.drop('Error', axis=1, inplace=True)
 
-    walking_activity_features.rename(columns={'professional-diagnosis': 'Target'}, inplace=True)
-
     # Dropping rows with invalid values
     walking_activity_features.replace([np.inf, -np.inf], np.nan, inplace=True)
     walking_activity_features.dropna(axis=0, how='any', inplace=True)

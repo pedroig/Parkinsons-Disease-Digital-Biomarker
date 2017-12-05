@@ -6,8 +6,8 @@ from sklearn.ensemble import RandomForestClassifier
 
 def randomForestModel(undersampling_train=False, oversampling_train=False,
                       oldAgeTrain=False, oldAgeVal=False, oldAgeTest=False,
-                      showTest=False, dropAge=False, graphs=False,
-                      criterion='gini'):
+                      showTest=False, dropAge=False,
+                      criterion='gini', ensemble_size=1):
     """
         Input:
         - undersamplig_train: bool (default=False)
@@ -24,41 +24,65 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
             Whether to show the metrics of predictions on the test set.
         - dropAge: bool (default=False)
             Whether to use age as a feature.
-        - graphs: bool (default=False)
-            Whether to export image representations of the decision trees in the forest.
         -criterion: string (default='gini')
             The function to measure the quality of a split: 'gini' or 'entropy'
+        -ensemble_size: int
+            Number of classifiers trained on different training sets when undersampling is applied. This number must be odd.
     """
-    X_train, y_train, feature_names = lu.load_data("train", selectOldAge=oldAgeTrain, dropAge=dropAge,
-                                                   balance_undersampling=undersampling_train,
-                                                   balance_oversampling=oversampling_train)
+    if undersampling_train is False:
+        ensemble_size = 1
 
-    # rnd_clf = RandomForestClassifier(n_estimators=13, criterion=criterion, max_depth=2, min_samples_split=120, n_jobs=-1)  # overregularization
-    rnd_clf = RandomForestClassifier(n_estimators=13, criterion=criterion, max_depth=7, min_samples_split=12, n_jobs=-1)  # normal
-    # rnd_clf = RandomForestClassifier(n_estimators=20, criterion=criterion, n_jobs=-1)  # overfitting
+    X_train = {}
+    y_train = {}
+    rnd_clf = {}
+    y_prob_total = {
+        "val": 0,
+        "test": 0,
+        "val_test": 0
+    }
+    metrics_train_total = {
+        "Accuracy": 0,
+        "Precision": 0,
+        "Recall": 0,
+        "F1 Score": 0,
+        "ROC score": 0
+    }
+    importances = 0
+    X = {}
+    X["val"], y_val, feature_names = lu.load_data("val", selectOldAge=oldAgeVal, dropAge=dropAge)
+    X["test"], y_test, _ = lu.load_data("test", selectOldAge=oldAgeTest, dropAge=dropAge)
+    X["val_test"] = np.concatenate((X["val"], X["test"]))
+    y_val_test = np.concatenate((y_val, y_test))
 
-    rnd_clf.fit(X_train, y_train)
-    lu.metricsShow(X_train, y_train, rnd_clf, "training")
+    for i in range(ensemble_size):
+        X_train[i], y_train[i], _ = lu.load_data("train", selectOldAge=oldAgeTrain, dropAge=dropAge,
+                                                 balance_undersampling=undersampling_train,
+                                                 balance_oversampling=oversampling_train)
 
-    X_val, y_val, _ = lu.load_data("val", selectOldAge=oldAgeVal, dropAge=dropAge)
-    lu.metricsShow(X_val, y_val, rnd_clf, "validation")
+        # rnd_clf[i] = RandomForestClassifier(n_estimators=13, criterion=criterion, max_depth=2, min_samples_split=120, n_jobs=-1)  # overregularization
+        rnd_clf[i] = RandomForestClassifier(n_estimators=13, criterion=criterion, max_depth=7, min_samples_split=12, n_jobs=-1)  # normal
+        # rnd_clf[i] = RandomForestClassifier(n_estimators=20, criterion=criterion, n_jobs=-1)  # overfitting
+
+        rnd_clf[i].fit(X_train[i], y_train[i])
+        importances += rnd_clf[i].feature_importances_
+        lu.metricsAcumulate(X_train[i], y_train[i], rnd_clf[i], metrics_train_total)
+        for setName in ["val", "test", "val_test"]:
+            y_prob_total[setName] += rnd_clf[i].predict_proba(X[setName])
+
+    lu.metricsShowAcumulate(metrics_train_total, "Training", ensemble_size)
+    lu.metricsShowEnsemble(y_val, y_prob_total["val"], "Validation", ensemble_size, threshold=0.5)
 
     if showTest:
-        X_test, y_test, _ = lu.load_data("test", selectOldAge=oldAgeTest, dropAge=dropAge)
-        lu.metricsShow(X_test, y_test, rnd_clf, "test")
-        X_val_test = np.concatenate((X_val, X_test))
-        y_val_test = np.concatenate((y_val, y_test))
-        lu.metricsShow(X_val_test, y_val_test, rnd_clf, "validation+test")
+        lu.metricsShowEnsemble(y_test, y_prob_total["test"], "Test", ensemble_size, threshold=0.5)
+        lu.metricsShowEnsemble(y_val_test, y_prob_total["val_test"], "Validation + Test", ensemble_size, threshold=0.5)
 
     print('\nRanking feature importances')
-    importances = rnd_clf.feature_importances_
+    importances /= ensemble_size
     indices = np.argsort(importances)[::-1]
     plt.figure()
-    plt.bar(range(X_train.shape[1]), importances[indices])
-    plt.xticks(range(X_train.shape[1]), indices)
+    number_of_features = X["val"].shape[1]
+    plt.bar(range(number_of_features), importances[indices])
+    plt.xticks(range(number_of_features), indices)
     plt.show()
-    for i in range(X_train.shape[1]):
+    for i in range(number_of_features):
         print("%d . feature %s (%f)" % (i + 1, feature_names[indices[i]], importances[indices[i]]))
-
-    if graphs:
-        lu.exportTreeGraphs('Forest_Graphs', rnd_clf.estimators_, feature_names)

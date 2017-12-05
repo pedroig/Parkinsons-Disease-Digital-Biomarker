@@ -4,11 +4,6 @@ import numpy as np
 import time
 from datetime import datetime
 
-# Log directory for tensorboard
-now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-root_logdir = "tf_logs"
-logdir = "{}/run-{}/".format(root_logdir, now)
-
 # Hard-coded parameters
 batch_size = 4
 learning_rate = 0.0005
@@ -22,6 +17,14 @@ level = 4
 dataFractionTrain = 1
 dataFractionVal = 1
 validateOnOldAgeGroup = True
+
+# Log directory for tensorboard
+now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+root_logdir = "tf_logs"
+folderName = "run-{}_{}_epochs-{}_learningRate-{}_batchSize-{}".format(now, timeSeries, n_epochs, learning_rate, batch_size)
+if wavelet is not '':
+    folderName += "_{}{}".format(wavelet, level)
+logdir = "{}/{}/".format(root_logdir, folderName)
 
 tf.reset_default_graph()
 
@@ -180,6 +183,6 @@ with tf.Session() as sess:
             print("Early stopping!")
             break
 
-    save_path = saver.save(sess, "./checkpoints/run-{}/model.ckpt".format(now))
+    save_path = saver.save(sess, "./checkpoints/{}/model.ckpt".format(folderName))
 
 file_writer.close()

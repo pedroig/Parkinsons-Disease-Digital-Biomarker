@@ -4,11 +4,6 @@ import rnn_utils as ru
 import time
 from datetime import datetime
 
-# Log directory for tensorboard
-now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-root_logdir = "tf_logs"
-logdir = "{}/run-{}/".format(root_logdir, now)
-
 tf.reset_default_graph()
 
 # Hard-coded parameters
@@ -32,6 +27,13 @@ useDemographics = False
 n_epochs = 30
 batch_size = 1000
 
+# Log directory for tensorboard
+now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+root_logdir = "tf_logs"
+folderName = "run-{}_epochs-{}_learningRate-{}_batchSize-{}".format(now, n_epochs, learning_rate, batch_size)
+if wavelet is not '':
+    folderName += "_{}{}".format(wavelet, level)
+logdir = "{}/{}/".format(root_logdir, folderName)
 
 # Placeholder Tensors
 y = tf.placeholder(tf.int32, [None], name="y")
@@ -183,8 +185,8 @@ with tf.Session() as sess:
         print("\t\tRecall:", recall_val[0])
 
         if epoch >= 14:
-            save_path = saver.save(sess, "./checkpoints/run-{}/model.ckpt".format(now))
+            save_path = saver.save(sess, "./checkpoints/{}/model.ckpt".format(folderName))
 
-    save_path = saver.save(sess, "./checkpoints/run-{}/model.ckpt".format(now))
+    save_path = saver.save(sess, "./checkpoints/{}/model.ckpt".format(folderName))
 
 file_writer.close()

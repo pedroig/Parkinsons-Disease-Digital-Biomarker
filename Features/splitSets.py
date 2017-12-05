@@ -1,17 +1,18 @@
 import pandas as pd
+import numpy as np
 import utils
 from sklearn.model_selection import train_test_split
 
 
 def dropExtraColumns(features):
     features.drop(['healthCode',
-                   'accel_walking_outbound.json.items',
+                   # 'accel_walking_outbound.json.items',
                    'deviceMotion_walking_outbound.json.items',
                    'pedometer_walking_outbound.json.items',
-                   'accel_walking_return.json.items',
-                   'deviceMotion_walking_return.json.items',
-                   'pedometer_walking_return.json.items',
-                   'accel_walking_rest.json.items',
+                   # 'accel_walking_return.json.items',
+                   # 'deviceMotion_walking_return.json.items',
+                   # 'pedometer_walking_return.json.items',
+                   # 'accel_walking_rest.json.items',
                    'deviceMotion_walking_rest.json.items',
                    'medTimepoint'
                    ], axis=1, inplace=True)
@@ -58,6 +59,12 @@ def generateSetTables(wavelet='', level=None):
         'Male'
     ]
     demographics = demographics[columns_to_keep_demographics]
+
+    demographics.rename(columns={'professional-diagnosis': 'Target'}, inplace=True)
+
+    # Dropping rows with invalid values
+    demographics.replace([np.inf, -np.inf], np.nan, inplace=True)
+    demographics.dropna(axis=0, how='any', inplace=True)
 
     fileName = 'walking_activity_features'
     if wavelet is not "":

@@ -30,9 +30,6 @@ https://www.interserver.net/tips/kb/use-tar-command-linux-examples/
 
 
 
-
-
-
 NOTS
 
 module purge 	-> clear all the modules
