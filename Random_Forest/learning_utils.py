@@ -29,9 +29,9 @@ def metricsPrint(y_test, y_pred, y_prob):
     print("ROC score:", metrics.roc_auc_score(y_test, y_prob))
 
 
-def metricsShowEnsemble(y_test, y_prob_total, setName, ensemble_size, threshold=0.5):
+def metricsShowEnsemble(y_test, y_pred_total, setName, ensemble_size, threshold=0.5):
     print("\nMetrics on {} Set".format(setName))
-    y_prob = y_prob_total / ensemble_size
+    y_prob = y_pred_total / ensemble_size
     y_prob = y_prob[:, 1]  # positiveClass
     y_pred = y_prob > threshold
     metricsPrint(y_test, y_pred, y_prob)

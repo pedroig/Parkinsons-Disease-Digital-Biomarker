@@ -13,5 +13,4 @@ __pycache__/
 # Temporary files
 Extra/Roteiro.txt
 Extra/runCodeNameMaped.txt
-RNN/age.py
-CNN/restoring.py
+Random_Forest/outlierSet.py

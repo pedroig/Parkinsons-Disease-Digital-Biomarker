@@ -35,7 +35,7 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
     X_train = {}
     y_train = {}
     rnd_clf = {}
-    y_prob_total = {
+    y_pred_total = {
         "val": 0,
         "test": 0,
         "val_test": 0
@@ -67,14 +67,14 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
         importances += rnd_clf[i].feature_importances_
         lu.metricsAcumulate(X_train[i], y_train[i], rnd_clf[i], metrics_train_total)
         for setName in ["val", "test", "val_test"]:
-            y_prob_total[setName] += rnd_clf[i].predict_proba(X[setName])
+            y_pred_total[setName] += rnd_clf[i].predict_proba(X[setName]) > 0.5  # threshold
 
     lu.metricsShowAcumulate(metrics_train_total, "Training", ensemble_size)
-    lu.metricsShowEnsemble(y_val, y_prob_total["val"], "Validation", ensemble_size, threshold=0.5)
+    lu.metricsShowEnsemble(y_val, y_pred_total["val"], "Validation", ensemble_size, threshold=0.5)
 
     if showTest:
-        lu.metricsShowEnsemble(y_test, y_prob_total["test"], "Test", ensemble_size, threshold=0.5)
-        lu.metricsShowEnsemble(y_val_test, y_prob_total["val_test"], "Validation + Test", ensemble_size, threshold=0.5)
+        lu.metricsShowEnsemble(y_test, y_pred_total["test"], "Test", ensemble_size, threshold=0.5)
+        lu.metricsShowEnsemble(y_val_test, y_pred_total["val_test"], "Validation + Test", ensemble_size, threshold=0.5)
 
     print('\nRanking feature importances')
     importances /= ensemble_size

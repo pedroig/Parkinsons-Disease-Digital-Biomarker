@@ -23,7 +23,7 @@
 #SBATCH --gres=gpu:1
 
 # This value can be adjusted if a different maximum wall time is required
-#SBATCH --time=24:00:00
+#SBATCH --time=07:30:00
 
 #SBATCH --mail-user=pao3@rice.edu
 
