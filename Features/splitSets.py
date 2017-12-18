@@ -18,7 +18,7 @@ def dropExtraColumns(features):
                    ], axis=1, inplace=True)
 
 
-def generateSetTables(wavelet='', level=None):
+def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False):
 
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
     # Dropping rows without answer for gender
@@ -90,6 +90,15 @@ def generateSetTables(wavelet='', level=None):
                             ((features.Target) & (features.medTimepoint == "Immediately before Parkinson medication")) |
                             ((features.Target) & (features.medTimepoint == "Another time"))]
         # ((features.Target) & (features.medTimepoint == "Just after Parkinson medication (at your best)"))]
+
+        if naiveLimitHealthCode:
+            countHealthCode = dict.fromkeys(list(demographics.healthCode), 0)
+            indexesToDrop = []
+            for row in features.itertuples():
+                countHealthCode[row.healthCode] += 1
+                if countHealthCode[row.healthCode] > 10:
+                    indexesToDrop.append(row.Index)
+            features.drop(indexesToDrop, inplace=True)
 
         noSplitFeatures = pd.concat([features, noSplitFeatures])
         features.to_csv("../data/{}_extra_columns.csv".format(featuresSplitName))

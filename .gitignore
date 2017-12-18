@@ -12,5 +12,4 @@ __pycache__/
 
 # Temporary files
 Extra/Roteiro.txt
-Extra/runCodeNameMaped.txt
 Random_Forest/outlierSet.py
