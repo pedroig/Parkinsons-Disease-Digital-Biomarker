@@ -59,7 +59,7 @@ def load_data(featuresSplitName, selectOldAge=False, dropAge=False,
             random_pd_indices = np.random.choice(pd_indices, len(healthy_indices), replace=False)
             balanced_indices = np.append(random_pd_indices, healthy_indices)
         else:
-            random_healthy_indices = np.random.choice(pd_indices, len(pd_indices), replace=False)
+            random_healthy_indices = np.random.choice(healthy_indices, len(pd_indices), replace=False)
             balanced_indices = np.append(random_healthy_indices, pd_indices)
         X = X.loc[balanced_indices, :]
         y = y[balanced_indices]

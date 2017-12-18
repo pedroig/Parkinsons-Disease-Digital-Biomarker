@@ -84,6 +84,13 @@ def generateSetTables(wavelet='', level=None):
         if wavelet is not "":
             featuresSplitName += utils.waveletName(wavelet, level)
 
+        # cleaning inconsistent medTimepoint
+        # also removing Parkinson patients just after medication
+        features = features[(features.medTimepoint == "I don't take Parkinson medications") |
+                            ((features.Target) & (features.medTimepoint == "Immediately before Parkinson medication")) |
+                            ((features.Target) & (features.medTimepoint == "Another time"))]
+        # ((features.Target) & (features.medTimepoint == "Just after Parkinson medication (at your best)"))]
+
         noSplitFeatures = pd.concat([features, noSplitFeatures])
         features.to_csv("../data/{}_extra_columns.csv".format(featuresSplitName))
         dropExtraColumns(features)

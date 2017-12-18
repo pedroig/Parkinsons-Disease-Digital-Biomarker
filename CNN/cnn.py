@@ -340,7 +340,9 @@ def main():
 
     tf.reset_default_graph()
 
-    model = CNN(dataFractionTrain=0.01, dataFractionVal=0.01)
+    # model = CNN(restoreFolderName='run-20171217013755_rest_epochs-50_learningRate-0.0001_batchSize-100', developmentSet='test')
+    # model.evaluateMetricsRestored()
+    model = CNN()
     model.train()
 
 

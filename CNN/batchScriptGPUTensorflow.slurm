@@ -39,4 +39,4 @@ module load GCC/6.4.0  CUDA/7.5.18  OpenMPI/2.1.1 TensorFlow/1.3
 pip install sklearn --user
 pip install pywavelets --user
 
-srun python cnnModel.py > output.txt
+srun python cnn.py > output.txt
