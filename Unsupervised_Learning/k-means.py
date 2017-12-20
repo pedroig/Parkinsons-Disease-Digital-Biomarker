@@ -77,14 +77,43 @@ if __name__ == '__main__':
         codeSelected = X[X.healthCode == healthCode]
         codeSelected.reset_index(inplace=True)
         dim = len(codeSelected)
-        distances = np.full((dim, dim), np.inf)
+        if dim <= 10:
+            continue
+
         data = []
         for row in codeSelected.itertuples():
             dataTemp = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameRotRate)
             data.append(dataTemp.loc[:, axes])
-        for ind1 in range(dim):
-            distances[ind1][ind1] = 0
-            for ind2 in range(ind1 + 1, dim):
-                distances[ind1][ind2] = euclideanTimeSeries(data[ind1], data[ind2])
-                distances[ind2][ind1] = distances[ind1][ind2]
-        np.save("Time-series_Distance_Matrices/distances_{}.npy".format(healthCode), distances)
+
+        # Number of clusters
+        k = 10
+        # healthCode indexes of random centroids
+        centroidInitialIndexes = np.random.randint(low=0, high=dim, size=k)
+        centroids = data[centroidInitialIndexes]
+
+        # To store the value of centroids when it updates
+        centroidsOld = np.zeros(centroids.shape)
+
+        clusters = np.zeros(dim)
+
+        while centroids != centroidsOld:
+            # Assigning each value to its closest cluster
+            for i in range(dim):
+                distances = []
+                for j in range(k):
+                    distances.append(euclideanTimeSeries(data[i], centroids[j, :]))
+                cluster = centroids[np.argmin(distances)]
+                clusters[i] = cluster
+
+            # Storing the old centroid values
+            centroidsOld = centroids
+
+            # Finding the new centroids by taking the average value
+
+            # !!!!!!!!!!!!
+            # TO BE CONTINUED !!!!!!!!!!!!!!!!!!!!!!!
+            # !!!!!!!!!!!!
+            # for i in range(k):
+            #     points = [X[j] for j in range(dim) if clusters[j] == i]
+            #     C[i] = np.mean(points, axis=0)
+            # error = dist(C, C_old, None)

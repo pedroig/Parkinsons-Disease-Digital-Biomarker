@@ -62,7 +62,8 @@ class CNN:
                  check_interval=50,
                  max_checks_without_progress=500,
                  developmentSet='val',
-                 restoreFolderName=''):
+                 restoreFolderName='',
+                 useAugmentedData=False):
         """
         Input:
         - learning_rate: float
@@ -88,6 +89,8 @@ class CNN:
             'val' or 'test'
         - restoreFolderName: string
             Folder name for checkpoint to be restored. If the string is empty, nothing is restored
+        - useAugmentedData: bool
+            Whether to use augmented data in the training set.
         """
         self.channels_input = 3
         self.n_outputs = 2
@@ -100,6 +103,7 @@ class CNN:
         self.level = level
         self.restoreFolderName = restoreFolderName
         self.developmentSet = developmentSet
+        self.useAugmentedData = useAugmentedData
 
         self.generateDirectoriesNames()
 
@@ -289,6 +293,8 @@ class CNN:
             self.batch_size)
         if self.wavelet is not '':
             folderName += "_{}{}".format(self.wavelet, self.level)
+        if self.useAugmentedData:
+            folderName += "_augmented"
         self.logdir = "tf_logs/{}/".format(folderName)
         self.checkpointdir = "./checkpoints/{}/model.ckpt".format(folderName)
 
@@ -302,7 +308,10 @@ class CNN:
 
     def loadTables(self, validateOnOldAgeGroup, dataFractionTrain, dataFractionVal):
         # Reading tables
-        self.featuresTableTrain = self.readPreprocessTable('train')
+        if self.useAugmentedData:
+            self.featuresTableTrain = self.readPreprocessTable('train_augmented')
+        else:
+            self.featuresTableTrain = self.readPreprocessTable('train')
         self.featuresTableVal = self.readPreprocessTable(self.developmentSet)
         if validateOnOldAgeGroup:
             self.featuresTableVal = self.featuresTableVal[self.featuresTableVal.age > 56]
@@ -314,11 +323,6 @@ class CNN:
         self.featuresTableVal.reset_index(inplace=True)
 
     def generateSetFromTable(self, featuresTable):
-        '''
-        Input:
-            -timeSeries: string
-                'outbound' or 'rest'
-        '''
         fileNameRotRate = utils.genFileName('RotRate', self.wavelet, self.level)
         axes = ['x', 'y', 'z']
         y = featuresTable.Target
@@ -327,7 +331,10 @@ class CNN:
         timeSeriesName = 'deviceMotion_walking_' + self.timeSeries
         X = pd.DataFrame(columns=axes)
         for row in featuresTable.itertuples():
-            data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameRotRate)
+            if "augmented" in featuresTable and row.augmented:
+                data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameRotRate + "_augmented")
+            else:
+                data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameRotRate)
             XElement = data.loc[:, axes]
             zeros = pd.DataFrame(0, index=np.arange(self.timeSeriesPaddedLength - len(data)), columns=axes)
             X = pd.concat([X, XElement, zeros])
