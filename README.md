@@ -174,10 +174,6 @@ The immediate impact of this change in the validation set was a big decrease to 
 
 [Automated Extraction of Digital Biomarkers using A Hierarchy of Convolutional Recurrent Attentive Neural Networks](https://www.synapse.org/#!Synapse:syn10922704/wiki/471154)
 
-#### 2.4 Unsupervised Learning
-
-The idea was to apply unsupervised learning on the raw data and verify separability between the two target labels. However, the bottleneck for this approach was the lack of a similarity function computationally inexpensive enough to make it viable: [Dynamic Time Warping](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Unsupervised_Learning/dynamicTimeWarping.py) despite the attempted optimizations is too expensive; even the simple [Euclidean Distance](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Unsupervised_Learning/precomputeEuclideanDistances.py) is not fast enough. For this reason, this model was dropped.
-
 ### 3 Extra
 
 #### 3.1. Testing features

@@ -37,7 +37,6 @@ for timeSeriesName in ['deviceMotion_walking_outbound', 'deviceMotion_walking_re
             for axisNum, axis in enumerate(axes):
                 data.loc[index, axis] = rotRate[axisNum]
 
-        print(theta)
         path = utils.generatePath(pointer, timeSeriesName)
         fileName = 'RotRate_augmented.json'
         data.to_json(path + fileName, orient='split')
