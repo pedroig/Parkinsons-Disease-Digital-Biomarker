@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import os
 import pywt
 import json
@@ -102,22 +103,95 @@ def saveTimeSeries(data, pointer, timeSeriesName, sampleType, wavelet, level):
 # Preprocess Device Motion data
 
 
+def waveletFiltering(data, wavelet, level):
+    for axis in ['x', 'y', 'z']:
+        coeffs = pywt.wavedec(data[axis], wavelet, level=level)
+        data[axis] = pywt.upcoef('a', coeffs[0], wavelet, level=level, take=len(data))
+
+
+def generateUnitQuaternion(theta, ux, uy, uz):
+    """
+        Input:
+        - theta: float
+            Angle
+        - ux, uy, uz: float
+            Vector components
+    """
+    uNorm = np.sqrt(ux**2 + uy**2 + uz**2)
+    ux /= uNorm
+    uy /= uNorm
+    uz /= uNorm
+
+    # Unit quaternion
+    q = quaternion.Quaternion(np.cos(theta / 2), ux * np.sin(theta / 2), uy * np.sin(theta / 2), uz * np.sin(theta / 2))
+    return q
+
+
+def rotation3D(q, dataX, dataY, dataZ):
+    """
+        Input:
+        - theta: float
+            Unit quaternion of the corresponding rotation
+        - dataX, dataY, dataZ: float
+            Vector components of the data that is going to be rotated
+
+        Returns:
+        - out : ndarray
+            Array with the three components of the rotated data
+    """
+    dataQ = quaternion.Quaternion(0, dataX, dataY, dataZ)
+    out = (q * dataQ * q.inverse()).im
+    return out
+
+
 def preprocessDeviceMotion(data):
     dataAcc = data['timestamp'].to_frame()
     dataRot = data['timestamp'].to_frame()
     for index, row in enumerate(data.itertuples()):
         q = quaternion.Quaternion(row.attitudeW, row.attitudeX, row.attitudeY, row.attitudeZ)
-        rotRate = quaternion.Quaternion(0, row.rotationRateX, row.rotationRateY, row.rotationRateZ)
-        userAccel = quaternion.Quaternion(0, row.userAccelerationX, row.userAccelerationY, row.userAccelerationZ)
-        rotRate = (q * rotRate * q.inverse()).im
-        userAccel = (q * userAccel * q.inverse()).im
+        rotRate = rotation3D(q, row.rotationRateX, row.rotationRateY, row.rotationRateZ)
+        userAccel = rotation3D(q, row.userAccelerationX, row.userAccelerationY, row.userAccelerationZ)
         for axisNum, axis in enumerate(['x', 'y', 'z']):
             dataRot.loc[index, axis] = rotRate[axisNum]
             dataAcc.loc[index, axis] = userAccel[axisNum]
     return dataAcc, dataRot
 
 
-def waveletFiltering(data, wavelet, level):
-    for axis in ['x', 'y', 'z']:
-        coeffs = pywt.wavedec(data[axis], wavelet, level=level)
-        data[axis] = pywt.upcoef('a', coeffs[0], wavelet, level=level, take=len(data))
+def augmentData(augmentFraction=0.5):
+    """
+        Input:
+        - augmentFraction: float
+            0 < augmentFraction <=1,
+    """
+
+    train = pd.read_csv("../data/train_extra_columns.csv")
+    train.loc[:, "augmented"] = False
+    trainSelected = train.sample(frac=augmentFraction)
+    trainSelected.loc[:, "augmented"] = True
+
+    trainAugmented = pd.concat([train, trainSelected])
+    trainAugmented.to_csv("../data/train_augmented_extra_columns.csv")
+
+    axes = ['x', 'y', 'z']
+
+    for timeSeriesName in ['deviceMotion_walking_outbound', 'deviceMotion_walking_rest']:  # , 'deviceMotion_walking_return']:
+        trainSelected.rename(columns={'{}.json.items'.format(timeSeriesName): timeSeriesName}, inplace=True)
+
+        for row in trainSelected.itertuples():
+            pointer = getattr(row, timeSeriesName)
+            data = readJSON_data(pointer, timeSeriesName, 'RotRate.json')
+
+            max_scale = 1.2
+            min_scale = 0.8
+            random_scale = np.random.random_sample() * (max_scale - min_scale) + min_scale
+            data[axes] = data[axes] * random_scale
+            theta = np.random.random_sample() * np.pi * 2
+            q = generateUnitQuaternion(theta, 0, 0, 1)
+            for index, row in enumerate(data.itertuples()):
+                rotRate = rotation3D(q, row.x, row.y, row.z)
+                for axisNum, axis in enumerate(axes):
+                    data.loc[index, axis] = rotRate[axisNum]
+
+            path = generatePath(pointer, timeSeriesName)
+            fileName = 'RotRate_augmented.json'
+            data.to_json(path + fileName, orient='split')

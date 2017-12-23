@@ -63,8 +63,7 @@ class CNN:
                  max_checks_without_progress=500,
                  developmentSet='val',
                  restoreFolderName='',
-                 useAugmentedData=False,
-                 useReducedData=False):
+                 useAugmentedData=False):
         """
         Input:
         - learning_rate: float
@@ -76,7 +75,7 @@ class CNN:
         - timeSeries: string
             'rest' or 'outbound'
         - wavelet: string
-            example: 'db9',
+            example: 'db9'
         - level: integer,
         - dataFractionTrain: float
             0 < dataFractionTrain <=1,
@@ -92,8 +91,6 @@ class CNN:
             Folder name for checkpoint to be restored. If the string is empty, nothing is restored
         - useAugmentedData: bool
             Whether to use augmented data in the training set.
-        - useReducedData: bool
-            Whether to use time series with shortened length.
         """
         self.channels_input = 3
         self.n_outputs = 2
@@ -107,7 +104,6 @@ class CNN:
         self.restoreFolderName = restoreFolderName
         self.developmentSet = developmentSet
         self.useAugmentedData = useAugmentedData
-        self.useReducedData = useReducedData
 
         self.generateDirectoriesNames()
 
@@ -337,8 +333,6 @@ class CNN:
         for row in featuresTable.itertuples():
             if "augmented" in featuresTable and row.augmented:
                 data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, "RotRate_augmented.json")
-            elif self.useReducedData:
-                data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, "RotRate_reduced.json")
             else:
                 data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameRotRate)
             XElement = data.loc[:, axes]

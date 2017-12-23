@@ -30,7 +30,7 @@ def createFeatures(features, index, data, timeSeriesName):
         features.loc[index, "Root Mean Square (RMS)" + nameSuffix] = fu.rms(data, axis)
         features.loc[index, "Entropy" + nameSuffix] = fu.entropy(data, axis, bins=4000)
         features.loc[index, "Zero Crossing Rate" + nameSuffix] = fu.zeroCrossingRate(data, axis)
-        features.loc[index, "Dominant Frequency Component" + nameSuffix] = fu.dominantFreqComp(data, axis)  # Check?
+        features.loc[index, "Dominant Frequency Component" + nameSuffix] = fu.dominantFreqComp(data, axis)
 
     # 2 dimensions
     for axis1 in axes:

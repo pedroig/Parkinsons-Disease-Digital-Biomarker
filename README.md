@@ -63,6 +63,17 @@ It's also worth mentioning that most of the demographics data were incomplete, s
 
 After executing all the cleaning procedures described above, 2,225 samples from a total of 34,631 were dropped.
 
+Extra steps of data cleaning are also performed while [splitting the dataset](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/splitSets.py) into training, validation and test sets. The first one was to remove the inconsistency between the label and medicine timepoint. There were cases in which the label was negative for the Parkinson's Disease and the person would still take the medicine. Besides that, it was opted to discard the data of people with Parkinson's disease that did the experiment right after taking the medicine since the idea of the model after deployed is to predict Parkinson's disease among people without the diagnosis, therefore not taking the medication, and the use of the drug could cause a behavior of a healthy person. The table below associate the dropped data with the medicine timepoint label:
+
+| medTimepoint | professional-diagnosis | Number of samples | Dropped?
+|------------|------------|------------|------------| 
+Another time | False <br/> True | 43 <br/> 10789 | Yes <br/> No
+I don't take Parkinson medications | False <br/> True | 9690 <br/> 1494 | No <br/> No
+Immediately before Parkinson medication | False <br/> True | 33	<br/> 5445 | Yes <br/> No
+Just after Parkinson medication (at your best) | False <br/> True | 19 <br/> 5017 | Yes <br/> Yes
+
+The second step of data cleaning that is performed in the splitting procedure aims to solve the skewed distribution of samples per healthCode in the dataset. There were people that recorded up to 450 samples of data while the average number of samples per healthCode is around 11. This asymmetrical distribution could have negative effects on the training data, possibly causing a slight overfitting for a specific healthcode which would be especially bad if a specific individual corresponds to an outlier. The implemented solution to solve this issue was to limit the number of samples per person, using only the first 10 occurrences per healthCode. However, this solution implies a huge loss in the dataset, so it is optionally executed as set by a boolean parameter in the function [generateSetTables](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/splitSets.py).
+
 #### 1.2 Data Preprocessing
 
 All the data provided for the acceleration and the rotation rate used the coordinate system from the cellphone as the reference. This coordinate system is pictured below:
@@ -71,7 +82,7 @@ All the data provided for the acceleration and the rotation rate used the coordi
 |:----:|
 | Cellphone's coordinate frame |
 
-In order to facilitate or to obtain a more meaningful feature extraction from the acceleration and the rotation rate, it was applied a rotation using the [quaternion](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/quaternion.py) representation of the gyroscope data. This rotation changed the coordinate system from the phone's frame to the world's frame, defining a unique system across all the data samples.
+In order to facilitate or to obtain a more meaningful feature extraction from the acceleration and the rotation rate, it was applied a rotation using the [quaternion](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/quaternion.py) representation of the gyroscope data. This rotation changed the coordinate system from the phone's frame to the world's frame, defining a system that is consistent across all the measurements within each experiment.
 
 One common problem in sensor data is the existence of noise, so to get a smoother signal, it was introduced to the pipeline the option to use wavelet for filtering. The most common discrete wavelet families were attempted and the ones that better in each family given the length limitations of the time-series are listed in the table below:
 
@@ -84,7 +95,17 @@ Coiflets (coif) | coif3 | 4
 Biorthogonal (bior) | bior6.8 | 4
 Reverse biorthogonal (rbio) | rbio6.8 | 4
 
-#### 1.3 Feature Generation
+#### 1.3 Data Augmentation
+
+Following the insights of the [GuanLab's solution](https://www.synapse.org/#!Synapse:syn10146135/wiki/448409), two steps of data augmentation were implemented in order to enrich the training data:
+
+* The first step was the simulation of people walking faster or slower, this was done by the use of a random multiplicative factor in the interval [0.8, 1.2) which would account for tremors at different frequencies.
+
+* The second type of data augmentation was the use of a random 3D rotation to simulate people holding the phone in different orientations which would correspond to different world frame coordinate systems. However, it is important to highlight that the rotation is limited to the plane orthogonal to the z-axis since this axis is always well defined by the gravity in the world's frame. It is also worth mentioning that this rotation is not contradictory with the rotation executed to convert the data from the phone's frame to the world's frame. This is explained by the fact that the rotation there was based in the quaternions from the gyroscope data which changes for each timestamp while the augmentation uses a single quaternion, applying the same corresponding rotation to all the samples in a 3D time series.
+
+All the code that performs the data augmentation described above can be found in the [function augmentData](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py) that receives as parameter the fraction of the training data that is going to be augmented.
+
+#### 1.4 Feature Generation
 
 The first approach was trying to reproduce the results obtained in a similar experiment as reported in the article [High Accuracy Discrimination of Parkinson's Disease Participants from healthy controls using smartphones](http://ieeexplore.ieee.org/document/6854280/). The first step was to generate the features listed in the article:
 
@@ -137,19 +158,20 @@ Other features of interest to be included:
 <a name="foot2.1_3"></a>[2] As described in the article [Feature Selection and Activity Recognition System Using a Single Triaxial Accelerometer](http://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=6780615&tag=1). <br />
 <a name="foot2.1_3"></a>[3] As described in the article [Activity recognition from acceleration data collected with a tri-axial accelerometer](http://users.utcluj.ro/~ATN/papers/ATN_2_2011_6.pdf). <br />
 
-#### 1.4 Parallelization
+#### 1.5 Parallelization
 
 Given the number of data samples (34,631), the length of each time-series (up to 3603) for x, y, z components from the rotation rate and the acceleration in the stages considered (walking outbound and rest) and the heavy computing necessary to perform the cleaning, the preprocessing and the feature generation, a parallelized implementation is used in all steps described above. The number of processes created for the parallelization is specified by the user in the [run code](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/run.py). This parallelization was also important to make an efficient use of the batch scheduled HTC cluster used in this work, the NOTS at the Center of Research Computing from Rice University. However, it's worth highlighting that even with the creation of 16 processes on the NOTS system, the total run time is around 5 hours and 25 minutes.
 
-#### 1.5 Code structure
+#### 1.6 Code structure
 
 The code responsible for the feature generation is divided into 3 parts:
-* [cleanFeaturise](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/cleanFeaturise.py): Accesses the CSV files, selects the columns of interest, performs the merge operation and calls the execution of the feature generation.
+* [cleanFeaturise](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/cleanFeaturise.py): Accesses the walking activity CSV table, executes the first stages described for data cleaning, performs the feature generation and saves the results in a new table.
+* [splitSets](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/splitSets.py): Accesses the demographics table and also the table generated by the cleanFeaturise code, performs the merge operation taking the healthCode in consideration and also executes the final steps of data cleaning.
 * [createFeatures](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/createFeatures.py): the Main overview of all the features generated for each sample.
 * [features_utils](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/features_utils.py): Collection of functions used to perform the specific operations for each feature.
 * [quaternion](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/quaternion.py): Quaternion class with the operations to perform the rotation.
 * [utils](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py): Utility functions used for file manipulation or data preprocessing.
-* [run](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/run.py): Top-level script to execute the feature generation starting from the cleaning/preprocessing.
+* [run](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/run.py): Top-level script to execute the cleanFeaturise code or the data augmentation.
 
 ### 2 Machine Learning Modeling
 
@@ -158,7 +180,7 @@ The code responsible for the feature generation is divided into 3 parts:
 
 The first attempt to apply the random forest algorithm to the features listed above had a ROC score at the validation set above 90% even before any hyperparameter tuning. However, this result was outstanding enough to cause skepticism about the validity of the metric used. After a reanalysis of the procedure employed, a data leakage was discovered. Even though the dataset was divided into training and test and a cross-validation method was being employed for hyperparameter tuning, the fact that the same person could participate in the experiment multiple times created an intersection between the set that led to incoherent results. This problem was solved by taking account of the healthcode during the creation of the sets and by avoiding the use of cross-validation with the creation of a validation set.
 
-After applying the solution to the data leakage, the ROC score dropped to about 78% on the validation set even after hyperparameter tuning, while the training ROC score remained above 98%. Of course, this model is clearly overfitting, but before applying regularization, it was also observed in the feature importance (the normalized total reduction of the criterion brought by that feature) ranking that the age is by far the most important feature. This result was expected given the nature of the Parkinson's disease, however, it was favoring a model that does not work properly for the prediction of the disease in older people which is the main group of interest. For this reason this reason, it was opted to only consider samples from people older 56 years old in the validation and test sets in the experiments that followed in this model. The addition of this restriction caused a reduction of around 31% in the size of the sets.
+After applying the solution to the data leakage, the ROC score dropped to about 78% on the validation set even after hyperparameter tuning, while the training ROC score remained above 98%. Of course, this model is clearly overfitting, but before applying regularization, it was also observed in the feature importance (the normalized total reduction of the criterion brought by that feature) ranking that the age is by far the most important feature. This result was expected given the nature of the Parkinson's disease, however, it was favoring a model that does not work properly for the prediction of the disease in older people which is the main group of interest. For this reason this reason, it was opted to only consider samples from people older 56 years old in the validation and test sets in the experiments that followed in this model. The addition of this restriction caused a reduction around 31% in the size of the sets.
 
 The immediate impact of this change in the validation set was a big decrease to the ROC score on the validation set to around 0.53, almost random guessing! An improvement to this current performance came from the observation of yet another problem in the dataset: unbalanced label distribution. 19,275 samples from a total of 22,324 samples from people older than 56 years old had a positive diagnosis of Parkinsons Disease. Therefore, the improvement was to balance the training set. The first and simpler approach was undersampling the majority class by randomly selecting samples from the majority class, equating ratio between the two. Undersampling bumped the validation ROC score to the range from 0.56 to 0.63. The Second approach used was oversampling the minority class using the [SMOTE](http://contrib.scikit-learn.org/imbalanced-learn/stable/over_sampling.html#from-random-over-sampling-to-smote-and-adasyn) method which increased, even more, the ROC score to the range from 0.60 to 0.67. Given the greater success of the latter, it was chosen in all the next experiments in this model.
 
@@ -171,8 +193,6 @@ The immediate impact of this change in the validation set was a big decrease to 
 #### 2.3 Convolutional Neural Network
 
 [GuanLab's solution to the 2017 Parkinson's Disease Digital Biomarker DREAM Challenge](https://www.synapse.org/#!Synapse:syn10146135/wiki/448409)
-
-[Automated Extraction of Digital Biomarkers using A Hierarchy of Convolutional Recurrent Attentive Neural Networks](https://www.synapse.org/#!Synapse:syn10922704/wiki/471154)
 
 ### 3 Extra
 
@@ -213,9 +233,8 @@ To surpass the limitations of a lower dimension projection with PCA, the t-SNE m
 
 ##### 3.3.4 [PyWavelets Manual](https://media.readthedocs.org/pdf/pywavelets/latest/pywavelets.pdf)
 
-### 4 TODO
+##### 3.3.5 [Structuring Your TensorFlow Models](https://danijar.com/structuring-your-tensorflow-models/)
 
-- [ ] Completing README
 ----------------
 
 

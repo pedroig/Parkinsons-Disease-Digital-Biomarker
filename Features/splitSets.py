@@ -19,6 +19,14 @@ def dropExtraColumns(features):
 
 
 def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False):
+    """
+        Input:
+        - wavelet: string
+            example: 'db9'
+        - level: integer
+        - naiveLimitHealthCode: bool
+            Whether to limit the number of samples per healthCode, using only the first 10 occurrences per healthCode.
+    """
 
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
     # Dropping rows without answer for gender

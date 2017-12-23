@@ -20,7 +20,7 @@
 #SBATCH --mem-per-cpu=4G
 
 # This value can be adjusted if a different maximum wall time is required
-#SBATCH --time=05:30:00
+#SBATCH --time=06:30:00
 
 #SBATCH --mail-user=pao3@rice.edu
 
@@ -31,4 +31,4 @@ module purge
 module load GCC/6.4.0 OpenMPI/2.1.1 Python/3.6.2
 pip install --user sklearn
 
-srun python run.py > output.txt
+srun python run.py 'cleanFeaturise' > output.txt
