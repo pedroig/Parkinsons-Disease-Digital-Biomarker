@@ -192,7 +192,24 @@ The immediate impact of this change in the validation set was a big decrease to 
 
 #### 2.3 Convolutional Neural Network
 
-[GuanLab's solution to the 2017 Parkinson's Disease Digital Biomarker DREAM Challenge](https://www.synapse.org/#!Synapse:syn10146135/wiki/448409)
+This model is based in the [GuanLab's network architecture](https://www.synapse.org/#!Synapse:syn10146135/wiki/448409) in which each 3D time-series from the rotation rate is padded with zeros to a common length of 4000 and used as a one-dimensional image with three channels (one for each axis). The architecture consists of eight one-dimensional convolutional layers intercalated with eight one-dimensional max pooling layers. All the layers do not have padding and all the pooling layers have the same hyperparameter configuration: stride of two and size also equals to two. The convolutional layers have stride one and a monotonically increasing number of filters with hyperparameters described in the table below: 
+
+| Layer Number | Number of <br/> Convolutional Filters | Window Size |
+|-------------|-------------|-------------|
+1 | 8 | 5
+2 | 16 | 5
+3 | 32 | 4
+4 | 32 | 4
+5 | 64 | 4
+6 | 64 | 4
+7 | 128 | 4
+8 | 128 | 5
+
+The output of the final pooling layer is flatenned and used as input to densely-connected layer with linear activation function and two outputs, one logit output for each possible label. 
+
+The code related to the convolutional neural network can be found in the [CNN class](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/CNN/cnn.py) and the part to build the graph of the model described so far is in the logits_prediction method. The structure of the code followed a specific [design recommended for TensorFlow models](https://danijar.com/structuring-your-tensorflow-models/) in order to achieve more maintainable and reusable characteristics.
+
+With the main part of the model done by the logits_prediction method, the logits result is then used in the optimize method in which the probability of each class is calculated with a softmax function and used to calculate the cross-entropy loss function. Finally, the optimize method outputs the gradient descent operation with Adam optimization.
 
 ### 3 Extra
 

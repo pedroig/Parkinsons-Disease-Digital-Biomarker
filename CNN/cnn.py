@@ -78,9 +78,9 @@ class CNN:
             example: 'db9'
         - level: integer,
         - dataFractionTrain: float
-            0 < dataFractionTrain <=1,
+            0 < dataFractionTrain <= 1
         - dataFractionVal: float
-            0 < dataFractionVal <=1,
+            0 < dataFractionVal <= 1
         - validateOnOldAgeGroup: bool
             Whether to select only people older 56 years in the validation set.
         - check_interval: integer
@@ -130,6 +130,9 @@ class CNN:
 
     @define_scope(initializer=tf.contrib.slim.xavier_initializer())
     def logits_prediction(self):
+        """
+        Outputs logits tensor, i.e., the unscaled log probabilities for each of the two possible classes.
+        """
         self.X = tf.placeholder(tf.float32, shape=[None, self.timeSeriesPaddedLength, self.channels_input], name="X")
         self.y = tf.placeholder(tf.int32, shape=[None], name="label")
 
@@ -157,6 +160,9 @@ class CNN:
 
     @define_scope("Train")
     def optimize(self):
+        """
+        Outputs the gradient descent operation
+        """
         xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits_prediction, labels=self.y)
         self.loss = tf.reduce_mean(xentropy)
         optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate)
@@ -164,6 +170,17 @@ class CNN:
 
     @define_scope("Metrics")
     def metrics(self):
+        """
+        Outputs grouped update operation for the following metrics:
+            * Area under the ROC curve;
+            * Precision;
+            * Recall.
+
+        It's important to highlight that the update operation accumulates the relevant data from the confusion matrix for each metric
+        in local variables, enabling the estimation of the selected metrics over a stream of data like the mini-batches. For this
+        reason, it is required to reset the local variables before calling this method if the intention is to make an estimation
+        in a different dataset.
+        """
         logits = self.logits_prediction
         positiveClass_probability = tf.sigmoid(logits[:, 1] - logits[:, 0])
         self.auc, auc_update_op = tf.metrics.auc(labels=self.y, predictions=positiveClass_probability, num_thresholds=10000)
@@ -176,6 +193,9 @@ class CNN:
 
     @define_scope("Tensorboard")
     def tensorboard_summaries(self):
+        """
+        Tensor summaries for exporting information about the model to tensorboard.
+        """
         self.loss_summary = tf.summary.scalar('Loss', self.loss)
         self.auc_summary = {
             'Training': tf.summary.scalar('AUC_Training', self.auc),
@@ -193,6 +213,11 @@ class CNN:
 
     @define_scope("init_and_save")
     def init_and_save(self):
+        """
+        Auxiliar tensorflow nodes:
+            * Node in the graph that initializes all variables when it is run;
+            * Saver node to save and restore variables to and from checkpoints.
+        """
         self.init = tf.global_variables_initializer()
         self.saver = tf.train.Saver()
 
@@ -203,18 +228,36 @@ class CNN:
             self.file_writer.add_summary(summary_str, step)
 
     def process_summaries_set(self, setName, epoch):
+        """
+        Saves the metrics from the current epoch in the tensorboard summaries and prints it for the user.
+
+        Input:
+        - setName: string
+            String to select which summaries to process: 'Training' or 'Validation'.
+        - epoch: int
+            Epoch number that corresponds to the horizontal axis when plotting the summaries.
+        """
         self.file_writer.add_summary(self.auc_summary[setName].eval(), epoch)
         self.file_writer.add_summary(self.precision_summary[setName].eval(), epoch)
         self.file_writer.add_summary(self.recall_summary[setName].eval(), epoch)
         self.printMetrics(setName)
 
     def printMetrics(self, setName):
+        """
+        Input:
+        - setName: string
+            String to be printed to inform the user which set the metrics are from: 'train', val' or 'test'.
+        """
         print("\t{}".format(setName))
         print("\t\tROC AUC:", self.auc.eval())
         print("\t\tPrecision:", self.precision.eval()[0])
         print("\t\tRecall:", self.recall.eval()[0])
 
     def evaluateMetricsRestored(self):
+        """
+        Restores trainable parameters correspondent to the folder name specified in the constructor method and evaluates
+        the performance of the model in the development set specified (validation or test).
+        """
         with tf.Session() as sess:
             # reset the local variables used for metrics
             sess.run(tf.local_variables_initializer())
@@ -224,6 +267,12 @@ class CNN:
                 self.printMetrics(self.developmentSet)
 
     def train(self):
+        """
+        Executes the tensorflow graph to train the model while also saving and displaying metrics of the process.
+
+        It is important to highlight that the mini-batches are loaded to memory on demand, making it so that only
+        one is in memory at any given time.
+        """
         with tf.Session() as sess:
 
             if len(self.restoreFolderName) > 0:
@@ -281,9 +330,11 @@ class CNN:
         self.file_writer.close()
 
     def generateDirectoriesNames(self):
-        '''
-        Checkpoint directory and Log directory for tensorboard
-        '''
+        """
+        Generates names for:
+            *Checkpoint directory;
+            *Log directory for tensorboard.
+        """
         self.now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
         folderName = "run-{}_{}_epochs-{}_learningRate-{}_batchSize-{}".format(
             self.now,
@@ -299,30 +350,49 @@ class CNN:
         self.checkpointdir = "./checkpoints/{}/model.ckpt".format(folderName)
 
     def readPreprocessTable(self, name):
+        """
+        Input:
+        - name: string
+            Table to be loaded: 'train', val' or 'test'.
+        """
         featuresTable = pd.read_csv("../data/{}_extra_columns.csv".format(name), index_col=0)
         # Renaming to use the column name to access a named tuple
         for timeSeriesName in ['outbound', 'rest']:  # , 'return']:
-            featuresTable.rename(columns={'deviceMotion_walking_{}.json.items'.format(timeSeriesName): 'deviceMotion_walking_' + timeSeriesName}, inplace=True)
+            featuresTable.rename(columns={'deviceMotion_walking_{}.json.items'.format(timeSeriesName):
+                                          'deviceMotion_walking_' + timeSeriesName},
+                                 inplace=True)
         featuresTable.reset_index(inplace=True)
         return featuresTable
 
     def loadTables(self, validateOnOldAgeGroup, dataFractionTrain, dataFractionVal):
+        """
+        Loads CSV the tables with the pointers to JSON files, optionally filtering the development set table to only
+        have people in the group of main interest for prediction, older people, here specified to be above 56 years old.
+        Fraction parameters are given in case there is a need to limit the amount of data to be loaded for a quick
+        testing/debugging of the code.
+        """
+
         # Reading tables
         if self.useAugmentedData:
             self.featuresTableTrain = self.readPreprocessTable('train_augmented')
         else:
             self.featuresTableTrain = self.readPreprocessTable('train')
         self.featuresTableVal = self.readPreprocessTable(self.developmentSet)
+
         if validateOnOldAgeGroup:
             self.featuresTableVal = self.featuresTableVal[self.featuresTableVal.age > 56]
 
-        # Setting size of dataset
+        # Setting size of the dataset
         self.featuresTableTrain = self.featuresTableTrain.sample(frac=dataFractionTrain)
         self.featuresTableVal = self.featuresTableVal.sample(frac=dataFractionVal)
+
         self.featuresTableTrain.reset_index(inplace=True)
         self.featuresTableVal.reset_index(inplace=True)
 
     def generateSetFromTable(self, featuresTable):
+        """
+        Loads all the rotation rate JSON files from a given table into memory.
+        """
         fileNameRotRate = utils.genFileName('RotRate', self.wavelet, self.level)
         axes = ['x', 'y', 'z']
         y = featuresTable.Target
