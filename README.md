@@ -205,7 +205,11 @@ This model is based in the [GuanLab's network architecture](https://www.synapse.
 7 | 128 | 4
 8 | 128 | 5
 
-The output of the final pooling layer is flatenned and used as input to densely-connected layer with linear activation function and two outputs, one logit output for each possible label. 
+The output of the final pooling layer is flatenned and used as input to densely-connected layer with linear activation function and two outputs, one logit output for each possible label. All the architecture described so far is illustrated  in the figure below:
+
+| ![Convolutional Neural Network Architecture](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Extra/Figures/CNN_diagram.jpeg "Convolutional Neural Network Architecture") |
+|:----:|
+| Convolutional Neural Network Architecture |
 
 The code related to the convolutional neural network can be found in the [CNN class](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/CNN/cnn.py) and the part to build the graph of the model described so far is in the logits_prediction method. The structure of the code followed a specific [design recommended for TensorFlow models](https://danijar.com/structuring-your-tensorflow-models/) in order to achieve more maintainable and reusable characteristics.
 
@@ -249,8 +253,6 @@ To surpass the limitations of a lower dimension projection with PCA, the t-SNE m
 ##### 3.3.3 [Hands-On Machine Learning with Scikit-Learn and TensorFlow](http://shop.oreilly.com/product/0636920052289.do)
 
 ##### 3.3.4 [PyWavelets Manual](https://media.readthedocs.org/pdf/pywavelets/latest/pywavelets.pdf)
-
-##### 3.3.5 [Structuring Your TensorFlow Models](https://danijar.com/structuring-your-tensorflow-models/)
 
 ----------------
 

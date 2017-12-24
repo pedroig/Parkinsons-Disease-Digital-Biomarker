@@ -161,7 +161,7 @@ class CNN:
     @define_scope("Train")
     def optimize(self):
         """
-        Outputs the gradient descent operation
+        Outputs the gradient descent operation.
         """
         xentropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=self.logits_prediction, labels=self.y)
         self.loss = tf.reduce_mean(xentropy)
