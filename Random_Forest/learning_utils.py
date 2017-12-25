@@ -4,7 +4,7 @@ from sklearn import metrics
 from imblearn.over_sampling import SMOTE
 
 
-def metricsAcumulate(X, y, clf, metrics_total):
+def metricsAccumulate(X, y, clf, metrics_total):
     y_pred = clf.predict(X)
     y_prob = clf.predict_proba(X)
     y_prob = y_prob[:, 1]  # positiveClass

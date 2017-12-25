@@ -18,14 +18,17 @@ def dropExtraColumns(features):
                    ], axis=1, inplace=True)
 
 
-def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False):
+def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False, augmentFraction=0.5):
     """
-        Input:
-        - wavelet: string
-            example: 'db9'
-        - level: integer
-        - naiveLimitHealthCode: bool
-            Whether to limit the number of samples per healthCode, using only the first 10 occurrences per healthCode.
+    Input:
+    - wavelet: string
+        example: 'db9'
+    - level: integer
+    - naiveLimitHealthCode: bool
+        Whether to limit the number of samples per healthCode, using only the first 10 occurrences per healthCode.
+    - augmentFraction: float
+        0 < augmentFraction <=1
+        Fraction of the training data that is going to have the augmented version used.
     """
 
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
@@ -119,3 +122,5 @@ def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False):
     noSplitFeatures.to_csv("../data/{}_extra_columns.csv".format(featuresName))
     dropExtraColumns(noSplitFeatures)
     noSplitFeatures.to_csv("../data/{}.csv".format(featuresName))
+
+    utils.generateAugmentedTable(augmentFraction=augmentFraction)

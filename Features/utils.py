@@ -111,11 +111,11 @@ def waveletFiltering(data, wavelet, level):
 
 def generateUnitQuaternion(theta, ux, uy, uz):
     """
-        Input:
-        - theta: float
-            Angle
-        - ux, uy, uz: float
-            Vector components
+    Input:
+    - theta: float
+        Angle
+    - ux, uy, uz: float
+        Vector components
     """
     uNorm = np.sqrt(ux**2 + uy**2 + uz**2)
     ux /= uNorm
@@ -129,15 +129,15 @@ def generateUnitQuaternion(theta, ux, uy, uz):
 
 def rotation3D(q, dataX, dataY, dataZ):
     """
-        Input:
-        - theta: float
-            Unit quaternion of the corresponding rotation
-        - dataX, dataY, dataZ: float
-            Vector components of the data that is going to be rotated
+    Input:
+    - theta: float
+        Unit quaternion of the corresponding rotation
+    - dataX, dataY, dataZ: float
+        Vector components of the data that is going to be rotated
 
-        Returns:
-        - out : ndarray
-            Array with the three components of the rotated data
+    Returns:
+    - out : ndarray
+        Array with the three components of the rotated data
     """
     dataQ = quaternion.Quaternion(0, dataX, dataY, dataZ)
     out = (q * dataQ * q.inverse()).im
@@ -157,27 +157,18 @@ def preprocessDeviceMotion(data):
     return dataAcc, dataRot
 
 
-def augmentData(augmentFraction=0.5):
+def augmentData():
     """
-        Input:
-        - augmentFraction: float
-            0 < augmentFraction <=1,
+    Generates one augmented version for each rotation rate time-series sample.
     """
-
-    train = pd.read_csv("../data/train_extra_columns.csv")
-    train.loc[:, "augmented"] = False
-    trainSelected = train.sample(frac=augmentFraction)
-    trainSelected.loc[:, "augmented"] = True
-
-    trainAugmented = pd.concat([train, trainSelected])
-    trainAugmented.to_csv("../data/train_augmented_extra_columns.csv")
+    features_extra_columns = pd.read_csv("../data/features_extra_columns.csv")
 
     axes = ['x', 'y', 'z']
 
     for timeSeriesName in ['deviceMotion_walking_outbound', 'deviceMotion_walking_rest']:  # , 'deviceMotion_walking_return']:
-        trainSelected.rename(columns={'{}.json.items'.format(timeSeriesName): timeSeriesName}, inplace=True)
+        features_extra_columns.rename(columns={'{}.json.items'.format(timeSeriesName): timeSeriesName}, inplace=True)
 
-        for row in trainSelected.itertuples():
+        for row in features_extra_columns.itertuples():
             pointer = getattr(row, timeSeriesName)
             data = readJSON_data(pointer, timeSeriesName, 'RotRate.json')
 
@@ -195,3 +186,23 @@ def augmentData(augmentFraction=0.5):
             path = generatePath(pointer, timeSeriesName)
             fileName = 'RotRate_augmented.json'
             data.to_json(path + fileName, orient='split')
+
+
+def generateAugmentedTable(augmentFraction=0.5):
+    """
+    Generates an augmented version of the training table.
+
+    Warning: the features in the training table are not updated, the purpose of this table is to
+    have additional rows with pointers to the augmented JSON files.
+
+    Input:
+    - augmentFraction: float
+        0 < augmentFraction <=1
+    """
+    train = pd.read_csv("../data/train_extra_columns.csv")
+    train.loc[:, "augmented"] = False
+    trainSelected = train.sample(frac=augmentFraction)
+    trainSelected.loc[:, "augmented"] = True
+
+    trainAugmented = pd.concat([train, trainSelected])
+    trainAugmented.to_csv("../data/train_augmented_extra_columns.csv")

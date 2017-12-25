@@ -1,7 +1,9 @@
 import numpy as np
-import learning_utils as lu
 import matplotlib.pyplot as plt
+import learning_utils as lu
+from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_validate
 
 
 def randomForestModel(undersampling_train=False, oversampling_train=False,
@@ -9,26 +11,28 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
                       showTest=False, dropAge=False,
                       criterion='gini', ensemble_size=1):
     """
-        Input:
-        - undersamplig_train: bool (default=False)
-            Whether to undersample the majority class in the training set.
-        - oversamplig_train: bool (default=False)
-            Whether to oversample the minority class in the training set.
-        - oldAgeTrain: bool (default=False):
-            Whether to select only people older 56 years in the training set.
-        - oldAgeVal: bool (default=False)
-            Whether to select only people older 56 years in the validation set.
-        - oldAgeTest: bool (default=False)
-            Whether to select only people older 56 years in the test set.
-        - showTest: bool (default=False)
-            Whether to show the metrics of predictions on the test set.
-        - dropAge: bool (default=False)
-            Whether to use age as a feature.
-        -criterion: string (default='gini')
-            The function to measure the quality of a split: 'gini' or 'entropy'
-        -ensemble_size: int
-            Number of classifiers trained on different training sets when undersampling is applied. This number must be odd.
+    Input:
+    - undersamplig_train: bool (default=False)
+        Whether to undersample the majority class in the training set.
+    - oversamplig_train: bool (default=False)
+        Whether to oversample the minority class in the training set.
+    - oldAgeTrain: bool (default=False):
+        Whether to select only people older 56 years in the training set.
+    - oldAgeVal: bool (default=False)
+        Whether to select only people older 56 years in the validation set.
+    - oldAgeTest: bool (default=False)
+        Whether to select only people older 56 years in the test set.
+    - showTest: bool (default=False)
+        Whether to show the metrics of predictions on the test set.
+    - dropAge: bool (default=False)
+        Whether to use age as a feature.
+    -criterion: string (default='gini')
+        The function to measure the quality of a split: 'gini' or 'entropy'
+    -ensemble_size: int
+        Number of classifiers trained on different training sets when undersampling is applied. This number must be odd.
     """
+
+    # The ensemble is only defined when undersampling is used
     if undersampling_train is False:
         ensemble_size = 1
 
@@ -49,7 +53,7 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
     }
     importances = 0
     X = {}
-    X["val"], y_val, feature_names = lu.load_data("val", selectOldAge=oldAgeVal, dropAge=dropAge)
+    X["val"], y_val, feature_names = lu.load_data("val", selectOldAge=oldAgeVal, dropAge=dropAge, balance_undersampling=True)
     X["test"], y_test, _ = lu.load_data("test", selectOldAge=oldAgeTest, dropAge=dropAge)
     X["val_test"] = np.concatenate((X["val"], X["test"]))
     y_val_test = np.concatenate((y_val, y_test))
@@ -65,7 +69,7 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
 
         rnd_clf[i].fit(X_train[i], y_train[i])
         importances += rnd_clf[i].feature_importances_
-        lu.metricsAcumulate(X_train[i], y_train[i], rnd_clf[i], metrics_train_total)
+        lu.metricsAccumulate(X_train[i], y_train[i], rnd_clf[i], metrics_train_total)
         for setName in ["val", "test", "val_test"]:
             y_pred_total[setName] += rnd_clf[i].predict_proba(X[setName]) > 0.5  # threshold
 
@@ -83,6 +87,94 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
     number_of_features = X["val"].shape[1]
     plt.bar(range(number_of_features), importances[indices])
     plt.xticks(range(number_of_features), indices)
+    plt.ylabel('Feature Importance')
+    plt.xlabel('Features')
     plt.show()
     for i in range(number_of_features):
         print("%d . feature %s (%f)" % (i + 1, feature_names[indices[i]], importances[indices[i]]))
+
+
+def randomForestTuning(undersampling_train=False, oversampling_train=False,
+                       oldAgeTrain=False, oldAgeVal=False,
+                       dropAge=False, criterion='gini'):
+    """
+    Input:
+    - undersamplig_train: bool (default=False)
+        Whether to undersample the majority class in the training set.
+    - oversamplig_train: bool (default=False)
+        Whether to oversample the minority class in the training set.
+    - oldAgeTrain: bool (default=False):
+        Whether to select only people older 56 years in the training set.
+    - oldAgeVal: bool (default=False)
+        Whether to select only people older 56 years in the validation set.
+    - dropAge: bool (default=False)
+        Whether to use age as a feature.
+    -criterion: string (default='gini')
+        The function to measure the quality of a split: 'gini' or 'entropy'
+    """
+
+    X_train, y_train, _ = lu.load_data("train", selectOldAge=oldAgeTrain, dropAge=dropAge,
+                                       balance_undersampling=undersampling_train,
+                                       balance_oversampling=oversampling_train)
+    X_val, y_val, _ = lu.load_data("val", selectOldAge=oldAgeVal, dropAge=dropAge)
+
+    roc_auc_cross = []
+    roc_auc_val = []
+
+    std_values = {
+        "max_depth": 7,
+        "n_estimators": 13,
+        "min_samples_split": 12
+    }
+
+    seq = {
+        "max_depth": range(2, 20, 1),
+        "n_estimators": range(1, 30, 1),
+        "min_samples_split": range(2, 20, 1)
+    }
+
+    hyperparameterOptions = ["max_depth",
+                             "n_estimators",
+                             "min_samples_split"]
+    print("Choose the hyperparameter to test")
+    for index, hyperparameter in enumerate(hyperparameterOptions):
+        print(index, hyperparameter)
+    hyperparameter = hyperparameterOptions[int(input("Select the corresponding number: "))]
+
+    for nTest in seq[hyperparameter]:
+        std_values[hyperparameter] = nTest
+
+        rnd_clf = RandomForestClassifier(n_estimators=std_values["n_estimators"],
+                                         max_depth=std_values["max_depth"],
+                                         min_samples_split=std_values["min_samples_split"],
+                                         criterion=criterion,
+                                         n_jobs=-1)
+
+        scores = cross_validate(rnd_clf, X_train, y_train, scoring="roc_auc", cv=10, return_train_score=False)
+        roc_auc_cross.append(scores["test_score"].mean())
+
+        rnd_clf.fit(X_train, y_train)
+        y_prob = rnd_clf.predict_proba(X_val)
+        roc_auc_val.append(metrics.roc_auc_score(y_val, y_prob[:, 1]))
+
+    plt.plot(seq[hyperparameter], roc_auc_cross, color='red', label='Cross-validation (Training)', marker='o')
+    plt.plot(seq[hyperparameter], roc_auc_val, color='blue', label='Validation set', marker='o')
+    plt.xlabel(hyperparameter)
+    plt.ylabel("ROC score")
+    plt.legend()
+    fileName = 'roc_score_{}_{}'.format(hyperparameter, criterion)
+
+    if undersampling_train:
+        fileName += '_undersampling'
+    elif oversampling_train:
+        fileName += '_oversampling'
+
+    if oldAgeTrain:
+        fileName += '_TrainAbove56years'
+    if oldAgeVal:
+        fileName += '_ValAbove56years'
+    if dropAge:
+        fileName += '_withoutAgeFeature'
+
+    plt.savefig('Forest_Graphs/{}.png'.format(fileName))
+    plt.show()

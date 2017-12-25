@@ -101,9 +101,9 @@ Following the insights of the [GuanLab's solution](https://www.synapse.org/#!Syn
 
 * The first step was the simulation of people walking faster or slower, this was done by the use of a random multiplicative factor in the interval [0.8, 1.2) which would account for tremors at different frequencies.
 
-* The second type of data augmentation was the use of a random 3D rotation to simulate people holding the phone in different orientations which would correspond to different world frame coordinate systems. However, it is important to highlight that the rotation is limited to the plane orthogonal to the z-axis since this axis is always well defined by the gravity in the world's frame. It is also worth mentioning that this rotation is not contradictory with the rotation executed to convert the data from the phone's frame to the world's frame. This is explained by the fact that the rotation there was based in the quaternions from the gyroscope data which changes for each timestamp while the augmentation uses a single quaternion, applying the same corresponding rotation to all the samples in a 3D time series.
+* The second type of data augmentation was the use of a random 3D rotation to simulate people holding the phone in different orientations which would correspond to different world frame coordinate systems. However, it is important to highlight that the rotation is limited to the plane orthogonal to the z-axis since this axis is always well defined by the gravity in the world's frame. It is also worth mentioning that this rotation is not contradictory with the rotation executed to convert the data from the phone's frame to the world's frame. This is explained by the fact that the conversion rotation was based in the quaternions from the gyroscope data which changes for each timestamp while the augmentation uses a single quaternion, applying the same corresponding rotation to all the samples in a 3D time series.
 
-All the code that performs the data augmentation described above can be found in the [function augmentData](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py) that receives as parameter the fraction of the training data that is going to be augmented.
+The code that performs the data augmentation described above can be found in the [function augmentData](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py) that generates one augmented version for each rotation rate time-series sample. An augmented version of the training table is created by the [function generateAugmentedTable](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py) that receives as parameter the fraction of the training data that is going to have the augmented version used.
 
 #### 1.4 Feature Generation
 
@@ -162,7 +162,13 @@ Other features of interest to be included:
 
 Given the number of data samples (34,631), the length of each time-series (up to 3603) for x, y, z components from the rotation rate and the acceleration in the stages considered (walking outbound and rest) and the heavy computing necessary to perform the cleaning, the preprocessing and the feature generation, a parallelized implementation is used in all steps described above. The number of processes created for the parallelization is specified by the user in the [run code](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/run.py). This parallelization was also important to make an efficient use of the batch scheduled HTC cluster used in this work, the NOTS at the Center of Research Computing from Rice University. However, it's worth highlighting that even with the creation of 16 processes on the NOTS system, the total run time is around 5 hours and 25 minutes.
 
-#### 1.6 Code structure
+#### 1.6 Splitting the Dataset
+
+After executing the initial cleaning procedures and generating the features described in 1.4, a new version of the original walking_activity.csv table is saved as walking_activity_features.csv, allowing the dataset to be easily split without generating the features everytime. The final cleaning routine and the split procedure is done by the [generateSetTables function](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/splitSets.py) that divides the dataset in the following configuration: 80% Training set, 10% Validation set, and 10% Test set. However, it is critical to call attention to the fact that the split is done by taking account of the healthcode during the creation of the sets, i.e., splitting the demographics table and then merging it to the walking_activity table. This approach is necessary in order to avoid data leakage since otherwise, the same person could be at the same time in the training set and in the validation set which would lead to unrealistic good results. It is also important to highlight that taking account of the healthCode means that the final sizes of the sets are not exactly coherent with the previously stipulated percentages since different people performed the experiment different times.
+
+One undesirable property observed in the final sets is the unbalanced distribution between labels. From a total of 27,314 samples after cleaning, 17,663 samples correspond to people with Parkinson's disease. This gap gets even wider when analyzing only people older 56 years old: 14,907 people with the disease from a total of 17,933.
+
+#### 1.7 Code Structure
 
 The code responsible for the feature generation is divided into 3 parts:
 * [cleanFeaturise](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/cleanFeaturise.py): Accesses the walking activity CSV table, executes the first stages described for data cleaning, performs the feature generation and saves the results in a new table.
@@ -176,21 +182,47 @@ The code responsible for the feature generation is divided into 3 parts:
 ### 2 Machine Learning Modeling
 
 #### 2.1. Random Forest
-//NOT THE FINAL VERSION
 
-The first attempt to apply the random forest algorithm to the features listed above had a ROC score at the validation set above 90% even before any hyperparameter tuning. However, this result was outstanding enough to cause skepticism about the validity of the metric used. After a reanalysis of the procedure employed, a data leakage was discovered. Even though the dataset was divided into training and test and a cross-validation method was being employed for hyperparameter tuning, the fact that the same person could participate in the experiment multiple times created an intersection between the set that led to incoherent results. This problem was solved by taking account of the healthcode during the creation of the sets and by avoiding the use of cross-validation with the creation of a validation set.
+The first and simpler model developed to tackle this problem was a Random Forest model that uses all the features extracted from the time-series, the gender and the age as input. This model was further enhanced by the use of an ensemble to deal with the unbalanced distribution of labels in the dataset. The ensemble design makes use of the undersampling technique, training each random forest in a different fifty-fifty balanced dataset in which the majority class is randomly selected to match the size of the minority class. The ensemble structure is illustrated below:
 
-After applying the solution to the data leakage, the ROC score dropped to about 78% on the validation set even after hyperparameter tuning, while the training ROC score remained above 98%. Of course, this model is clearly overfitting, but before applying regularization, it was also observed in the feature importance (the normalized total reduction of the criterion brought by that feature) ranking that the age is by far the most important feature. This result was expected given the nature of the Parkinson's disease, however, it was favoring a model that does not work properly for the prediction of the disease in older people which is the main group of interest. For this reason this reason, it was opted to only consider samples from people older 56 years old in the validation and test sets in the experiments that followed in this model. The addition of this restriction caused a reduction around 31% in the size of the sets.
+| ![Ensemble Diagram](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Extra/Figures/Ensemble_Diagram.png "Ensemble Diagram") |
+|:----:|
+| Ensemble Diagram |
 
-The immediate impact of this change in the validation set was a big decrease to the ROC score on the validation set to around 0.53, almost random guessing! An improvement to this current performance came from the observation of yet another problem in the dataset: unbalanced label distribution. 19,275 samples from a total of 22,324 samples from people older than 56 years old had a positive diagnosis of Parkinsons Disease. Therefore, the improvement was to balance the training set. The first and simpler approach was undersampling the majority class by randomly selecting samples from the majority class, equating ratio between the two. Undersampling bumped the validation ROC score to the range from 0.56 to 0.63. The Second approach used was oversampling the minority class using the [SMOTE](http://contrib.scikit-learn.org/imbalanced-learn/stable/over_sampling.html#from-random-over-sampling-to-smote-and-adasyn) method which increased, even more, the ROC score to the range from 0.60 to 0.67. Given the greater success of the latter, it was chosen in all the next experiments in this model.
+The code for the random forest model can be found in the [function randomForestModel](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Random_Forest/randomForest.py) which also supports non ensemble options with optional training set balancing with undersampling or [SMOTE](http://contrib.scikit-learn.org/imbalanced-learn/stable/over_sampling.html#from-random-over-sampling-to-smote-and-adasyn) oversampling. Besides providing standart metrics results about the performance of the model, the randomForestModel function also gives feedback about the feature importance (the normalized total reduction of the criterion brought by that feature) ranking in which can be observed that the demographic features have much higher priorities in the greedy algorithm that builds the decision trees in each random forest ensemble. Due to the randomization in the model, the feature importance ranking is not constant, but the plot and the table below offer a preview of the importance distribution accross the features:
 
-#### 2.2 Recurrent Neural Network
+| ![Feature Importance Ranking](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Extra/Figures/Importances_Ranking.png "Feature Importance Ranking") |
+|:----:|
+| Feature Importance Ranking |
 
-[Deep Learning for Time-Series Analysis](https://arxiv.org/abs/1701.01887#)
+##### 20 Most Important Features
 
-[Time series classification with Tensorflow](https://burakhimmetoglu.com/2017/08/22/time-series-classification-with-tensorflow/)
+| Ranking | Name | Stage | Axis (es) | Measurent Type | Importance |
+|-------------|-------------|-------------|-------------|-------------|-------------|
+1 | Age | - | - | - | 0.254625 |
+2 | Gender | - | - | - | 0.084887 |
+3 | Dominant Frequency Component | Outbound | Z | Acceleration | 0.034564 |
+4 | Dominant Frequency Component | Outbound | X | Rotation Rate | 0.026673 |
+5 | Dominant Frequency Component | Outbound | Z | Rotation Rate | 0.022937 |
+6 | Dominant Frequency Component | Rest | Z | Rotation Rate | 0.020182 |
+7 | Kurtosis | Rest | Z | Rotation Rate | 0.018007 |
+8 | Dominant Frequency Component | Outbound | Y | Rotation Rate | 0.016551 |
+9 | Maximum | Outbound | Z | Acceleration | 0.011511 |
+10 | Interquartile | Rest | Z | Acceleration | 0.011406 |
+11 | Mutual Information | Rest | YZ | Acceleration | 0.010912 |
+12 | Mutual Information | Outbound | XY | Rotation Rate | 0.010891 |
+13 | Mutual Information | Rest | YZ | Rotation Rate | 0.010618 |
+14 | Q1 | Rest | Y | Rotation Rate | 0.008552 |
+15 | Zero Crossing Rate | Rest | Y | Acceleration | 0.008523 |
+16 | Entropy | Rest | Y | Acceleration | 0.008482 |
+17 | Q3 | Outbound | Z | Acceleration | 0.008227 |
+18 | Data Range | Outbound | Y | Acceleration | 0.007834 |
+19 | Data Range | Outbound | Z | Acceleration | 0.007720 |
+20 | Entropy | Rest | X | Rotation Rate |  0.007604 |
 
-#### 2.3 Convolutional Neural Network
+The table above displays a tendency to obtain higher importance values for features extracted from the z-axis of the time-series. This could be explained by the fact that this is axis is well defined in the world frame coordinate system as mentioned when discussing the data augmentation.
+
+#### 2.2 Convolutional Neural Network
 
 This model is based in the [GuanLab's network architecture](https://www.synapse.org/#!Synapse:syn10146135/wiki/448409) in which each 3D time-series from the rotation rate is padded with zeros to a common length of 4000 and used as a one-dimensional image with three channels (one for each axis). The architecture consists of eight one-dimensional convolutional layers intercalated with eight one-dimensional max pooling layers. All the layers do not have padding and all the pooling layers have the same hyperparameter configuration: stride of two and size also equals to two. The convolutional layers have stride one and a monotonically increasing number of filters with hyperparameters described in the table below: 
 
@@ -225,7 +257,18 @@ Besides the definition of parameters for the feature calculation, there is anoth
 * Option to visualize the segments of each step in the graph plotted by making use of the pedometer data, but it lacks precision due to the low quality of the pedometer data;
 * Option to apply different types of wavelets for filtering.
 
-It's also worth mentioning that the constructor method of the classes mentioned above requires an interaction with the user for the selection of a set of samples from which a random element will be chosen to be loaded. The user can choose between one of the three stages of the experiment (outbound, rest or return) and if it's from a person with or without Parkinson's disease.
+It's also worth mentioning that the constructor method of the classes mentioned above requires an interaction with the user for the selection of a set of samples from which a random element will be chosen to be loaded. The user has the following options:
+	* Choose between one of the three stages of the experiment (outbound, rest or return);
+	* If the data is from a person with or without Parkinson's disease;
+	* Choose between time-series data of the rotation rate or the acceleration.
+
+The picture below illustrates the main functionalities of the Overview class using the rotation rate data from a Parkinson's disease patient in the walking outbound stage:
+
+| ![Overview example](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Extra/Figures/VisualizationExample.png "Overview example") |
+|:----:|
+| Overview example |
+
+In the example above the vertical bars create segments in the time-series corresponding to each step taken by the volunteer and a smoothed version of the time-series using Daubechies 9 at level 4 was plotted for a comparison with the raw variant.
 
 #### 3.2. Features visualization
 
@@ -239,22 +282,20 @@ To surpass the limitations of a lower dimension projection with PCA, the t-SNE m
 |:----:|
 | 2D t-SNE plot |
 
-
 | ![3D t-SNE plot](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Visualization/Dimension_Reduction/Figures/T-SNE3d.png "3D t-SNE plot") |
 |:----:|
 | 3D t-SNE plot |
 
 #### 3.3 Useful Resources
 
-##### 3.3.1 [Understanding ROC curves and Area Under the Curve](https://www.youtube.com/watch?v=OAl6eAyP-yo)
+##### 3.3.1 [Getting Started on NOTS](https://docs.rice.edu/confluence/display/CD/Getting+Started+on+NOTS)
 
-##### 3.3.2 [Understanding LSTM Networks](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)
+##### 3.3.2 [Hands-On Machine Learning with Scikit-Learn and TensorFlow](http://shop.oreilly.com/product/0636920052289.do)
 
-##### 3.3.3 [Hands-On Machine Learning with Scikit-Learn and TensorFlow](http://shop.oreilly.com/product/0636920052289.do)
+##### 3.3.3 [PyWavelets Manual](https://media.readthedocs.org/pdf/pywavelets/latest/pywavelets.pdf)
 
-##### 3.3.4 [PyWavelets Manual](https://media.readthedocs.org/pdf/pywavelets/latest/pywavelets.pdf)
+##### 3.3.4 [Understanding ROC curves and Area Under the Curve](https://www.youtube.com/watch?v=OAl6eAyP-yo)
 
 ----------------
-
 
 >This work was supported in part by the Big-Data Private-Cloud Research Cyberinfrastructure MRI-award funded by NSF under grant CNS-1338099 and by Rice University.
