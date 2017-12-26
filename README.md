@@ -229,7 +229,7 @@ In order to allow an easier way to tune the hyperparameters from the random fore
 
 The graph plotted below elucidates the tuning visualization offered:
 
-| ![Maximum Depth Tuning](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/tree/master/Random_Forest/Forest_Graphs/roc_score_max_depth_gini_undersampling_ValAbove56years.png "Maximum Depth Tuning") |
+| ![Maximum Depth Tuning](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Random_Forest/Forest_Graphs/roc_score_max_depth_gini_undersampling_ValAbove56years.png "Maximum Depth Tuning") |
 |:----:|
 | Maximum Depth Tuning |
 

@@ -14,13 +14,13 @@
 #SBATCH --threads-per-core=1
 
 # This value can be adjusted if a different thread count is required
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=16
 
 # This value can be adjusted if a different amount of memory is required
 #SBATCH --mem-per-cpu=8G
 
 # This value can be adjusted if a different maximum wall time is required
-#SBATCH --time=24:00:00
+#SBATCH --time=10:00:00
 
 #SBATCH --mail-user=pao3@rice.edu
 

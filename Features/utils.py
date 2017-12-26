@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import multiprocessing
 import os
 import pywt
 import json
@@ -171,7 +172,7 @@ def saveTimeSeries(data, pointer, timeSeriesName, sampleType, wavelet, level):
     fileName = genFileName(sampleType, wavelet, level)
     data.to_json(path + fileName, orient='split')
 
-# Preprocess Device Motion data
+# Augmentation and data preprocessing
 
 
 def waveletFiltering(data, wavelet, level):
@@ -182,7 +183,7 @@ def waveletFiltering(data, wavelet, level):
         - data: pandas DataFrame
             Time-series table.
         - wavelet: string
-            Wavelet to use, empty string if no wavelet is used for smoothing.
+            Wavelet to use.
             example: 'db9'
         - level: integer
             Decomposition level for the wavelet.
@@ -248,35 +249,35 @@ def preprocessDeviceMotion(data):
     return dataAcc, dataRot
 
 
-def augmentData():
+def augmentRow(rowFeaturesTable):
     """
-    Generates one augmented version for each rotation rate time-series sample.
-    """
-    features_extra_columns = pd.read_csv("../data/features_extra_columns.csv")
+    Generates JSON augmented versions for the sample in one row of the table.
 
+    Input:
+        - rowFeaturesTable: pandas Series
+            The row of the features table that is going to be processed.
+    """
     axes = ['x', 'y', 'z']
 
-    for timeSeriesName in ['deviceMotion_walking_outbound', 'deviceMotion_walking_rest']:  # , 'deviceMotion_walking_return']:
-        features_extra_columns.rename(columns={'{}.json.items'.format(timeSeriesName): timeSeriesName}, inplace=True)
+    for timeSeriesName in ['deviceMotion_walking_outbound', 'deviceMotion_walking_rest']:
+        columnName = timeSeriesName + '.json.items'
+        pointer = rowFeaturesTable[columnName]
+        data = readJSON_data(pointer, timeSeriesName, 'RotRate.json')
 
-        for row in features_extra_columns.itertuples():
-            pointer = getattr(row, timeSeriesName)
-            data = readJSON_data(pointer, timeSeriesName, 'RotRate.json')
+        max_scale = 1.2
+        min_scale = 0.8
+        random_scale = np.random.random_sample() * (max_scale - min_scale) + min_scale
+        data[axes] = data[axes] * random_scale
+        theta = np.random.random_sample() * np.pi * 2
+        q = generateUnitQuaternion(theta, 0, 0, 1)
+        for index, row in enumerate(data.itertuples()):
+            rotRate = rotation3D(q, row.x, row.y, row.z)
+            for axisNum, axis in enumerate(axes):
+                data.loc[index, axis] = rotRate[axisNum]
 
-            max_scale = 1.2
-            min_scale = 0.8
-            random_scale = np.random.random_sample() * (max_scale - min_scale) + min_scale
-            data[axes] = data[axes] * random_scale
-            theta = np.random.random_sample() * np.pi * 2
-            q = generateUnitQuaternion(theta, 0, 0, 1)
-            for index, row in enumerate(data.itertuples()):
-                rotRate = rotation3D(q, row.x, row.y, row.z)
-                for axisNum, axis in enumerate(axes):
-                    data.loc[index, axis] = rotRate[axisNum]
-
-            path = generatePath(pointer, timeSeriesName)
-            fileName = 'RotRate_augmented.json'
-            data.to_json(path + fileName, orient='split')
+        path = generatePath(pointer, timeSeriesName)
+        fileName = 'RotRate_augmented.json'
+        data.to_json(path + fileName, orient='split')
 
 
 def generateAugmentedTable(augmentFraction=0.5):
@@ -297,3 +298,68 @@ def generateAugmentedTable(augmentFraction=0.5):
 
     trainAugmented = pd.concat([train, trainSelected])
     trainAugmented.to_csv("../data/train_augmented_extra_columns.csv")
+
+# Parallelization for the augmentation (augmentRow)
+
+
+def apply_df_augmentation(args):
+    """
+        Input:
+            args: tuple
+                A tuple with the DataFrame and the function to be applied.
+    """
+    df, func = args
+    return df.apply(func, axis=1)
+
+
+def apply_by_multiprocessing_augmentation(df, func, workers):
+    """
+    Applies a function to all the rows of a DataFrame with the use of multiple processes.
+
+    Input:
+        df: pandas DataFrame
+            DataFrame that is going to be operated by multiple processes.
+        func: function
+            The function applied to the DataFrame.
+        workers: int
+            The number of processes.
+    """
+    pool = multiprocessing.Pool(processes=workers)
+    pool.map(apply_df_augmentation,
+             [(df_fraction, func) for df_fraction in np.array_split(df, workers)])
+    pool.close()
+
+# Parallelization for data cleaning and extraction of features (rowFeaturise)
+
+
+def apply_df_featurise(args):
+    """
+        Input:
+            args: tuple
+                A tuple with the DataFrame, the function, and the function parameters.
+    """
+    df, func, kwargs = args
+    timeSeriesName, wavelet, level = kwargs["args"]
+    args = df, timeSeriesName, wavelet, level
+    return df.apply(func, args=args, axis=1)
+
+
+def apply_by_multiprocessing_featurise(df, func, **kwargs):
+    """
+    Applies a function to all the rows of a DataFrame with the use of multiple processes.
+
+    Input:
+        df: pandas DataFrame
+            DataFrame that is going to be operated by multiple processes.
+        func: function
+            The function applied to the DataFrame.
+        kwargs: dict
+            Dictionary with the parameters that are going to be used by func and the number
+            of processes under the keyword 'workers'.
+    """
+    workers = kwargs.pop('workers')
+    pool = multiprocessing.Pool(processes=workers)
+    result = pool.map(apply_df_featurise, [(d, func, kwargs)
+                                           for d in np.array_split(df, workers)])
+    pool.close()
+    return pd.concat(list(result))

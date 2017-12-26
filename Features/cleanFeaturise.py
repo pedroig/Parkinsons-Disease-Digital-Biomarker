@@ -3,40 +3,6 @@ import numpy as np
 import createFeatures as cf
 import utils
 import time
-import multiprocessing
-
-
-def apply_df(args):
-    """
-        Input:
-            args: tuple
-                A tuple with the DataFrame, the function, and the function parameters.
-    """
-    df, func, kwargs = args
-    timeSeriesName, wavelet, level = kwargs["args"]
-    args = df, timeSeriesName, wavelet, level
-    return df.apply(func, args=args, axis=1)
-
-
-def apply_by_multiprocessing(df, func, **kwargs):
-    """
-    Applies a function to all the rows of a DataFrame with the use of multiple processes.
-
-    Input:
-        df: pandas DataFrame
-            DataFrame that is going to be operated by multiple processes.
-        func: function
-            The function applied to the DataFrame.
-        kwargs: dict
-            Dictionary with the parameters that are going to be used by func and the number
-            of processes under the keyword 'workers'.
-    """
-    workers = kwargs.pop('workers')
-    pool = multiprocessing.Pool(processes=workers)
-    result = pool.map(apply_df, [(d, func, kwargs)
-                                 for d in np.array_split(df, workers)])
-    pool.close()
-    return pd.concat(list(result))
 
 
 def rowFeaturise(row, features, timeSeriesName, wavelet, level):
@@ -127,7 +93,8 @@ def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
                 continue
             print("Working on {}.".format(timeSeriesName))
             args = (timeSeriesName, wavelet, level)
-            walking_activity_features = apply_by_multiprocessing(walking_activity_features, rowFeaturise, args=args, workers=num_cores)
+            walking_activity_features = utils.apply_by_multiprocessing_featurise(walking_activity_features, rowFeaturise,
+                                                                                 args=args, workers=num_cores)
 
             # Dropping rows with errors
             walking_activity_features = walking_activity_features[walking_activity_features.loc[:, "Error"] == False]
