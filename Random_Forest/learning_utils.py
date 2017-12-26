@@ -5,6 +5,9 @@ from imblearn.over_sampling import SMOTE
 
 
 def metricsAccumulate(X, y, clf, metrics_total):
+    """
+    Accumulates metrics results from one random forest in the undersampling ensemble.
+    """
     y_pred = clf.predict(X)
     y_prob = clf.predict_proba(X)
     y_prob = y_prob[:, 1]  # positiveClass
@@ -15,13 +18,30 @@ def metricsAccumulate(X, y, clf, metrics_total):
     metrics_total["ROC score"] += metrics.roc_auc_score(y, y_prob)
 
 
-def metricsShowAcumulate(metrics_total, setName, ensemble_size):
-    print("\nMetrics on {} Set".format(setName))
+def metricsShowAccumulate(metrics_total, ensemble_size):
+    """
+    Prints metrics results for the undersampling ensemble in the training set.
+
+    Input:
+    - metrics_total: dict
+        Dictionary with the accumulated metrics results from the ensemble.
+    - ensemble_size: int
+    """
+    print("\nMetrics on Training Set")
     for metric in ["Accuracy", "Precision", "Recall", "F1 Score", "ROC score"]:
         print("{}: {}".format(metric, metrics_total[metric] / ensemble_size))
 
 
 def metricsPrint(y_test, y_pred, y_prob):
+    """
+    Input:
+    - y_test: numpy.ndarray
+        Ground truth (correct) labels.
+    - y_pred: numpy.ndarray
+        Predicted labels, as returned by a classifier.
+    - y_prob: numpy.ndarray
+        Probability estimates of the positive class.
+    """
     print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
     print("Precision:", metrics.precision_score(y_test, y_pred))
     print("Recall:", metrics.recall_score(y_test, y_pred))
@@ -30,6 +50,20 @@ def metricsPrint(y_test, y_pred, y_prob):
 
 
 def metricsShowEnsemble(y_test, y_pred_total, setName, ensemble_size, threshold=0.5):
+    """
+    Input:
+    - y_test: numpy.ndarray
+        Ground truth (correct) labels.
+    - y_pred_total: numpy.ndarray
+        Sum of the votes of all the random forests in the undersampling ensemble.
+    - setName: string
+        Name of the development set to be printed as the title.
+    - ensemble_size: int
+        The number of random forests in the undersampling ensemble.
+    - threshold: float
+        0 < threshold < 1
+    """
+    print(type(y_test), type(y_pred_total))
     print("\nMetrics on {} Set".format(setName))
     y_prob = y_pred_total / ensemble_size
     y_prob = y_prob[:, 1]  # positiveClass
@@ -39,6 +73,21 @@ def metricsShowEnsemble(y_test, y_pred_total, setName, ensemble_size, threshold=
 
 def load_data(featuresSplitName, selectOldAge=False, dropAge=False,
               balance_undersampling=False, balance_oversampling=False):
+    """
+    Loads table with the features and applies the selected preprocessing.
+
+    Input:
+    - featuresSplitName: string
+        Name of the CSV table to be loaded.
+    - selectOldAge: bool (default=False):
+        Whether to select only people older 56 years in the set.
+    - dropAge: bool (default=False)
+        Whether to use age as a feature.
+    - balance_undersampling: bool (default=False)
+        Whether to undersample the majority class in the set.
+    - balance_oversampling: bool (default=False)
+        Whether to oversample the minority class in the set.
+    """
 
     X = pd.read_csv("../data/{}.csv".format(featuresSplitName), index_col=0)
 

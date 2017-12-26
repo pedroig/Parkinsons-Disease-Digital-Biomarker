@@ -177,7 +177,7 @@ The code responsible for the feature generation is divided into 3 parts:
 * [features_utils](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/features_utils.py): Collection of functions used to perform the specific operations for each feature.
 * [quaternion](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/quaternion.py): Quaternion class with the operations to perform the rotation.
 * [utils](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py): Utility functions used for file manipulation or data preprocessing.
-* [run](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/run.py): Top-level script to execute the cleanFeaturise code or the data augmentation.
+* [run](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/run.py): Top-level script to execute the cleanFeaturise code, splitSets code or the data augmentation.
 
 ### 2 Machine Learning Modeling
 
@@ -221,6 +221,17 @@ The code for the random forest model can be found in the [function randomForestM
 20 | Entropy | Rest | X | Rotation Rate |  0.007604 |
 
 The table above displays a tendency to obtain higher importance values for features extracted from the z-axis of the time-series. This could be explained by the fact that this is axis is well defined in the world frame coordinate system as mentioned when discussing the data augmentation.
+
+In order to allow an easier way to tune the hyperparameters from the random forest, it was developed an auxiliary [randomForestTuning function](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Random_Forest/randomForest.py) that plots the model performance for a range of hyperparameters values. While one hyperparameter chosen by the user is plotted in a range of values, the other ones are fixed to standard quantities. Three hyperparameters can be analyzed in this procedure:
+* The maximum depth of the tree;
+* The number of trees in the forest;
+* The minimum number of samples required to split an internal node.
+
+The graph plotted below elucidates the tuning visualization offered:
+
+| ![Maximum Depth Tuning](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/tree/master/Random_Forest/Forest_Graphs/roc_score_max_depth_gini_undersampling_ValAbove56years.png "Maximum Depth Tuning") |
+|:----:|
+| Maximum Depth Tuning |
 
 #### 2.2 Convolutional Neural Network
 

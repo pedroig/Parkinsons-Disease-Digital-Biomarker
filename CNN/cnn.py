@@ -66,31 +66,33 @@ class CNN:
                  useAugmentedData=False):
         """
         Input:
-        - learning_rate: float
-            real positive number
-        - batch_size: int
-            integer >= 1
-        - n_epochs: int
-            integer >=1
-        - timeSeries: string
-            'rest' or 'outbound'
-        - wavelet: string
-            example: 'db9'
-        - level: integer,
-        - dataFractionTrain: float
-            0 < dataFractionTrain <= 1
-        - dataFractionVal: float
-            0 < dataFractionVal <= 1
-        - validateOnOldAgeGroup: bool
-            Whether to select only people older 56 years in the validation set.
-        - check_interval: integer
-        - max_checks_without_progress: integer
-        - developmentSet: string
-            'val' or 'test'
-        - restoreFolderName: string
-            Folder name for checkpoint to be restored. If the string is empty, nothing is restored
-        - useAugmentedData: bool
-            Whether to use augmented data in the training set.
+            - learning_rate: float
+                real positive number
+            - batch_size: int
+                integer >= 1
+            - n_epochs: int
+                integer >=1
+            - timeSeries: string
+                'rest' or 'outbound'
+            - wavelet: string
+                Wavelet to use, empty string if no wavelet is used for smoothing.
+                example: 'db9'
+            - level: integer
+                Decomposition level for the wavelet. This parameter is not considered if no wavelet is used.
+            - dataFractionTrain: float
+                0 < dataFractionTrain <= 1
+            - dataFractionVal: float
+                0 < dataFractionVal <= 1
+            - validateOnOldAgeGroup: bool
+                Whether to select only people older 56 years in the validation set.
+            - check_interval: integer
+            - max_checks_without_progress: integer
+            - developmentSet: string
+                'val' or 'test'
+            - restoreFolderName: string
+                Folder name for checkpoint to be restored. If the string is empty, nothing is restored
+            - useAugmentedData: bool
+                Whether to use augmented data in the training set.
         """
         self.channels_input = 3
         self.n_outputs = 2
@@ -232,10 +234,10 @@ class CNN:
         Saves the metrics from the current epoch in the tensorboard summaries and prints it for the user.
 
         Input:
-        - setName: string
-            String to select which summaries to process: 'Training' or 'Validation'.
-        - epoch: int
-            Epoch number that corresponds to the horizontal axis when plotting the summaries.
+            - setName: string
+                String to select which summaries to process: 'Training' or 'Validation'.
+            - epoch: int
+                Epoch number that corresponds to the horizontal axis when plotting the summaries.
         """
         self.file_writer.add_summary(self.auc_summary[setName].eval(), epoch)
         self.file_writer.add_summary(self.precision_summary[setName].eval(), epoch)
@@ -245,8 +247,8 @@ class CNN:
     def printMetrics(self, setName):
         """
         Input:
-        - setName: string
-            String to be printed to inform the user which set the metrics are from: 'train', val' or 'test'.
+            - setName: string
+                String to be printed to inform the user which set the metrics are from: 'train', val' or 'test'.
         """
         print("\t{}".format(setName))
         print("\t\tROC AUC:", self.auc.eval())
@@ -352,8 +354,8 @@ class CNN:
     def readPreprocessTable(self, name):
         """
         Input:
-        - name: string
-            Table to be loaded: 'train', val' or 'test'.
+            - name: string
+                Table to be loaded: 'train', val' or 'test'.
         """
         featuresTable = pd.read_csv("../data/{}_extra_columns.csv".format(name), index_col=0)
         # Renaming to use the column name to access a named tuple
@@ -419,7 +421,11 @@ def main():
 
     # model = CNN(restoreFolderName='run-20171217013755_rest_epochs-50_learningRate-0.0001_batchSize-100', developmentSet='test')
     # model.evaluateMetricsRestored()
-    model = CNN()
+
+    model = CNN(learning_rate=0.0001,
+                batch_size=100,
+                timeSeries='rest',
+                useAugmentedData=False)
     model.train()
 
 

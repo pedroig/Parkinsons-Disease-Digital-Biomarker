@@ -10,6 +10,15 @@ from pandas.io.json import json_normalize
 
 
 def generatePath(pointer, timeSeriesName):
+    """
+    Outputs the path to find the specified JSON file.
+
+    Input:
+    - pointer: float
+        Folder number to find the JSON file.
+    - timeSeriesName: string
+        'deviceMotion_walking_outbound', 'deviceMotion_walking_rest' or 'pedometer_walking_outbound'
+    """
     pointer = int(pointer)
     path = '../data/{}/{}/{}/'
     path = path.format(timeSeriesName, str(pointer % 1000), str(pointer))
@@ -17,6 +26,18 @@ def generatePath(pointer, timeSeriesName):
 
 
 def readJSON_data(pointer, timeSeriesName, fileName=''):
+    """
+    Outputs a pandas DataFrame generated from the specified JSON file or None if the file could not be loaded.
+
+    Input:
+    - pointer: float
+        Folder number to find the JSON file.
+    - timeSeriesName: string
+        'deviceMotion_walking_outbound', 'deviceMotion_walking_rest' or 'pedometer_walking_outbound'
+    - fileName: string (default='')
+        Name of the JSON file if it is a preprocessed version or an empty string if it is the original.
+    """
+
     path = generatePath(pointer, timeSeriesName)
     try:
         if len(fileName) > 0:
@@ -51,6 +72,14 @@ def readJSON_data(pointer, timeSeriesName, fileName=''):
 
 
 def loadUserInput():
+    """
+    Outputs two pandas DataFrames, one with time-series data of the acceleration or rotation rate and the second with pedometer data.
+    The DataFrames are from a random sample but have properties as specified by the user. The user has the following options:
+        * Choose between one of the three stages of the experiment (outbound, rest or return);
+        * If the data is from a person with or without Parkinson's disease;
+        * Choose between time-series data of the rotation rate or the acceleration.
+    If the user selects the rest stage, the pedometer DataFrame returned is None.
+    """
     timeSeriesOptions = ['walking_outbound',
                          'walking_return',
                          'walking_rest']
@@ -85,10 +114,33 @@ def loadUserInput():
 
 
 def waveletName(wavelet, level):
+    """
+    Outputs a string that represents the smoothing type used.
+
+    Input:
+        - wavelet: string
+            Wavelet to use, empty string if no wavelet is used for smoothing.
+            example: 'db9'
+        - level: integer
+            Decomposition level for the wavelet.
+    """
     return '-{}-level{}'.format(wavelet, str(level))
 
 
 def genFileName(sampleType, wavelet, level):
+    """
+    Outputs string with the file name of the JSON file.
+
+    Input:
+        - sampleType: string
+            'Accel' or 'RotRate'
+        - wavelet: string
+            Wavelet to use, empty string if no wavelet is used for smoothing.
+            example: 'db9'
+        - level: integer
+            Decomposition level for the wavelet. This parameter is not considered if no wavelet is used, in this
+            case, None should be passed for clarity.
+    """
     if wavelet == "":
         return '{}.json'.format(sampleType)
     waveletFileName = '{}{}.json'.format(sampleType, waveletName(wavelet, level))
@@ -96,6 +148,25 @@ def genFileName(sampleType, wavelet, level):
 
 
 def saveTimeSeries(data, pointer, timeSeriesName, sampleType, wavelet, level):
+    """
+    Converts the time-series table to a JSON string.
+
+    Input:
+        - data: pandas DataFrame
+            Time-series table.
+        - pointer: float
+            Folder number to find the JSON file.
+        - timeSeriesName: string
+            'deviceMotion_walking_outbound', 'deviceMotion_walking_rest' or 'pedometer_walking_outbound'
+        - sampleType: string
+            'Accel' or 'RotRate'
+        - wavelet: string
+            Wavelet to use, empty string if no wavelet is used for smoothing.
+            example: 'db9'
+        - level: integer
+            Decomposition level for the wavelet. This parameter is not considered if no wavelet is used, in this
+            case, None should be passed for clarity.
+    """
     path = generatePath(pointer, timeSeriesName)
     fileName = genFileName(sampleType, wavelet, level)
     data.to_json(path + fileName, orient='split')
@@ -104,6 +175,18 @@ def saveTimeSeries(data, pointer, timeSeriesName, sampleType, wavelet, level):
 
 
 def waveletFiltering(data, wavelet, level):
+    """
+    Applies the specified smoothing to the time-series.
+
+    Input:
+        - data: pandas DataFrame
+            Time-series table.
+        - wavelet: string
+            Wavelet to use, empty string if no wavelet is used for smoothing.
+            example: 'db9'
+        - level: integer
+            Decomposition level for the wavelet.
+    """
     for axis in ['x', 'y', 'z']:
         coeffs = pywt.wavedec(data[axis], wavelet, level=level)
         data[axis] = pywt.upcoef('a', coeffs[0], wavelet, level=level, take=len(data))
@@ -145,6 +228,14 @@ def rotation3D(q, dataX, dataY, dataZ):
 
 
 def preprocessDeviceMotion(data):
+    """
+    Outputs two DataFrames with time-series data in the world frame coordinate system, one of the
+    acceleration and a second of the rotation rate.
+
+    Input:
+        data: pandas DataFrame
+            DataFrame with time-series data of the acceleration, the rotation rate and the attitude.
+    """
     dataAcc = data['timestamp'].to_frame()
     dataRot = data['timestamp'].to_frame()
     for index, row in enumerate(data.itertuples()):

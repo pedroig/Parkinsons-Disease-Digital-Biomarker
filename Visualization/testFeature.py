@@ -142,6 +142,15 @@ class AzimuthAngle(RawSpherical):
 
 class Overview():
     def __init__(self, segments=False, totalAvgStep=False):
+        """
+        Input:
+            - segments: bool (default=False)
+                Whether to add vertical bars for the segments of each step in the graph plotted by making use of the pedometer data.
+            - totalAvgStep: bool (default=False)
+                Whether to use the total number of steps as the reference to build the segments, resulting in equally spaced segments. The other
+                option is to use each pedometer sample as the reference for the step duration in the respective interval of the time-series.
+                This parameter is not considered if segments=False.
+        """
         self.data, self.dataPedo = utils.loadUserInput()
         self.segments = segments
         self.totalAvgStep = totalAvgStep
@@ -156,6 +165,9 @@ class Overview():
         plt.legend()
 
     def show(self):
+        """
+        Displays a figure of the overview.
+        """
         for index, axis in enumerate(['x', 'y', 'z']):
             plt.subplot(2, 2, index + 1)
             obj = RawFeature(axis, self.data)
@@ -166,15 +178,39 @@ class Overview():
         plt.show()
 
     def addWavelet(self, wavelet, level):
+        """
+        Input:
+            - wavelet: string
+                Wavelet to use, empty string if no wavelet is used for smoothing.
+                example: 'db9'
+            - level: integer
+                Decomposition level for the wavelet.
+        """
         self.waveletList.append((wavelet, level))
 
     def removeAllWavelets(self):
+        """
+        Removes all the wavelets curves added by the addWavelet method.
+        """
         self.waveletList = []
 
     def removeWavelet(self, wavelet, level):
+        """
+        Removes the wavelet curve specified from the plotting.
+
+        Input:
+            - wavelet: string
+                Wavelet to use, empty string if no wavelet is used for smoothing.
+                example: 'db9'
+            - level: integer
+                Decomposition level for the wavelet.
+        """
         self.waveletList.remove((wavelet, level))
 
     def plotSegments(self):
+        """
+        Plots vertical bars for the segments of each step in the graph.
+        """
         start = datetime.strptime(self.dataPedo.loc[0, 'startDate'], '%Y-%m-%dT%H:%M:%S%z')
         if self.totalAvgStep:
             end = datetime.strptime(self.dataPedo.loc[:, 'endDate'].iloc[-1], '%Y-%m-%dT%H:%M:%S%z')

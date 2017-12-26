@@ -7,6 +7,11 @@ import multiprocessing
 
 
 def apply_df(args):
+    """
+        Input:
+            args: tuple
+                A tuple with the DataFrame, the function, and the function parameters.
+    """
     df, func, kwargs = args
     timeSeriesName, wavelet, level = kwargs["args"]
     args = df, timeSeriesName, wavelet, level
@@ -14,6 +19,18 @@ def apply_df(args):
 
 
 def apply_by_multiprocessing(df, func, **kwargs):
+    """
+    Applies a function to all the rows of a DataFrame with the use of multiple processes.
+
+    Input:
+        df: pandas DataFrame
+            DataFrame that is going to be operated by multiple processes.
+        func: function
+            The function applied to the DataFrame.
+        kwargs: dict
+            Dictionary with the parameters that are going to be used by func and the number
+            of processes under the keyword 'workers'.
+    """
     workers = kwargs.pop('workers')
     pool = multiprocessing.Pool(processes=workers)
     result = pool.map(apply_df, [(d, func, kwargs)
@@ -23,6 +40,20 @@ def apply_by_multiprocessing(df, func, **kwargs):
 
 
 def rowFeaturise(row, features, timeSeriesName, wavelet, level):
+    """
+    Input:
+        - row: pandas Series
+            The row of the features table that is going to be processed.
+        - features: pandas DataFrame
+            Table with pointers to JSON files that is going to have new columns with the extracted features.
+        - timeSeriesName: string
+            'deviceMotion_walking_outbound', 'deviceMotion_walking_rest' or 'pedometer_walking_outbound'
+        - wavelet: string
+            Wavelet to use, empty string if no wavelet is used for smoothing.
+            example: 'db9'
+        - level: integer
+            Decomposition level for the wavelet. This parameter is not considered if no wavelet is used.
+    """
     pointer = features.loc[row.name, timeSeriesName + '.json.items']
     if ~np.isnan(pointer):
         data = utils.readJSON_data(pointer, timeSeriesName)
@@ -49,6 +80,21 @@ def rowFeaturise(row, features, timeSeriesName, wavelet, level):
 
 
 def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
+    """
+    Accesses the walking activity CSV table, executes the first stages of data cleaning,
+    performs the feature generation and saves the results in a new table.
+
+    Input:
+        - num_cores: int (default=1)
+            The number of worker processes to use.
+        - dataFraction: float (default=1)
+            0 < dataFraction <= 1
+        - wavelet: string (default='')
+            Wavelet to use, empty string if no wavelet is used for smoothing.
+            example: 'db9'
+        - level: integer (default=None)
+            Decomposition level for the wavelet. This parameter is not considered if no wavelet is used.
+    """
     startTime = time.time()
     walking_activity = pd.read_csv("../data/walking_activity.csv", index_col=0)
     columns_to_keep_walking = [

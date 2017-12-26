@@ -26,9 +26,9 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
         Whether to show the metrics of predictions on the test set.
     - dropAge: bool (default=False)
         Whether to use age as a feature.
-    -criterion: string (default='gini')
+    - criterion: string (default='gini')
         The function to measure the quality of a split: 'gini' or 'entropy'
-    -ensemble_size: int
+    - ensemble_size: int
         Number of classifiers trained on different training sets when undersampling is applied. This number must be odd.
     """
 
@@ -53,7 +53,7 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
     }
     importances = 0
     X = {}
-    X["val"], y_val, feature_names = lu.load_data("val", selectOldAge=oldAgeVal, dropAge=dropAge, balance_undersampling=True)
+    X["val"], y_val, feature_names = lu.load_data("val", selectOldAge=oldAgeVal, dropAge=dropAge)
     X["test"], y_test, _ = lu.load_data("test", selectOldAge=oldAgeTest, dropAge=dropAge)
     X["val_test"] = np.concatenate((X["val"], X["test"]))
     y_val_test = np.concatenate((y_val, y_test))
@@ -73,7 +73,7 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
         for setName in ["val", "test", "val_test"]:
             y_pred_total[setName] += rnd_clf[i].predict_proba(X[setName]) > 0.5  # threshold
 
-    lu.metricsShowAcumulate(metrics_train_total, "Training", ensemble_size)
+    lu.metricsShowAccumulate(metrics_train_total, ensemble_size)
     lu.metricsShowEnsemble(y_val, y_pred_total["val"], "Validation", ensemble_size, threshold=0.5)
 
     if showTest:
@@ -86,9 +86,9 @@ def randomForestModel(undersampling_train=False, oversampling_train=False,
     plt.figure()
     number_of_features = X["val"].shape[1]
     plt.bar(range(number_of_features), importances[indices])
-    plt.xticks(range(number_of_features), indices)
+    # plt.xticks(range(number_of_features), indices)
     plt.ylabel('Feature Importance')
-    plt.xlabel('Features')
+    plt.xlabel('Features in decreasing order of importance')
     plt.show()
     for i in range(number_of_features):
         print("%d . feature %s (%f)" % (i + 1, feature_names[indices[i]], importances[indices[i]]))
@@ -98,6 +98,13 @@ def randomForestTuning(undersampling_train=False, oversampling_train=False,
                        oldAgeTrain=False, oldAgeVal=False,
                        dropAge=False, criterion='gini'):
     """
+    Plots the model performance for a range of hyperparameters values. While one hyperparameter chosen by the user
+    is plotted in a range of values, the other ones are fixed to standard quantities. Three hyperparameters
+    can be analyzed in this procedure:
+        * The maximum depth of the tree;
+        * The number of trees in the forest;
+        * The minimum number of samples required to split an internal node.
+
     Input:
     - undersamplig_train: bool (default=False)
         Whether to undersample the majority class in the training set.
@@ -109,7 +116,7 @@ def randomForestTuning(undersampling_train=False, oversampling_train=False,
         Whether to select only people older 56 years in the validation set.
     - dropAge: bool (default=False)
         Whether to use age as a feature.
-    -criterion: string (default='gini')
+    - criterion: string (default='gini')
         The function to measure the quality of a split: 'gini' or 'entropy'
     """
 
@@ -122,7 +129,7 @@ def randomForestTuning(undersampling_train=False, oversampling_train=False,
     roc_auc_val = []
 
     std_values = {
-        "max_depth": 7,
+        "max_depth": 5,
         "n_estimators": 13,
         "min_samples_split": 12
     }
