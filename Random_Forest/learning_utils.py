@@ -63,7 +63,6 @@ def metricsShowEnsemble(y_test, y_pred_total, setName, ensemble_size, threshold=
     - threshold: float
         0 < threshold < 1
     """
-    print(type(y_test), type(y_pred_total))
     print("\nMetrics on {} Set".format(setName))
     y_prob = y_pred_total / ensemble_size
     y_prob = y_prob[:, 1]  # positiveClass

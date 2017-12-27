@@ -103,7 +103,7 @@ Following the insights of the [GuanLab's solution](https://www.synapse.org/#!Syn
 
 * The second type of data augmentation was the use of a random 3D rotation to simulate people holding the phone in different orientations which would correspond to different world frame coordinate systems. However, it is important to highlight that the rotation is limited to the plane orthogonal to the z-axis since this axis is always well defined by the gravity in the world's frame. It is also worth mentioning that this rotation is not contradictory with the rotation executed to convert the data from the phone's frame to the world's frame. This is explained by the fact that the conversion rotation was based in the quaternions from the gyroscope data which changes for each timestamp while the augmentation uses a single quaternion, applying the same corresponding rotation to all the samples in a 3D time series.
 
-The code that performs the data augmentation described above can be found in the [function augmentData](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py) that generates one augmented version for each rotation rate time-series sample. An augmented version of the training table is created by the [function generateAugmentedTable](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py) that receives as parameter the fraction of the training data that is going to have the augmented version used.
+The code that performs the data augmentation described above can be found in the [function augmentRow](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py) that generates JSON augmented versions for the rotation rate samples of one sequence of measurement, this function is then parallelized by the [apply_by_multiprocessing_augmentation function](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py) in order to be applied to all the data samples. An augmented version of the training table is created by the [function generateAugmentedTable](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py) that receives as parameter the fraction of the training data that is going to have the augmented version used.
 
 #### 1.4 Feature Generation
 
@@ -269,9 +269,9 @@ Besides the definition of parameters for the feature calculation, there is anoth
 * Option to apply different types of wavelets for filtering.
 
 It's also worth mentioning that the constructor method of the classes mentioned above requires an interaction with the user for the selection of a set of samples from which a random element will be chosen to be loaded. The user has the following options:
-	* Choose between one of the three stages of the experiment (outbound, rest or return);
-	* If the data is from a person with or without Parkinson's disease;
-	* Choose between time-series data of the rotation rate or the acceleration.
+* Choose between one of the three stages of the experiment (outbound, rest or return);
+* If the data is from a person with or without Parkinson's disease;
+* Choose between time-series data of the rotation rate or the acceleration.
 
 The picture below illustrates the main functionalities of the Overview class using the rotation rate data from a Parkinson's disease patient in the walking outbound stage:
 
@@ -306,6 +306,25 @@ To surpass the limitations of a lower dimension projection with PCA, the t-SNE m
 ##### 3.3.3 [PyWavelets Manual](https://media.readthedocs.org/pdf/pywavelets/latest/pywavelets.pdf)
 
 ##### 3.3.4 [Understanding ROC curves and Area Under the Curve](https://www.youtube.com/watch?v=OAl6eAyP-yo)
+
+### 4 Instructions to run the code
+
+If you have access to the Parkinson's Disease Digital Biomarker dataset, the results obtained in this project can be reproduced by the following sequence of steps:
+
+* Clone or download the repository.
+
+* Place the demographics.csv and walking_activity.csv tables in the directory ./data/  .
+
+* Place the JSON files in a directory with the following pattern: ./data/{timeSeriesName}/{last three digits of the pointer in the walking_actibity table}/{pointer number}/ . The parameter timeSeriesName has three possible values: 'deviceMotion_walking_outbound', 'deviceMotion_walking_rest' or 'pedometer_walking_outbound' .
+
+* Run the /Features/run.py code three times with the following sequence of command-line arguments:
+	1. 'cleanFeaturise'
+	2. 'splitSets' (Note: possible warnings should be ignored)
+	3. 'augmentation'
+
+	It's important to take in mind that to execute it with the parameters _i_ and _iii_ without parallelization could take days. On the other hand, the execution with parameter 2 takes about two minutes, allowing a quick reuse afterward if the user intends to generate a new dataset distribution for the Training, Validation and Test sets.
+
+Now, all the data is already set up and the user can safely run the Random Forest Model or the Convolutional Model.
 
 ----------------
 
