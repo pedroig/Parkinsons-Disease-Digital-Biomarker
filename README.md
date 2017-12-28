@@ -49,7 +49,7 @@ More details about parameter descriptions at https://www.synapse.org/#!Synapse:s
 -----------
 ## Sequence of studies and uses of the dataset
 
-### 1 Before the Machine Learning Models
+### 1. Before the Machine Learning Models
 
 #### 1.1 Cleaning
 
@@ -179,7 +179,7 @@ The code responsible for the feature generation is divided into 3 parts:
 * [utils](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/utils.py): Utility functions used for file manipulation or data preprocessing.
 * [run](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/run.py): Top-level script to execute the cleanFeaturise code, splitSets code or the data augmentation.
 
-### 2 Machine Learning Modeling
+### 2. Machine Learning Modeling
 
 #### 2.1. Random Forest
 
@@ -258,7 +258,7 @@ The code related to the convolutional neural network can be found in the [CNN cl
 
 With the main part of the model done by the logits_prediction method, the logits result is then used in the optimize method in which the probability of each class is calculated with a softmax function and used to calculate the cross-entropy loss function. Finally, the optimize method outputs the gradient descent operation with Adam optimization.
 
-### 3 Extra
+### 3. Extra
 
 #### 3.1. Testing features
 
@@ -307,7 +307,7 @@ To surpass the limitations of a lower dimension projection with PCA, the t-SNE m
 
 ##### 3.3.4 [Understanding ROC curves and Area Under the Curve](https://www.youtube.com/watch?v=OAl6eAyP-yo)
 
-### 4 Instructions to run the code
+### 4. Instructions to run the code
 
 If you have access to the Parkinson's Disease Digital Biomarker dataset, the results obtained in this project can be reproduced by the following sequence of steps:
 
@@ -322,7 +322,7 @@ If you have access to the Parkinson's Disease Digital Biomarker dataset, the res
 	2. 'splitSets' (Note: possible warnings should be ignored)
 	3. 'augmentation'
 
-	It's important to take in mind that to execute it with the parameters _i_ and _iii_ without parallelization could take days. On the other hand, the execution with parameter 2 takes about two minutes, allowing a quick reuse afterward if the user intends to generate a new dataset distribution for the Training, Validation and Test sets.
+	It's important to take in mind that to execute it with the parameters _i_ and _iii_ without parallelization could take days. On the other hand, the execution with parameter _ii_ takes about two minutes, allowing a quick reuse afterward if the user intends to generate a new dataset distribution for the Training, Validation and Test sets.
 
 Now, all the data is already set up and the user can safely run the Random Forest Model or the Convolutional Model.
 

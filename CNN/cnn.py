@@ -63,7 +63,8 @@ class CNN:
                  max_checks_without_progress=500,
                  developmentSet='val',
                  restoreFolderName='',
-                 useAugmentedData=False):
+                 useAugmentedData=False,
+                 balance_undersampling=False):
         """
         Input:
             - learning_rate: float
@@ -93,6 +94,8 @@ class CNN:
                 Folder name for checkpoint to be restored. If the string is empty, nothing is restored
             - useAugmentedData: bool
                 Whether to use augmented data in the training set.
+            - balance_undersampling: bool
+                Whether to apply undersampling to balance the labels in the training set.
         """
         self.channels_input = 3
         self.n_outputs = 2
@@ -106,6 +109,7 @@ class CNN:
         self.restoreFolderName = restoreFolderName
         self.developmentSet = developmentSet
         self.useAugmentedData = useAugmentedData
+        self.balance_undersampling = balance_undersampling
 
         self.generateDirectoriesNames()
 
@@ -348,6 +352,8 @@ class CNN:
             folderName += "_{}{}".format(self.wavelet, self.level)
         if self.useAugmentedData:
             folderName += "_augmented"
+        if self.balance_undersampling:
+            folderName += "_undersampling"
         self.logdir = "tf_logs/{}/".format(folderName)
         self.checkpointdir = "./checkpoints/{}/model.ckpt".format(folderName)
 
@@ -379,6 +385,20 @@ class CNN:
             self.featuresTableTrain = self.readPreprocessTable('train_augmented')
         else:
             self.featuresTableTrain = self.readPreprocessTable('train')
+
+        if self.balance_undersampling:
+            X = self.featuresTableTrain
+            y = self.featuresTableTrain.Target
+            pd_indices = X[y].index
+            healthy_indices = X[~y].index
+            if len(pd_indices) > len(healthy_indices):
+                random_pd_indices = np.random.choice(pd_indices, len(healthy_indices), replace=False)
+                balanced_indices = np.append(random_pd_indices, healthy_indices)
+            else:
+                random_healthy_indices = np.random.choice(healthy_indices, len(pd_indices), replace=False)
+                balanced_indices = np.append(random_healthy_indices, pd_indices)
+            self.featuresTableTrain = X.loc[balanced_indices, :]
+
         self.featuresTableVal = self.readPreprocessTable(self.developmentSet)
 
         if validateOnOldAgeGroup:
@@ -425,7 +445,8 @@ def main():
     model = CNN(learning_rate=0.0001,
                 batch_size=100,
                 timeSeries='rest',
-                useAugmentedData=False)
+                useAugmentedData=False,
+                balance_undersampling=False)
     model.train()
 
 
