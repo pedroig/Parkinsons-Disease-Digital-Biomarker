@@ -64,7 +64,8 @@ class CNN:
                  developmentSet='val',
                  restoreFolderName='',
                  useAugmentedData=False,
-                 balance_undersampling=False):
+                 balance_undersampling=False,
+                 noOutlierTable=False):
         """
         Input:
             - learning_rate: float
@@ -96,6 +97,8 @@ class CNN:
                 Whether to use augmented data in the training set.
             - balance_undersampling: bool
                 Whether to apply undersampling to balance the labels in the training set.
+            - noOutlierTable: bool
+                Whether to read from tables without possible outliers.
         """
         self.channels_input = 3
         self.n_outputs = 2
@@ -110,6 +113,7 @@ class CNN:
         self.developmentSet = developmentSet
         self.useAugmentedData = useAugmentedData
         self.balance_undersampling = balance_undersampling
+        self.noOutlierTable = noOutlierTable
 
         self.generateDirectoriesNames()
 
@@ -354,6 +358,8 @@ class CNN:
             folderName += "_augmented"
         if self.balance_undersampling:
             folderName += "_undersampling"
+        if self.noOutlierTable:
+            folderName += "_noOutliers"
         self.logdir = "tf_logs/{}/".format(folderName)
         self.checkpointdir = "./checkpoints/{}/model.ckpt".format(folderName)
 
@@ -381,10 +387,12 @@ class CNN:
         """
 
         # Reading tables
+        table = 'train'
         if self.useAugmentedData:
-            self.featuresTableTrain = self.readPreprocessTable('train_augmented')
-        else:
-            self.featuresTableTrain = self.readPreprocessTable('train')
+            table += '_augmented'
+        if self.noOutlierTable:
+            table += '_noOutliers'
+        self.featuresTableTrain = self.readPreprocessTable(table)
 
         if self.balance_undersampling:
             X = self.featuresTableTrain
@@ -399,7 +407,10 @@ class CNN:
                 balanced_indices = np.append(random_healthy_indices, pd_indices)
             self.featuresTableTrain = X.loc[balanced_indices, :]
 
-        self.featuresTableVal = self.readPreprocessTable(self.developmentSet)
+        table = self.developmentSet
+        if self.noOutlierTable:
+            table += '_noOutliers'
+        self.featuresTableVal = self.readPreprocessTable(table)
 
         if validateOnOldAgeGroup:
             self.featuresTableVal = self.featuresTableVal[self.featuresTableVal.age > 56]
@@ -439,14 +450,15 @@ def main():
 
     tf.reset_default_graph()
 
-    # model = CNN(restoreFolderName='run-20171217013755_rest_epochs-50_learningRate-0.0001_batchSize-100', developmentSet='test')
+    # model = CNN(restoreFolderName='run-20171229071144_rest_epochs-50_learningRate-0.0001_batchSize-100_augmented', developmentSet='test')
     # model.evaluateMetricsRestored()
 
     model = CNN(learning_rate=0.0001,
                 batch_size=100,
                 timeSeries='rest',
                 useAugmentedData=False,
-                balance_undersampling=False)
+                balance_undersampling=False,
+                noOutlierTable=False)
     model.train()
 
 
