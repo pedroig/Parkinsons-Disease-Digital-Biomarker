@@ -20,7 +20,7 @@ def outlierRemoval():
     walking_activity_features.to_csv("../data/walking_activity_features.csv")
 
 
-def outlierSearch():
+def outlierSearch(iterations):
     outlierRemoval()
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
     demographics.loc[:, "outlierCounter"] = 0
@@ -28,10 +28,12 @@ def outlierSearch():
     demographics.loc[:, "valTestCounterBad"] = 0
     demographics = demographics.loc[:, ["healthCode", "outlierCounter", "valTestCounter", "valTestCounterBad"]]
 
-    for i in range(400):
+    total_auc = 0
+    for i in range(iterations):
         print("\nIteration {}".format(i))
         splitSets.generateSetTables(outlierRemoval=False)
         val_auc, test_auc = randomForestModel(dropAge=True, ensemble_size=11)
+        total_auc += (val_auc + test_auc)
 
         possibleOutliers = pd.read_csv("../data/val_extra_columns.csv", index_col=0).healthCode.unique()
         rowsToAdd = demographics[demographics['healthCode'].isin(possibleOutliers)].index
@@ -51,6 +53,7 @@ def outlierSearch():
     demographics.loc[:, "avgOutlierCounter"] = demographics.outlierCounter / demographics.valTestCounter
     demographics.sort_values(by=['avgOutlierCounter'], ascending=False, inplace=True)
     demographics.to_csv("outlierSort.csv")
+    print("\nAvg AUC score:", total_auc / (2 * iterations))
 
 
 def randomForestModel(oldAgeTrain=False, criterion='gini', ensemble_size=1, dropAge=False):

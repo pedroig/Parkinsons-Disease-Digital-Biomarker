@@ -30,13 +30,18 @@ mkdir checkpoints
 cd ../data
 mv features.csv $HOME/Results/CSVtables
 mv features_extra_columns.csv $HOME/Results/CSVtables
+mv features_noOutliers_extra_columns.csv $HOME/Results/CSVtables
 mv train.csv $HOME/Results/CSVtables
 mv train_extra_columns.csv  $HOME/Results/CSVtables
+mv train_noOutliers_extra_columns.csv $HOME/Results/CSVtables
 mv train_augmented_extra_columns.csv  $HOME/Results/CSVtables
+mv train_augmented_noOutliers_extra_columns.csv $HOME/Results/CSVtables
 mv val.csv $HOME/Results/CSVtables
 mv val_extra_columns.csv $HOME/Results/CSVtables
+mv val_noOutliers_extra_columns.csv $HOME/Results/CSVtables
 mv test.csv $HOME/Results/CSVtables
 mv test_extra_columns.csv $HOME/Results/CSVtables
+mv test_noOutliers_extra_columns.csv $HOME/Results/CSVtables
 
 cd ../Features
 ls | grep -P "^slurm-.*.out" | xargs -d"\n" rm

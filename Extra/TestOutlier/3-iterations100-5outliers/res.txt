@@ -1,0 +1,2820 @@
+Python 3.6.1 |Anaconda custom (64-bit)| (default, May 11 2017, 13:25:24) [MSC v.1900 64 bit (AMD64)]
+Type "copyright", "credits" or "license" for more information.
+
+IPython 5.3.0 -- An enhanced Interactive Python.
+?         -> Introduction and overview of IPython's features.
+%quickref -> Quick reference.
+help      -> Python's own help system.
+object?   -> Details about 'object', use 'object??' for extra details.
+
+In [1]: cd
+C:\Users\pedro
+
+In [2]: cd Desktop/Parkinsons-Disease-Digital-Biomarker/Extra/
+C:\Users\pedro\Desktop\Parkinsons-Disease-Digital-Biomarker\Extra
+
+In [3]: run outlierSearch.py
+
+In [4]: outlierSearch(100)
+
+Iteration 0
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7533295569812016
+Precision: 0.7554149708678686
+Recall: 0.7496278536707461
+F1 Score: 0.7523747230556281
+ROC score: 0.8339203466007183
+
+Metrics on Validation Set
+        Accuracy: 0.658016682113
+        Precision: 0.834459459459
+        Recall: 0.645751633987
+        F1 Score: 0.728076639646
+        ROC score: 0.727321926648
+
+Metrics on Test Set
+        Accuracy: 0.701323251418
+        Precision: 0.969655172414
+        Recall: 0.705115346038
+        F1 Score: 0.816492450639
+        ROC score: 0.707347452193
+
+Iteration 1
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7608870595374732
+Precision: 0.7699985345037038
+Recall: 0.7442513951003286
+F1 Score: 0.7567922793086441
+ROC score: 0.8388660774193643
+
+Metrics on Validation Set
+        Accuracy: 0.587579617834
+        Precision: 0.932489451477
+        Recall: 0.585172109444
+        F1 Score: 0.719088937093
+        ROC score: 0.629898320166
+
+Metrics on Test Set
+        Accuracy: 0.735404392073
+        Precision: 0.9859375
+        Recall: 0.726121979287
+        F1 Score: 0.836315440689
+        ROC score: 0.86338658888
+
+Iteration 2
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7598850194391595
+Precision: 0.7585854282522345
+Recall: 0.7627733200981607
+F1 Score: 0.760579537291751
+ROC score: 0.8367555515512834
+
+Metrics on Validation Set
+        Accuracy: 0.632096069869
+        Precision: 0.902578796562
+        Recall: 0.622940013184
+        F1 Score: 0.737129485179
+        ROC score: 0.708475374329
+
+Metrics on Test Set
+        Accuracy: 0.631029986962
+        Precision: 0.908237747654
+        Recall: 0.645663454411
+        F1 Score: 0.754766031196
+        ROC score: 0.605711938773
+
+Iteration 3
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7546943748730793
+Precision: 0.7455215108794533
+Recall: 0.773505719894402
+F1 Score: 0.75921142402162
+ROC score: 0.8339854957669399
+
+Metrics on Validation Set
+        Accuracy: 0.653809971778
+        Precision: 0.917057902973
+        Recall: 0.65038845727
+        F1 Score: 0.761038961039
+        ROC score: 0.723917869034
+
+Metrics on Test Set
+        Accuracy: 0.766501650165
+        Precision: 0.925619834711
+        Recall: 0.780876494024
+        F1 Score: 0.847109670448
+        ROC score: 0.802374636071
+
+Iteration 4
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7641126837234622
+Precision: 0.7646640007943872
+Recall: 0.7633641807294502
+F1 Score: 0.7639256414842478
+ROC score: 0.8400540953341004
+
+Metrics on Validation Set
+        Accuracy: 0.718336483932
+        Precision: 0.960980036298
+        Recall: 0.723855092276
+        F1 Score: 0.825730994152
+        ROC score: 0.757317597513
+
+Metrics on Test Set
+        Accuracy: 0.714512711864
+        Precision: 0.936921783011
+        Recall: 0.705956907478
+        F1 Score: 0.805204192266
+        ROC score: 0.775567275849
+
+Iteration 5
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7555025354486996
+Precision: 0.7570597649775799
+Recall: 0.7527631632611445
+F1 Score: 0.7548394177642229
+ROC score: 0.8329950496696565
+
+Metrics on Validation Set
+        Accuracy: 0.699155794321
+        Precision: 0.958705357143
+        Recall: 0.707578253707
+        F1 Score: 0.814218009479
+        ROC score: 0.716662347519
+
+Metrics on Test Set
+        Accuracy: 0.629726205997
+        Precision: 0.915217391304
+        Recall: 0.632132132132
+        F1 Score: 0.747779751332
+        ROC score: 0.659348705141
+
+Iteration 6
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7590476319277272
+Precision: 0.7579563852549629
+Recall: 0.7615834032079198
+F1 Score: 0.759628026027082
+ROC score: 0.8365517078524946
+
+Metrics on Validation Set
+        Accuracy: 0.720342805593
+        Precision: 0.935821872954
+        Recall: 0.732444900051
+        F1 Score: 0.821736630247
+        ROC score: 0.73304031478
+
+Metrics on Test Set
+        Accuracy: 0.715750915751
+        Precision: 0.900305188199
+        Recall: 0.753191489362
+        F1 Score: 0.820203892493
+        ROC score: 0.638651735722
+
+Iteration 7
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7647963647653184
+Precision: 0.7629027087453768
+Recall: 0.7687194829386695
+F1 Score: 0.7657089401535596
+ROC score: 0.8450588773973849
+
+Metrics on Validation Set
+        Accuracy: 0.621926910299
+        Precision: 0.831184056272
+        Recall: 0.625220458554
+        F1 Score: 0.713638651233
+        ROC score: 0.639802811411
+
+Metrics on Test Set
+        Accuracy: 0.715328467153
+        Precision: 0.940298507463
+        Recall: 0.725328947368
+        F1 Score: 0.818941504178
+        ROC score: 0.75855595428
+
+Iteration 8
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7705607343424841
+Precision: 0.7636842697757961
+Recall: 0.7837452606972832
+F1 Score: 0.7735549771482115
+ROC score: 0.8505964376550206
+
+Metrics on Validation Set
+        Accuracy: 0.734557595993
+        Precision: 0.912322274882
+        Recall: 0.759368836292
+        F1 Score: 0.828848223897
+        ROC score: 0.73639696424
+
+Metrics on Test Set
+        Accuracy: 0.566702819957
+        Precision: 0.817582417582
+        Recall: 0.540305010893
+        F1 Score: 0.650634018365
+        ROC score: 0.615389101156
+
+Iteration 9
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7622543407104083
+Precision: 0.7611496623972115
+Recall: 0.7645442422446422
+F1 Score: 0.7627833154983296
+ROC score: 0.8411114788425127
+
+Metrics on Validation Set
+        Accuracy: 0.745068285281
+        Precision: 0.952681388013
+        Recall: 0.756892230576
+        F1 Score: 0.843575418994
+        ROC score: 0.741571559753
+
+Metrics on Test Set
+        Accuracy: 0.733449477352
+        Precision: 0.924936386768
+        Recall: 0.746406570842
+        F1 Score: 0.826136363636
+        ROC score: 0.777080530577
+
+Iteration 10
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7554238094625703
+Precision: 0.755458348241847
+Recall: 0.7558739181316633
+F1 Score: 0.7555387221366124
+ROC score: 0.832634939168818
+
+Metrics on Validation Set
+        Accuracy: 0.834782608696
+        Precision: 0.974673829624
+        Recall: 0.84497671324
+        F1 Score: 0.905203136137
+        ROC score: 0.823191622985
+
+Metrics on Test Set
+        Accuracy: 0.741477272727
+        Precision: 0.973965287049
+        Recall: 0.742115971516
+        F1 Score: 0.842378752887
+        ROC score: 0.791324084784
+
+Iteration 11
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7580874330804556
+Precision: 0.7596934373580578
+Recall: 0.7551442417476466
+F1 Score: 0.757367051348867
+ROC score: 0.8363925082868516
+
+Metrics on Validation Set
+        Accuracy: 0.679152291769
+        Precision: 0.972623574144
+        Recall: 0.675290390707
+        F1 Score: 0.79713306326
+        ROC score: 0.764670108334
+
+Metrics on Test Set
+        Accuracy: 0.698292220114
+        Precision: 0.954109589041
+        Recall: 0.70998980632
+        F1 Score: 0.81414377557
+        ROC score: 0.675680393225
+
+Iteration 12
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7575377053143342
+Precision: 0.7539647753141282
+Recall: 0.7648504546126056
+F1 Score: 0.7592991644742252
+ROC score: 0.8357589094666377
+
+Metrics on Validation Set
+        Accuracy: 0.736136783734
+        Precision: 0.882724719101
+        Recall: 0.756773028296
+        F1 Score: 0.814910858995
+        ROC score: 0.775364070843
+
+Metrics on Test Set
+        Accuracy: 0.771253286591
+        Precision: 0.957992998833
+        Recall: 0.784894837476
+        F1 Score: 0.862848134524
+        ROC score: 0.724237697494
+
+Iteration 13
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7529945969252327
+Precision: 0.7551266101914851
+Recall: 0.7487907083282807
+F1 Score: 0.7518940171919831
+ROC score: 0.8305218750940292
+
+Metrics on Validation Set
+        Accuracy: 0.797413793103
+        Precision: 0.976666666667
+        Recall: 0.804208600183
+        F1 Score: 0.882087305569
+        ROC score: 0.835124469146
+
+Metrics on Test Set
+        Accuracy: 0.730720068172
+        Precision: 0.926593689633
+        Recall: 0.735309146653
+        F1 Score: 0.819943019943
+        ROC score: 0.789417999817
+
+Iteration 14
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7660813320862588
+Precision: 0.7619253176195303
+Recall: 0.7742224447049835
+F1 Score: 0.7679160883233361
+ROC score: 0.8444030271181572
+
+Metrics on Validation Set
+        Accuracy: 0.612265084075
+        Precision: 0.941176470588
+        Recall: 0.614386154678
+        F1 Score: 0.743455497382
+        ROC score: 0.631341109239
+
+Metrics on Test Set
+        Accuracy: 0.80350877193
+        Precision: 0.976762199845
+        Recall: 0.804722399489
+        F1 Score: 0.882435269419
+        ROC score: 0.866891882846
+
+Iteration 15
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7592273654646141
+Precision: 0.7606971087813101
+Recall: 0.7566704644815982
+F1 Score: 0.7586158207707817
+ROC score: 0.8381505141066751
+
+Metrics on Validation Set
+        Accuracy: 0.647125140924
+        Precision: 0.927732610659
+        Recall: 0.652892561983
+        F1 Score: 0.766417910448
+        ROC score: 0.660315713233
+
+Metrics on Test Set
+        Accuracy: 0.632024634334
+        Precision: 0.917539267016
+        Recall: 0.628136200717
+        F1 Score: 0.745744680851
+        ROC score: 0.709936933231
+
+Iteration 16
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7557426948051947
+Precision: 0.7548307062707622
+Recall: 0.7576163419913421
+F1 Score: 0.7561751626414263
+ROC score: 0.83328217703985
+
+Metrics on Validation Set
+        Accuracy: 0.762162162162
+        Precision: 0.962711864407
+        Recall: 0.741514360313
+        F1 Score: 0.837758112094
+        ROC score: 0.859791943774
+
+Metrics on Test Set
+        Accuracy: 0.64
+        Precision: 0.901170351105
+        Recall: 0.649484536082
+        F1 Score: 0.754901960784
+        ROC score: 0.663847363273
+
+Iteration 17
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7605598195301561
+Precision: 0.7657452011153612
+Recall: 0.7510371830109424
+F1 Score: 0.7582468076221702
+ROC score: 0.837282441174994
+
+Metrics on Validation Set
+        Accuracy: 0.633743111488
+        Precision: 0.956121726822
+        Recall: 0.627496516489
+        F1 Score: 0.757711721817
+        ROC score: 0.703739194351
+
+Metrics on Test Set
+        Accuracy: 0.647409172126
+        Precision: 0.931255728689
+        Recall: 0.662752772342
+        F1 Score: 0.774390243902
+        ROC score: 0.637866480801
+
+Iteration 18
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7562939689911891
+Precision: 0.7524327153883866
+Recall: 0.7645516016665528
+F1 Score: 0.7582532150460662
+ROC score: 0.8330582905030187
+
+Metrics on Validation Set
+        Accuracy: 0.839879154079
+        Precision: 0.956856702619
+        Recall: 0.855961405927
+        F1 Score: 0.903601309567
+        ROC score: 0.84875711139
+
+Metrics on Test Set
+        Accuracy: 0.65468164794
+        Precision: 0.952088452088
+        Recall: 0.647451963241
+        F1 Score: 0.770760815515
+        ROC score: 0.738882229729
+
+Iteration 19
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7581357815641868
+Precision: 0.7638356112453528
+Recall: 0.7474203619430628
+F1 Score: 0.755511539189274
+ROC score: 0.836787281525809
+
+Metrics on Validation Set
+        Accuracy: 0.680455635492
+        Precision: 0.957786116323
+        Recall: 0.67660702452
+        F1 Score: 0.793009708738
+        ROC score: 0.767789489478
+
+Metrics on Test Set
+        Accuracy: 0.710588235294
+        Precision: 0.96204278813
+        Recall: 0.71340839304
+        F1 Score: 0.819277108434
+        ROC score: 0.716262038583
+
+Iteration 20
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7506553122677064
+Precision: 0.7418310344429052
+Recall: 0.7692387944862482
+F1 Score: 0.7552054941461872
+ROC score: 0.8286263266281518
+
+Metrics on Validation Set
+        Accuracy: 0.748414376321
+        Precision: 0.970448045758
+        Recall: 0.75744047619
+        F1 Score: 0.850814876724
+        ROC score: 0.728670634921
+
+Metrics on Test Set
+        Accuracy: 0.760277365032
+        Precision: 0.937827225131
+        Recall: 0.786498353458
+        F1 Score: 0.85552238806
+        ROC score: 0.716716722294
+
+Iteration 21
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7574831686573283
+Precision: 0.7592223606863151
+Recall: 0.754388053384125
+F1 Score: 0.7566742363786336
+ROC score: 0.8357592982875031
+
+Metrics on Validation Set
+        Accuracy: 0.731246308328
+        Precision: 0.975107296137
+        Recall: 0.727272727273
+        F1 Score: 0.833149981665
+        ROC score: 0.814062026566
+
+Metrics on Test Set
+        Accuracy: 0.602601156069
+        Precision: 0.923076923077
+        Recall: 0.585858585859
+        F1 Score: 0.716786817714
+        ROC score: 0.69030440459
+
+Iteration 22
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7590036136262129
+Precision: 0.7566552309404098
+Recall: 0.7637744122782087
+F1 Score: 0.7601535553291984
+ROC score: 0.8385092970340365
+
+Metrics on Validation Set
+        Accuracy: 0.644521138913
+        Precision: 0.916548797737
+        Recall: 0.647352647353
+        F1 Score: 0.758782201405
+        ROC score: 0.671625842512
+
+Metrics on Test Set
+        Accuracy: 0.649522799576
+        Precision: 0.893428063943
+        Recall: 0.650290885585
+        F1 Score: 0.752712308268
+        ROC score: 0.696770607494
+
+Iteration 23
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7653100879073755
+Precision: 0.7707617120011786
+Recall: 0.7554808104631218
+F1 Score: 0.7629495530958952
+ROC score: 0.8424089836022581
+
+Metrics on Validation Set
+        Accuracy: 0.633169360506
+        Precision: 0.88915375447
+        Recall: 0.634893617021
+        F1 Score: 0.740814299901
+        ROC score: 0.686693548387
+
+Metrics on Test Set
+        Accuracy: 0.72179683512
+        Precision: 0.962441314554
+        Recall: 0.712217718587
+        F1 Score: 0.818635607321
+        ROC score: 0.792143791306
+
+Iteration 24
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7650894990403824
+Precision: 0.7669371490493567
+Recall: 0.7616884049456217
+F1 Score: 0.7642755966641306
+ROC score: 0.8398339504456015
+
+Metrics on Validation Set
+        Accuracy: 0.718241758242
+        Precision: 0.939219449776
+        Recall: 0.728897715988
+        F1 Score: 0.820799552698
+        ROC score: 0.748497110266
+
+Metrics on Test Set
+        Accuracy: 0.50802919708
+        Precision: 0.853835021708
+        Recall: 0.507308684437
+        F1 Score: 0.636461704423
+        ROC score: 0.507902683797
+
+Iteration 25
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7574433701279136
+Precision: 0.7566488190978355
+Recall: 0.7591278862746172
+F1 Score: 0.7578397104467289
+ROC score: 0.8371112824780618
+
+Metrics on Validation Set
+        Accuracy: 0.703254006799
+        Precision: 0.980448950036
+        Recall: 0.698658410733
+        F1 Score: 0.815908406146
+        ROC score: 0.802307482367
+
+Metrics on Test Set
+        Accuracy: 0.670095518001
+        Precision: 0.863291139241
+        Recall: 0.666666666667
+        F1 Score: 0.752344180916
+        ROC score: 0.719954363255
+
+Iteration 26
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7516587551690667
+Precision: 0.7498011499519386
+Recall: 0.755528075844004
+F1 Score: 0.752620073052616
+ROC score: 0.8291769759100006
+
+Metrics on Validation Set
+        Accuracy: 0.66788822721
+        Precision: 0.909407665505
+        Recall: 0.686842105263
+        F1 Score: 0.782608695652
+        ROC score: 0.646584526688
+
+Metrics on Test Set
+        Accuracy: 0.768378063011
+        Precision: 0.974809160305
+        Recall: 0.778184034126
+        F1 Score: 0.86546933243
+        ROC score: 0.677510372058
+
+Iteration 27
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.762220261158529
+Precision: 0.7531798737446688
+Recall: 0.780138714614674
+F1 Score: 0.7663975720353006
+ROC score: 0.8389984866048938
+
+Metrics on Validation Set
+        Accuracy: 0.722848664688
+        Precision: 0.906276870163
+        Recall: 0.746458923513
+        F1 Score: 0.818640776699
+        ROC score: 0.723035934792
+
+Metrics on Test Set
+        Accuracy: 0.636363636364
+        Precision: 0.770398481973
+        Recall: 0.658022690438
+        F1 Score: 0.70979020979
+        ROC score: 0.682243527969
+
+Iteration 28
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7534594247189833
+Precision: 0.7485776640969348
+Recall: 0.7633294421636652
+F1 Score: 0.7558377789786459
+ROC score: 0.8330951910422351
+
+Metrics on Validation Set
+        Accuracy: 0.721590909091
+        Precision: 0.946654611212
+        Recall: 0.732680195941
+        F1 Score: 0.826035502959
+        ROC score: 0.745709835436
+
+Metrics on Test Set
+        Accuracy: 0.730837789661
+        Precision: 0.985166872682
+        Recall: 0.733210671573
+        F1 Score: 0.840717299578
+        ROC score: 0.733499802865
+
+Iteration 29
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7581882656350742
+Precision: 0.7630130539038169
+Recall: 0.749310122501612
+F1 Score: 0.7559814743974127
+ROC score: 0.8336535074602978
+
+Metrics on Validation Set
+        Accuracy: 0.654774396642
+        Precision: 0.990709459459
+        Recall: 0.644505494505
+        F1 Score: 0.780958721704
+        ROC score: 0.82865767953
+
+Metrics on Test Set
+        Accuracy: 0.834022445363
+        Precision: 0.958725561188
+        Recall: 0.855297157623
+        F1 Score: 0.904062820075
+        ROC score: 0.808867949746
+
+Iteration 30
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7688592213816917
+Precision: 0.7675290495706957
+Recall: 0.7716861277313583
+F1 Score: 0.7695113211827703
+ROC score: 0.8473667932143379
+
+Metrics on Validation Set
+        Accuracy: 0.755004003203
+        Precision: 0.872135102533
+        Recall: 0.783315276273
+        F1 Score: 0.825342465753
+        ROC score: 0.794581552553
+
+Metrics on Test Set
+        Accuracy: 0.619680851064
+        Precision: 0.937290033595
+        Recall: 0.618625277162
+        F1 Score: 0.745325022262
+        ROC score: 0.653832787575
+
+Iteration 31
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7571201240411294
+Precision: 0.757982179785446
+Recall: 0.755590011424841
+F1 Score: 0.7567489036022718
+ROC score: 0.8337887837306046
+
+Metrics on Validation Set
+        Accuracy: 0.614332603939
+        Precision: 0.94243902439
+        Recall: 0.599255583127
+        F1 Score: 0.732650739477
+        ROC score: 0.708830185645
+
+Metrics on Test Set
+        Accuracy: 0.701535508637
+        Precision: 0.90261627907
+        Recall: 0.717919075145
+        F1 Score: 0.799742433999
+        ROC score: 0.720188759348
+
+Iteration 32
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.75913680933438
+Precision: 0.7583900540860007
+Recall: 0.760773252797254
+F1 Score: 0.7595149585009849
+ROC score: 0.8381459079735852
+
+Metrics on Validation Set
+        Accuracy: 0.71349862259
+        Precision: 0.943686006826
+        Recall: 0.708974358974
+        F1 Score: 0.809663250366
+        ROC score: 0.7890057818
+
+Metrics on Test Set
+        Accuracy: 0.739332816137
+        Precision: 0.959488272921
+        Recall: 0.751252086811
+        F1 Score: 0.842696629213
+        ROC score: 0.71414353593
+
+Iteration 33
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7593358165172662
+Precision: 0.7551034371701646
+Recall: 0.7679041654728284
+F1 Score: 0.7613712271920299
+ROC score: 0.8378430237649904
+
+Metrics on Validation Set
+        Accuracy: 0.685300207039
+        Precision: 0.924330616997
+        Recall: 0.670042194093
+        F1 Score: 0.776908023483
+        ROC score: 0.760514959724
+
+Metrics on Test Set
+        Accuracy: 0.807286673058
+        Precision: 0.965986394558
+        Recall: 0.818229439497
+        F1 Score: 0.88598979013
+        ROC score: 0.807882968869
+
+Iteration 34
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7601560289421561
+Precision: 0.7595167399256869
+Recall: 0.7618065941765363
+F1 Score: 0.7605507648711373
+ROC score: 0.8387178736094246
+
+Metrics on Validation Set
+        Accuracy: 0.746917204932
+        Precision: 0.929880478088
+        Recall: 0.772847682119
+        F1 Score: 0.844122965642
+        ROC score: 0.660034999828
+
+Metrics on Test Set
+        Accuracy: 0.689122807018
+        Precision: 0.937829293994
+        Recall: 0.698587127159
+        F1 Score: 0.800719748088
+        ROC score: 0.709009533513
+
+Iteration 35
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7570446514616126
+Precision: 0.7565192014399572
+Recall: 0.7583167362672664
+F1 Score: 0.7573349927619062
+ROC score: 0.8364547913173869
+
+Metrics on Validation Set
+        Accuracy: 0.731729055258
+        Precision: 0.962871287129
+        Recall: 0.741658722593
+        F1 Score: 0.837910608508
+        ROC score: 0.75427347637
+
+Metrics on Test Set
+        Accuracy: 0.59685275384
+        Precision: 0.979497354497
+        Recall: 0.586302454473
+        F1 Score: 0.733531451213
+        ROC score: 0.74553178413
+
+Iteration 36
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7643519974834855
+Precision: 0.7662381607835965
+Recall: 0.7609835378001467
+F1 Score: 0.7635373290446625
+ROC score: 0.8420107775244694
+
+Metrics on Validation Set
+        Accuracy: 0.696991404011
+        Precision: 0.968487394958
+        Recall: 0.701140684411
+        F1 Score: 0.813409792678
+        ROC score: 0.714819508989
+
+Metrics on Test Set
+        Accuracy: 0.570159857904
+        Precision: 0.977116704805
+        Recall: 0.547435897436
+        F1 Score: 0.701725554643
+        ROC score: 0.760800536673
+
+Iteration 37
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.752733860342556
+Precision: 0.7467170707543557
+Recall: 0.7650329380764164
+F1 Score: 0.755738793430865
+ROC score: 0.8306760067594662
+
+Metrics on Validation Set
+        Accuracy: 0.625819134993
+        Precision: 0.867276887872
+        Recall: 0.624896949711
+        F1 Score: 0.726401533301
+        ROC score: 0.676599880422
+
+Metrics on Test Set
+        Accuracy: 0.622448979592
+        Precision: 0.934294871795
+        Recall: 0.614330874605
+        F1 Score: 0.741258741259
+        ROC score: 0.697098537016
+
+Iteration 38
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.754057203095958
+Precision: 0.7467850836371981
+Recall: 0.7690792576358643
+F1 Score: 0.7577193332773757
+ROC score: 0.8317793855390996
+
+Metrics on Validation Set
+        Accuracy: 0.674094707521
+        Precision: 0.893617021277
+        Recall: 0.686197183099
+        F1 Score: 0.776290630975
+        ROC score: 0.684344271433
+
+Metrics on Test Set
+        Accuracy: 0.755517826825
+        Precision: 0.970873786408
+        Recall: 0.751879699248
+        F1 Score: 0.847457627119
+        ROC score: 0.815810084422
+
+Iteration 39
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7628654611063271
+Precision: 0.765002038788056
+Recall: 0.7588605951258184
+F1 Score: 0.7618955109776061
+ROC score: 0.8407753659242492
+
+Metrics on Validation Set
+        Accuracy: 0.673942701228
+        Precision: 0.964285714286
+        Recall: 0.674008810573
+        F1 Score: 0.793431287813
+        ROC score: 0.728502265397
+
+Metrics on Test Set
+        Accuracy: 0.687916975537
+        Precision: 0.854781582054
+        Recall: 0.708414872798
+        F1 Score: 0.774745853398
+        ROC score: 0.711320370803
+
+Iteration 40
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7607375818686648
+Precision: 0.7552564815457198
+Recall: 0.7717906819178192
+F1 Score: 0.7633555038078401
+ROC score: 0.8391619510583307
+
+Metrics on Validation Set
+        Accuracy: 0.558337773042
+        Precision: 0.919389978214
+        Recall: 0.527829893684
+        F1 Score: 0.670639650377
+        ROC score: 0.696118527317
+
+Metrics on Test Set
+        Accuracy: 0.789054726368
+        Precision: 0.956106870229
+        Recall: 0.808934337998
+        F1 Score: 0.87638483965
+        ROC score: 0.700778284516
+
+Iteration 41
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7551167896150646
+Precision: 0.758062890229365
+Recall: 0.7494716173282245
+F1 Score: 0.7537091787747752
+ROC score: 0.8326822798039504
+
+Metrics on Validation Set
+        Accuracy: 0.764020707506
+        Precision: 0.97546728972
+        Recall: 0.767816091954
+        F1 Score: 0.859274504759
+        ROC score: 0.801946788843
+
+Metrics on Test Set
+        Accuracy: 0.68901734104
+        Precision: 0.915983606557
+        Recall: 0.662222222222
+        F1 Score: 0.768701633706
+        ROC score: 0.788978557505
+
+Iteration 42
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7594828951536268
+Precision: 0.7590684767889745
+Recall: 0.7605189525921233
+F1 Score: 0.7597146916120174
+ROC score: 0.8367167734339965
+
+Metrics on Validation Set
+        Accuracy: 0.655777374471
+        Precision: 0.953511374876
+        Recall: 0.648721399731
+        F1 Score: 0.772126551862
+        ROC score: 0.725548230591
+
+Metrics on Test Set
+        Accuracy: 0.765177065767
+        Precision: 0.968226458694
+        Recall: 0.769513314968
+        F1 Score: 0.857508314147
+        ROC score: 0.801554675149
+
+Iteration 43
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7598015904467519
+Precision: 0.7556671269635573
+Recall: 0.7682095585321392
+F1 Score: 0.7617838600910591
+ROC score: 0.8353500847489372
+
+Metrics on Validation Set
+        Accuracy: 0.722118959108
+        Precision: 0.97962154294
+        Recall: 0.702505219207
+        F1 Score: 0.818237082067
+        ROC score: 0.83375942111
+
+Metrics on Test Set
+        Accuracy: 0.724154135338
+        Precision: 0.971763085399
+        Recall: 0.721001532959
+        F1 Score: 0.827808741566
+        ROC score: 0.800152100572
+
+Iteration 44
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7646789050085908
+Precision: 0.763355612016732
+Recall: 0.7673337036702107
+F1 Score: 0.7652955623876504
+ROC score: 0.842511612155052
+
+Metrics on Validation Set
+        Accuracy: 0.691653375864
+        Precision: 0.936386768448
+        Recall: 0.686140459913
+        F1 Score: 0.791965566714
+        ROC score: 0.762556895039
+
+Metrics on Test Set
+        Accuracy: 0.519045200609
+        Precision: 0.912839737582
+        Recall: 0.532822757112
+        F1 Score: 0.672884283247
+        ROC score: 0.434789018731
+
+Iteration 45
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7578672642553599
+Precision: 0.7606376199550141
+Recall: 0.7530710684175286
+F1 Score: 0.7566924327620618
+ROC score: 0.8345428725884632
+
+Metrics on Validation Set
+        Accuracy: 0.684352517986
+        Precision: 0.874482758621
+        Recall: 0.709172259508
+        F1 Score: 0.783199505868
+        ROC score: 0.685802906225
+
+Metrics on Test Set
+        Accuracy: 0.623084780388
+        Precision: 0.9367194005
+        Recall: 0.629546726357
+        F1 Score: 0.753012048193
+        ROC score: 0.625534644296
+
+Iteration 46
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7563638983872447
+Precision: 0.7542325704956204
+Recall: 0.7607593444169318
+F1 Score: 0.7574075004773843
+ROC score: 0.8339248783450425
+
+Metrics on Validation Set
+        Accuracy: 0.694109772423
+        Precision: 0.926652892562
+        Recall: 0.699142634451
+        F1 Score: 0.796979120391
+        ROC score: 0.715979653729
+
+Metrics on Test Set
+        Accuracy: 0.771070615034
+        Precision: 0.904320987654
+        Recall: 0.808275862069
+        F1 Score: 0.853605243991
+        ROC score: 0.766707234618
+
+Iteration 47
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7606793993293484
+Precision: 0.765179282344911
+Recall: 0.7525083168763005
+F1 Score: 0.7587260411465806
+ROC score: 0.8389338522923651
+
+Metrics on Validation Set
+        Accuracy: 0.597014925373
+        Precision: 0.945757997218
+        Recall: 0.589254766031
+        F1 Score: 0.726107848372
+        ROC score: 0.690866988043
+
+Metrics on Test Set
+        Accuracy: 0.655423533921
+        Precision: 0.94465408805
+        Recall: 0.649373108517
+        F1 Score: 0.769664360748
+        ROC score: 0.726283433239
+
+Iteration 48
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7613701973546085
+Precision: 0.7607743641056838
+Recall: 0.7629120302330464
+F1 Score: 0.7617466905131319
+ROC score: 0.8372418132621355
+
+Metrics on Validation Set
+        Accuracy: 0.7590520079
+        Precision: 0.955706984668
+        Recall: 0.781337047354
+        F1 Score: 0.859770114943
+        ROC score: 0.580616337215
+
+Metrics on Test Set
+        Accuracy: 0.596814752724
+        Precision: 0.940639269406
+        Recall: 0.583018867925
+        F1 Score: 0.719860221316
+        ROC score: 0.685795857568
+
+Iteration 49
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7613843729263436
+Precision: 0.7552642304019712
+Recall: 0.7736396814863968
+F1 Score: 0.7642579486554498
+ROC score: 0.8403155761757379
+
+Metrics on Validation Set
+        Accuracy: 0.676445934619
+        Precision: 0.957764782326
+        Recall: 0.675836772123
+        F1 Score: 0.79247311828
+        ROC score: 0.723579472383
+
+Metrics on Test Set
+        Accuracy: 0.651678998293
+        Precision: 0.915846016115
+        Recall: 0.663854639844
+        F1 Score: 0.769751693002
+        ROC score: 0.625847213209
+
+Iteration 50
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7610604968211312
+Precision: 0.7578565376818738
+Recall: 0.7677262895719997
+F1 Score: 0.7626138718010496
+ROC score: 0.8396180575261846
+
+Metrics on Validation Set
+        Accuracy: 0.75
+        Precision: 0.967898832685
+        Recall: 0.756079027356
+        F1 Score: 0.848976109215
+        ROC score: 0.75837006079
+
+Metrics on Test Set
+        Accuracy: 0.734649122807
+        Precision: 0.931979695431
+        Recall: 0.756177924217
+        F1 Score: 0.834924965894
+        ROC score: 0.705770341685
+
+Iteration 51
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7634150007515406
+Precision: 0.7622683461343033
+Recall: 0.7661752046240248
+F1 Score: 0.7640679067559261
+ROC score: 0.8421046760222448
+
+Metrics on Validation Set
+        Accuracy: 0.671898355755
+        Precision: 0.840411840412
+        Recall: 0.67458677686
+        F1 Score: 0.748424068768
+        ROC score: 0.696046459683
+
+Metrics on Test Set
+        Accuracy: 0.748127978216
+        Precision: 0.963293650794
+        Recall: 0.74463190184
+        F1 Score: 0.839965397924
+        ROC score: 0.826773099089
+
+Iteration 52
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7583016187821613
+Precision: 0.7535428102347645
+Recall: 0.7679834905660378
+F1 Score: 0.7605779150559926
+ROC score: 0.8355003585822839
+
+Metrics on Validation Set
+        Accuracy: 0.688589540412
+        Precision: 0.96049382716
+        Recall: 0.683055311677
+        F1 Score: 0.798358132376
+        ROC score: 0.759345310749
+
+Metrics on Test Set
+        Accuracy: 0.705084745763
+        Precision: 0.918472652219
+        Recall: 0.714285714286
+        F1 Score: 0.803611738149
+        ROC score: 0.738443368123
+
+Iteration 53
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7607278616554235
+Precision: 0.7510994255813255
+Recall: 0.7801557982653389
+F1 Score: 0.7653015374435242
+ROC score: 0.8404233997852895
+
+Metrics on Validation Set
+        Accuracy: 0.690987124464
+        Precision: 0.966854724965
+        Recall: 0.69523326572
+        F1 Score: 0.808849557522
+        ROC score: 0.702793103448
+
+Metrics on Test Set
+        Accuracy: 0.776232616941
+        Precision: 0.922165820643
+        Recall: 0.806213017751
+        F1 Score: 0.860299921073
+        ROC score: 0.783708515565
+
+Iteration 54
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7545705894803683
+Precision: 0.7612294513278477
+Recall: 0.7422610858291883
+F1 Score: 0.7514944224174708
+ROC score: 0.8313185514500305
+
+Metrics on Validation Set
+        Accuracy: 0.741573033708
+        Precision: 0.955357142857
+        Recall: 0.739387956565
+        F1 Score: 0.833611574847
+        ROC score: 0.796886996819
+
+Metrics on Test Set
+        Accuracy: 0.696943972835
+        Precision: 0.962264150943
+        Recall: 0.700549450549
+        F1 Score: 0.810810810811
+        ROC score: 0.727191413238
+
+Iteration 55
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7563343851143642
+Precision: 0.7590216380853652
+Recall: 0.7515268881275138
+F1 Score: 0.7551951333330408
+ROC score: 0.8358984758809419
+
+Metrics on Validation Set
+        Accuracy: 0.597533632287
+        Precision: 0.912298387097
+        Recall: 0.589192708333
+        F1 Score: 0.715981012658
+        ROC score: 0.64797547043
+
+Metrics on Test Set
+        Accuracy: 0.680913348946
+        Precision: 0.937316356513
+        Recall: 0.665507649513
+        F1 Score: 0.778365189101
+        ROC score: 0.765653170556
+
+Iteration 56
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.750596361539268
+Precision: 0.7521007640180205
+Recall: 0.748007759253434
+F1 Score: 0.7499448147320235
+ROC score: 0.8291515131030978
+
+Metrics on Validation Set
+        Accuracy: 0.704071499503
+        Precision: 0.942577030812
+        Recall: 0.723655913978
+        F1 Score: 0.818734793187
+        ROC score: 0.642467881581
+
+Metrics on Test Set
+        Accuracy: 0.705283259071
+        Precision: 0.987217305801
+        Recall: 0.690508940853
+        F1 Score: 0.812626467017
+        ROC score: 0.855224020974
+
+Iteration 57
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7613357642213507
+Precision: 0.7631640241723973
+Recall: 0.7582403168898625
+F1 Score: 0.7606001986211343
+ROC score: 0.8402153163926787
+
+Metrics on Validation Set
+        Accuracy: 0.647857889237
+        Precision: 0.950360288231
+        Recall: 0.659811006115
+        F1 Score: 0.778871391076
+        ROC score: 0.585378350291
+
+Metrics on Test Set
+        Accuracy: 0.675295186194
+        Precision: 0.973269362577
+        Recall: 0.677480916031
+        F1 Score: 0.798874824191
+        ROC score: 0.693760802247
+
+Iteration 58
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7604925447708208
+Precision: 0.7567804664629776
+Recall: 0.7680200909879823
+F1 Score: 0.7622621094255333
+ROC score: 0.8401242664851677
+
+Metrics on Validation Set
+        Accuracy: 0.717325227964
+        Precision: 0.9533632287
+        Recall: 0.720189701897
+        F1 Score: 0.820532612891
+        ROC score: 0.764965282789
+
+Metrics on Test Set
+        Accuracy: 0.612690019828
+        Precision: 0.942216981132
+        Recall: 0.598053892216
+        F1 Score: 0.731684981685
+        ROC score: 0.718721455394
+
+Iteration 59
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.768807548675846
+Precision: 0.7674615326673341
+Recall: 0.7714159468627955
+F1 Score: 0.7694015166637563
+ROC score: 0.8460642269698094
+
+Metrics on Validation Set
+        Accuracy: 0.577699736611
+        Precision: 0.8375
+        Recall: 0.587075575027
+        F1 Score: 0.690276883451
+        ROC score: 0.567534821506
+
+Metrics on Test Set
+        Accuracy: 0.754223433243
+        Precision: 0.908571428571
+        Recall: 0.76652892562
+        F1 Score: 0.83152782966
+        ROC score: 0.790057290206
+
+Iteration 60
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7615592971185127
+Precision: 0.7693771662316157
+Recall: 0.7472811662061549
+F1 Score: 0.7581221067838821
+ROC score: 0.8403860319379082
+
+Metrics on Validation Set
+        Accuracy: 0.664401019541
+        Precision: 0.931398416887
+        Recall: 0.673021925643
+        F1 Score: 0.781405644715
+        ROC score: 0.651610164442
+
+Metrics on Test Set
+        Accuracy: 0.799537839399
+        Precision: 0.975365665897
+        Recall: 0.800884955752
+        F1 Score: 0.879555709823
+        ROC score: 0.856848013304
+
+Iteration 61
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.76663521496554
+Precision: 0.7662103240171368
+Recall: 0.7675582540203478
+F1 Score: 0.7668355608272847
+ROC score: 0.8457035500188185
+
+Metrics on Validation Set
+        Accuracy: 0.627378435518
+        Precision: 0.860550458716
+        Recall: 0.629107981221
+        F1 Score: 0.726850058117
+        ROC score: 0.66252209851
+
+Metrics on Test Set
+        Accuracy: 0.733695652174
+        Precision: 0.939626783754
+        Recall: 0.748251748252
+        F1 Score: 0.833090024331
+        ROC score: 0.724164724165
+
+Iteration 62
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7559735537190082
+Precision: 0.7571112381203693
+Recall: 0.7539966942148761
+F1 Score: 0.75550735853225
+ROC score: 0.8341481717806162
+
+Metrics on Validation Set
+        Accuracy: 0.662286465177
+        Precision: 0.933867735471
+        Recall: 0.675362318841
+        F1 Score: 0.783851976451
+        ROC score: 0.639028373137
+
+Metrics on Test Set
+        Accuracy: 0.735625
+        Precision: 0.979464285714
+        Recall: 0.732798931196
+        F1 Score: 0.838364539549
+        ROC score: 0.820008949939
+
+Iteration 63
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7550943843298318
+Precision: 0.7577593085486973
+Recall: 0.7501382197298792
+F1 Score: 0.753859954263524
+ROC score: 0.8348097119202176
+
+Metrics on Validation Set
+        Accuracy: 0.635448136959
+        Precision: 0.981526104418
+        Recall: 0.635465418617
+        F1 Score: 0.771464646465
+        ROC score: 0.632382438155
+
+Metrics on Test Set
+        Accuracy: 0.758775877588
+        Precision: 0.943209876543
+        Recall: 0.774847870183
+        F1 Score: 0.850779510022
+        ROC score: 0.746409736308
+
+Iteration 64
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7573979068335728
+Precision: 0.7564999268210362
+Recall: 0.759340584171284
+F1 Score: 0.7578488718965083
+ROC score: 0.8351719591854319
+
+Metrics on Validation Set
+        Accuracy: 0.794994479205
+        Precision: 0.960593416783
+        Recall: 0.814465408805
+        F1 Score: 0.881514571368
+        ROC score: 0.70551132439
+
+Metrics on Test Set
+        Accuracy: 0.695626477541
+        Precision: 0.917668825162
+        Recall: 0.699576868829
+        F1 Score: 0.793917567027
+        ROC score: 0.743331308618
+
+Iteration 65
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7601486988847583
+Precision: 0.7610263936521657
+Recall: 0.7585400473132815
+F1 Score: 0.7597420792029478
+ROC score: 0.8374523081871071
+
+Metrics on Validation Set
+        Accuracy: 0.696900982615
+        Precision: 0.899421965318
+        Recall: 0.712454212454
+        F1 Score: 0.795094532448
+        ROC score: 0.719116201259
+
+Metrics on Test Set
+        Accuracy: 0.779118572928
+        Precision: 0.921819474058
+        Recall: 0.806592039801
+        F1 Score: 0.860364842454
+        ROC score: 0.788000016695
+
+Iteration 66
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7541143028126869
+Precision: 0.7468011985357408
+Recall: 0.7690958054512812
+F1 Score: 0.7577370402404502
+ROC score: 0.8349364617963588
+
+Metrics on Validation Set
+        Accuracy: 0.718697361033
+        Precision: 0.862878787879
+        Recall: 0.78067169294
+        F1 Score: 0.819719323498
+        ROC score: 0.646784362641
+
+Metrics on Test Set
+        Accuracy: 0.78046989721
+        Precision: 0.90507518797
+        Recall: 0.829457364341
+        F1 Score: 0.865617977528
+        ROC score: 0.726241745622
+
+Iteration 67
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7559452457368238
+Precision: 0.7537331024501409
+Recall: 0.7605789928205922
+F1 Score: 0.7570686433791977
+ROC score: 0.8333915458943117
+
+Metrics on Validation Set
+        Accuracy: 0.806818181818
+        Precision: 0.908637873754
+        Recall: 0.848062015504
+        F1 Score: 0.87730553328
+        ROC score: 0.82625639403
+
+Metrics on Test Set
+        Accuracy: 0.718773373224
+        Precision: 0.961538461538
+        Recall: 0.725806451613
+        F1 Score: 0.827205882353
+        ROC score: 0.73658962421
+
+Iteration 68
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7648026098556392
+Precision: 0.7618095551206526
+Recall: 0.7708055419809017
+F1 Score: 0.7662263876366613
+ROC score: 0.8431139180419577
+
+Metrics on Validation Set
+        Accuracy: 0.660759493671
+        Precision: 0.952475247525
+        Recall: 0.663448275862
+        F1 Score: 0.782113821138
+        ROC score: 0.655416445623
+
+Metrics on Test Set
+        Accuracy: 0.741132075472
+        Precision: 0.905027932961
+        Recall: 0.758426966292
+        F1 Score: 0.825267447784
+        ROC score: 0.751364418018
+
+Iteration 69
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7540948275862068
+Precision: 0.751629284569535
+Recall: 0.7594566353187043
+F1 Score: 0.7554123195055807
+ROC score: 0.8326500429007676
+
+Metrics on Validation Set
+        Accuracy: 0.773305084746
+        Precision: 0.963671128107
+        Recall: 0.780790085205
+        F1 Score: 0.862644415918
+        ROC score: 0.810240123935
+
+Metrics on Test Set
+        Accuracy: 0.795979899497
+        Precision: 0.963326784545
+        Recall: 0.807797913234
+        F1 Score: 0.878733572282
+        ROC score: 0.800191064796
+
+Iteration 70
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7588757010564758
+Precision: 0.7570896467842211
+Recall: 0.7626059736533194
+F1 Score: 0.7597488353895845
+ROC score: 0.8369349514277871
+
+Metrics on Validation Set
+        Accuracy: 0.747774480712
+        Precision: 0.940315315315
+        Recall: 0.744206773619
+        F1 Score: 0.830845771144
+        ROC score: 0.817111116369
+
+Metrics on Test Set
+        Accuracy: 0.633202467751
+        Precision: 0.940338379341
+        Recall: 0.642726719416
+        F1 Score: 0.763557483731
+        ROC score: 0.583188418398
+
+Iteration 71
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7590574721686795
+Precision: 0.755822950077606
+Recall: 0.7655612813553099
+F1 Score: 0.7606120127908511
+ROC score: 0.8362445091423258
+
+Metrics on Validation Set
+        Accuracy: 0.771590372817
+        Precision: 0.960182767624
+        Recall: 0.776663146779
+        F1 Score: 0.858727378867
+        ROC score: 0.806555203567
+
+Metrics on Test Set
+        Accuracy: 0.619201030928
+        Precision: 0.951140065147
+        Recall: 0.616033755274
+        F1 Score: 0.747759282971
+        ROC score: 0.677269284864
+
+Iteration 72
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.761143963980143
+Precision: 0.7624347586227898
+Recall: 0.7592647228600383
+F1 Score: 0.7606951846113656
+ROC score: 0.8382835425735227
+
+Metrics on Validation Set
+        Accuracy: 0.703614457831
+        Precision: 0.966159052453
+        Recall: 0.71643663739
+        F1 Score: 0.822766570605
+        ROC score: 0.578547393635
+
+Metrics on Test Set
+        Accuracy: 0.731936416185
+        Precision: 0.936605316973
+        Recall: 0.747755102041
+        F1 Score: 0.831593281888
+        ROC score: 0.772111410602
+
+Iteration 73
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7643623737373737
+Precision: 0.7591493480357745
+Recall: 0.7748133509003076
+F1 Score: 0.7667849076446163
+ROC score: 0.8414347832385503
+
+Metrics on Validation Set
+        Accuracy: 0.801422643746
+        Precision: 0.974242424242
+        Recall: 0.810333963453
+        F1 Score: 0.884760921913
+        ROC score: 0.776168872086
+
+Metrics on Test Set
+        Accuracy: 0.653219550039
+        Precision: 0.830357142857
+        Recall: 0.674611398964
+        F1 Score: 0.744425385935
+        ROC score: 0.662991748225
+
+Iteration 74
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7590035890595564
+Precision: 0.7527666930051615
+Recall: 0.7715102927627508
+F1 Score: 0.7619664240604834
+ROC score: 0.837276506904045
+
+Metrics on Validation Set
+        Accuracy: 0.701619433198
+        Precision: 0.914043583535
+        Recall: 0.717339667458
+        F1 Score: 0.803832845355
+        ROC score: 0.723087235219
+
+Metrics on Test Set
+        Accuracy: 0.78789893617
+        Precision: 0.917370892019
+        Recall: 0.808774834437
+        F1 Score: 0.859656841179
+        ROC score: 0.824092200644
+
+Iteration 75
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7613718034157878
+Precision: 0.7612899826036902
+Recall: 0.7617572882773399
+F1 Score: 0.7614584572745272
+ROC score: 0.8379322977189078
+
+Metrics on Validation Set
+        Accuracy: 0.666053921569
+        Precision: 0.987712665406
+        Recall: 0.66265060241
+        F1 Score: 0.793168880455
+        ROC score: 0.799388943333
+
+Metrics on Test Set
+        Accuracy: 0.633044554455
+        Precision: 0.969450101833
+        Recall: 0.628382838284
+        F1 Score: 0.762515018022
+        ROC score: 0.711727608404
+
+Iteration 76
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7631328252585736
+Precision: 0.761268722195734
+Recall: 0.766943385955362
+F1 Score: 0.7640426264334746
+ROC score: 0.842227569561476
+
+Metrics on Validation Set
+        Accuracy: 0.653361344538
+        Precision: 0.920955882353
+        Recall: 0.63578680203
+        F1 Score: 0.752252252252
+        ROC score: 0.732461774174
+
+Metrics on Test Set
+        Accuracy: 0.672
+        Precision: 0.952579034942
+        Recall: 0.672342924251
+        F1 Score: 0.788296041308
+        ROC score: 0.706291223422
+
+Iteration 77
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7569325841231763
+Precision: 0.757128650207742
+Recall: 0.7567109500280302
+F1 Score: 0.7568777827394975
+ROC score: 0.8337699395314037
+
+Metrics on Validation Set
+        Accuracy: 0.738820479585
+        Precision: 0.949104618285
+        Recall: 0.742625368732
+        F1 Score: 0.833264377327
+        ROC score: 0.771041361034
+
+Metrics on Test Set
+        Accuracy: 0.675971538041
+        Precision: 0.948849104859
+        Recall: 0.676595744681
+        F1 Score: 0.789921930447
+        ROC score: 0.726376966499
+
+Iteration 78
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7635849554694122
+Precision: 0.7633772061109426
+Recall: 0.7641337723868673
+F1 Score: 0.7636936008638298
+ROC score: 0.8410540833618216
+
+Metrics on Validation Set
+        Accuracy: 0.571428571429
+        Precision: 0.83153638814
+        Recall: 0.546985815603
+        F1 Score: 0.659893048128
+        ROC score: 0.631162094589
+
+Metrics on Test Set
+        Accuracy: 0.660206718346
+        Precision: 0.940449438202
+        Recall: 0.63893129771
+        F1 Score: 0.760909090909
+        ROC score: 0.770747001091
+
+Iteration 79
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7601214154042331
+Precision: 0.7594883905370384
+Recall: 0.7615628768243496
+F1 Score: 0.7604547361670945
+ROC score: 0.8366497586452962
+
+Metrics on Validation Set
+        Accuracy: 0.786568537259
+        Precision: 0.903141361257
+        Recall: 0.813679245283
+        F1 Score: 0.856079404467
+        ROC score: 0.819459520802
+
+Metrics on Test Set
+        Accuracy: 0.683361157485
+        Precision: 0.942882249561
+        Recall: 0.680405833862
+        F1 Score: 0.790423572744
+        ROC score: 0.752886666282
+
+Iteration 80
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7593101301794366
+Precision: 0.7503322419789401
+Recall: 0.777490595144659
+F1 Score: 0.7636018452347918
+ROC score: 0.8381367936562882
+
+Metrics on Validation Set
+        Accuracy: 0.683407501589
+        Precision: 0.90890052356
+        Recall: 0.678655199375
+        F1 Score: 0.777081468218
+        ROC score: 0.741638876035
+
+Metrics on Test Set
+        Accuracy: 0.823020337516
+        Precision: 0.966869133076
+        Recall: 0.83380952381
+        F1 Score: 0.895423165431
+        ROC score: 0.840793274656
+
+Iteration 81
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7591176585722301
+Precision: 0.753619750894843
+Recall: 0.7702806738259587
+F1 Score: 0.7617687919512698
+ROC score: 0.8393520651141411
+
+Metrics on Validation Set
+        Accuracy: 0.686435701703
+        Precision: 0.907942238267
+        Recall: 0.699582753825
+        F1 Score: 0.790259230165
+        ROC score: 0.690249822867
+
+Metrics on Test Set
+        Accuracy: 0.447412353923
+        Precision: 0.95625
+        Recall: 0.443993035403
+        F1 Score: 0.606420927467
+        ROC score: 0.523866292293
+
+Iteration 82
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7421711621711622
+Precision: 0.7330568780434987
+Recall: 0.7618248418248418
+F1 Score: 0.7471403271060354
+ROC score: 0.8214092349652787
+
+Metrics on Validation Set
+        Accuracy: 0.750505458957
+        Precision: 0.974486966167
+        Recall: 0.754725085911
+        F1 Score: 0.850641491164
+        ROC score: 0.776054627326
+
+Metrics on Test Set
+        Accuracy: 0.72036199095
+        Precision: 0.965340179718
+        Recall: 0.727272727273
+        F1 Score: 0.829564258136
+        ROC score: 0.735147587654
+
+Iteration 83
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7549943715839583
+Precision: 0.7579391073529294
+Recall: 0.7493930804388808
+F1 Score: 0.753590008188129
+ROC score: 0.8359171888116523
+
+Metrics on Validation Set
+        Accuracy: 0.694807935838
+        Precision: 0.948183041723
+        Recall: 0.685644768856
+        F1 Score: 0.79582038972
+        ROC score: 0.781623971361
+
+Metrics on Test Set
+        Accuracy: 0.720549158547
+        Precision: 0.972744970798
+        Recall: 0.717911877395
+        F1 Score: 0.82612289887
+        ROC score: 0.796260141988
+
+Iteration 84
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7673014522049044
+Precision: 0.7612313033374292
+Recall: 0.7791371881483058
+F1 Score: 0.7700074504103678
+ROC score: 0.8452876735690315
+
+Metrics on Validation Set
+        Accuracy: 0.661960784314
+        Precision: 0.900491400491
+        Recall: 0.676823638042
+        F1 Score: 0.772799156563
+        ROC score: 0.679824561404
+
+Metrics on Test Set
+        Accuracy: 0.662875710804
+        Precision: 0.973076923077
+        Recall: 0.658282740676
+        F1 Score: 0.785307811692
+        ROC score: 0.73792447795
+
+Iteration 85
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7698120857917843
+Precision: 0.7658993644733537
+Recall: 0.777285310813456
+F1 Score: 0.7715177126373075
+ROC score: 0.84550002214452
+
+Metrics on Validation Set
+        Accuracy: 0.586724806202
+        Precision: 0.909781576448
+        Recall: 0.558275058275
+        F1 Score: 0.691946551101
+        ROC score: 0.674064919755
+
+Metrics on Test Set
+        Accuracy: 0.727650727651
+        Precision: 0.873156342183
+        Recall: 0.770833333333
+        F1 Score: 0.818810511757
+        ROC score: 0.737133537371
+
+Iteration 86
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7681544771018455
+Precision: 0.7586709946633742
+Recall: 0.786684894053315
+F1 Score: 0.7723571680448083
+ROC score: 0.8473504324721577
+
+Metrics on Validation Set
+        Accuracy: 0.644949494949
+        Precision: 0.950833333333
+        Recall: 0.639215686275
+        F1 Score: 0.764489112228
+        ROC score: 0.699867844574
+
+Metrics on Test Set
+        Accuracy: 0.659160696008
+        Precision: 0.882249560633
+        Recall: 0.653645833333
+        F1 Score: 0.750934928945
+        ROC score: 0.719721889952
+
+Iteration 87
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7562343317060297
+Precision: 0.7566712056303064
+Recall: 0.7555614197123631
+F1 Score: 0.7560383837892669
+ROC score: 0.8344268202701262
+
+Metrics on Validation Set
+        Accuracy: 0.726423109601
+        Precision: 0.914387633769
+        Recall: 0.754661432777
+        F1 Score: 0.82688172043
+        ROC score: 0.679227587235
+
+Metrics on Test Set
+        Accuracy: 0.857630008525
+        Precision: 0.978609625668
+        Recall: 0.861581920904
+        F1 Score: 0.916374561843
+        ROC score: 0.887535840926
+
+Iteration 88
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.76239943240385
+Precision: 0.7597993950132369
+Recall: 0.7675399258376728
+F1 Score: 0.7636068374813985
+ROC score: 0.8403481263115077
+
+Metrics on Validation Set
+        Accuracy: 0.635620915033
+        Precision: 0.974114441417
+        Recall: 0.626094570928
+        F1 Score: 0.762260127932
+        ROC score: 0.730377813848
+
+Metrics on Test Set
+        Accuracy: 0.67926988266
+        Precision: 0.829885057471
+        Recall: 0.677298311445
+        F1 Score: 0.745867768595
+        ROC score: 0.731005756803
+
+Iteration 89
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7621890413174136
+Precision: 0.7647355598960561
+Recall: 0.7576072015739967
+F1 Score: 0.7610877069917596
+ROC score: 0.8391394580861623
+
+Metrics on Validation Set
+        Accuracy: 0.760183299389
+        Precision: 0.944986072423
+        Recall: 0.775871926815
+        F1 Score: 0.852119309262
+        ROC score: 0.771942771285
+
+Metrics on Test Set
+        Accuracy: 0.649047326368
+        Precision: 0.921491658489
+        Recall: 0.656643356643
+        F1 Score: 0.766843609637
+        ROC score: 0.647978417522
+
+Iteration 90
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7596760371447437
+Precision: 0.7580153205606553
+Recall: 0.7630126016774139
+F1 Score: 0.760466853458972
+ROC score: 0.8388099060786814
+
+Metrics on Validation Set
+        Accuracy: 0.56768558952
+        Precision: 0.835227272727
+        Recall: 0.551594746717
+        F1 Score: 0.664406779661
+        ROC score: 0.641279452255
+
+Metrics on Test Set
+        Accuracy: 0.717660956881
+        Precision: 0.969201154957
+        Recall: 0.693048864418
+        F1 Score: 0.808186195827
+        ROC score: 0.840800642349
+
+Iteration 91
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.762768889849746
+Precision: 0.7632917089509283
+Recall: 0.7618500702626744
+F1 Score: 0.7625463629597273
+ROC score: 0.8400981377900977
+
+Metrics on Validation Set
+        Accuracy: 0.803239637923
+        Precision: 0.927025355597
+        Recall: 0.835562987737
+        F1 Score: 0.878921137496
+        ROC score: 0.794541915675
+
+Metrics on Test Set
+        Accuracy: 0.588376273217
+        Precision: 0.936325678497
+        Recall: 0.588969139856
+        F1 Score: 0.723095525998
+        ROC score: 0.615437717555
+
+Iteration 92
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7595442188373938
+Precision: 0.7645497044151498
+Recall: 0.7502829121086383
+F1 Score: 0.757291163297019
+ROC score: 0.8357802138381767
+
+Metrics on Validation Set
+        Accuracy: 0.740075614367
+        Precision: 0.955901426719
+        Recall: 0.753578732106
+        F1 Score: 0.842767295597
+        ROC score: 0.685314417178
+
+Metrics on Test Set
+        Accuracy: 0.709267563528
+        Precision: 0.900780379041
+        Recall: 0.729241877256
+        F1 Score: 0.805985037406
+        ROC score: 0.71724611521
+
+Iteration 93
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7589865491651206
+Precision: 0.7593970044831635
+Recall: 0.7584776334776335
+F1 Score: 0.7588538541173768
+ROC score: 0.8363191420297075
+
+Metrics on Validation Set
+        Accuracy: 0.637487126674
+        Precision: 0.899145299145
+        Recall: 0.642246642247
+        F1 Score: 0.749287749288
+        ROC score: 0.67491244136
+
+Metrics on Test Set
+        Accuracy: 0.691066997519
+        Precision: 0.964285714286
+        Recall: 0.677824267782
+        F1 Score: 0.796068796069
+        ROC score: 0.790340526225
+
+Iteration 94
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7476244086151208
+Precision: 0.7400952915842267
+Recall: 0.763513060726683
+F1 Score: 0.7515673814886742
+ROC score: 0.8261185345751614
+
+Metrics on Validation Set
+        Accuracy: 0.782533506269
+        Precision: 0.984357541899
+        Recall: 0.787662047385
+        F1 Score: 0.87509312143
+        ROC score: 0.805710773357
+
+Metrics on Test Set
+        Accuracy: 0.694095477387
+        Precision: 0.93232413179
+        Recall: 0.718106995885
+        F1 Score: 0.811313444401
+        ROC score: 0.65422117806
+
+Iteration 95
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7601332001332001
+Precision: 0.755825825276791
+Recall: 0.7688045288045288
+F1 Score: 0.7621739932094811
+ROC score: 0.8395153164296023
+
+Metrics on Validation Set
+        Accuracy: 0.708208955224
+        Precision: 0.985074626866
+        Recall: 0.710222905457
+        F1 Score: 0.825368468066
+        ROC score: 0.712959951911
+
+Metrics on Test Set
+        Accuracy: 0.742995169082
+        Precision: 0.875183553598
+        Recall: 0.767052767053
+        F1 Score: 0.81755829904
+        ROC score: 0.754327417118
+
+Iteration 96
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7552467458530651
+Precision: 0.7588824793276305
+Recall: 0.7483761612711229
+F1 Score: 0.7535589637300987
+ROC score: 0.8325036528328291
+
+Metrics on Validation Set
+        Accuracy: 0.674832962138
+        Precision: 0.975020815987
+        Recall: 0.67884057971
+        F1 Score: 0.8004101162
+        ROC score: 0.687552561747
+
+Metrics on Test Set
+        Accuracy: 0.719080174021
+        Precision: 0.980694980695
+        Recall: 0.701657458564
+        F1 Score: 0.818035426731
+        ROC score: 0.864906832298
+
+Iteration 97
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7587859424920128
+Precision: 0.7591335020486748
+Recall: 0.7581918517149421
+F1 Score: 0.7586302300334876
+ROC score: 0.8357692068127562
+
+Metrics on Validation Set
+        Accuracy: 0.68463740458
+        Precision: 0.9659173314
+        Recall: 0.684480986639
+        F1 Score: 0.801203007519
+        ROC score: 0.745428228845
+
+Metrics on Test Set
+        Accuracy: 0.683745583039
+        Precision: 0.95974025974
+        Recall: 0.693245778612
+        F1 Score: 0.805010893246
+        ROC score: 0.672572346353
+
+Iteration 98
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7537566844919786
+Precision: 0.7555402929519457
+Recall: 0.7505481283422459
+F1 Score: 0.752958372380456
+ROC score: 0.8299930373151934
+
+Metrics on Validation Set
+        Accuracy: 0.588791848617
+        Precision: 0.903133903134
+        Recall: 0.560565870911
+        F1 Score: 0.691762138571
+        ROC score: 0.680138484098
+
+Metrics on Test Set
+        Accuracy: 0.752814047726
+        Precision: 0.977584059776
+        Recall: 0.753720595295
+        F1 Score: 0.85117918135
+        ROC score: 0.816000125237
+
+Iteration 99
+../Features\splitSets.py:123: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame
+
+See the caveats in the documentation: http://pandas.pydata.org/pandas-docs/stable/indexing.html#indexing-view-versus-copy
+  features.drop(extraColumns, axis=1, inplace=True)
+
+Metrics on Training Set
+Accuracy: 0.7573428601560853
+Precision: 0.7593826265391622
+Recall: 0.7537175701328834
+F1 Score: 0.7564599067764174
+ROC score: 0.8358428972118869
+
+Metrics on Validation Set
+        Accuracy: 0.821754385965
+        Precision: 0.944259567388
+        Recall: 0.858547655068
+        F1 Score: 0.899366085578
+        ROC score: 0.623209905556
+
+Metrics on Test Set
+        Accuracy: 0.725241995532
+        Precision: 0.926778242678
+        Recall: 0.747679324895
+        F1 Score: 0.827650630546
+        ROC score: 0.711122683331
+
+Avg AUC score: 0.726931731612

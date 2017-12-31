@@ -450,7 +450,9 @@ def main():
 
     tf.reset_default_graph()
 
-    # model = CNN(restoreFolderName='run-20171229071144_rest_epochs-50_learningRate-0.0001_batchSize-100_augmented', developmentSet='test')
+    # model = CNN(restoreFolderName='run-20171230055740_rest_epochs-50_learningRate-0.0001_batchSize-100_augmented_noOutliers',
+    #             developmentSet='test',
+    #             noOutlierTable=False)
     # model.evaluateMetricsRestored()
 
     model = CNN(learning_rate=0.0001,
