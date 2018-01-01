@@ -123,6 +123,7 @@ def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False, augmen
         features.drop(extraColumns, axis=1, inplace=True)
         features.to_csv("../data/{}.csv".format(featuresSplitName))
 
+    noSplitFeatures.reset_index(inplace=True)
     featuresName = 'features'
     if wavelet is not "":
         featuresName += utils.waveletName(wavelet, level)

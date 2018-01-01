@@ -52,15 +52,13 @@ class CNN:
     def __init__(self,
                  learning_rate=0.0001,
                  batch_size=100,
-                 n_epochs=50,
+                 n_epochs=30,
                  timeSeries='rest',
                  wavelet='',
                  level=4,
                  dataFractionTrain=1,
                  dataFractionVal=1,
                  validateOnOldAgeGroup=True,
-                 check_interval=50,
-                 max_checks_without_progress=500,
                  developmentSet='val',
                  restoreFolderName='',
                  useAugmentedData=False,
@@ -71,9 +69,9 @@ class CNN:
             - learning_rate: float
                 real positive number
             - batch_size: int
-                integer >= 1
+                Number of samples per batch. (batch_size >= 1)
             - n_epochs: int
-                integer >=1
+                Maximum number of epochs. (n_epochs >=1)
             - timeSeries: string
                 'rest' or 'outbound'
             - wavelet: string
@@ -87,8 +85,6 @@ class CNN:
                 0 < dataFractionVal <= 1
             - validateOnOldAgeGroup: bool
                 Whether to select only people older 56 years in the validation set.
-            - check_interval: integer
-            - max_checks_without_progress: integer
             - developmentSet: string
                 'val' or 'test'
             - restoreFolderName: string
@@ -133,10 +129,6 @@ class CNN:
         }
 
         self.n_batches = len(self.featuresTableTrain) // self.batch_size
-        self.best_loss_val = np.infty
-        self.checks_since_last_progress = 0
-        self.check_interval = check_interval
-        self.max_checks_without_progress = max_checks_without_progress
 
     @define_scope(initializer=tf.contrib.slim.xavier_initializer())
     def logits_prediction(self):
@@ -193,7 +185,7 @@ class CNN:
         """
         logits = self.logits_prediction
         positiveClass_probability = tf.sigmoid(logits[:, 1] - logits[:, 0])
-        self.auc, auc_update_op = tf.metrics.auc(labels=self.y, predictions=positiveClass_probability, num_thresholds=10000)
+        self.auc, auc_update_op = tf.metrics.auc(labels=self.y, predictions=positiveClass_probability, num_thresholds=10000, curve='ROC')
         self.precision, precision_update_op = tf.metrics.precision_at_thresholds(labels=self.y, thresholds=[0.5],
                                                                                  predictions=positiveClass_probability)
         self.recall, recall_update_op = tf.metrics.recall_at_thresholds(labels=self.y, thresholds=[0.5],
@@ -283,6 +275,8 @@ class CNN:
         It is important to highlight that the mini-batches are loaded to memory on demand, making it so that only
         one is in memory at any given time.
         """
+        max_auc = -1
+
         with tf.Session() as sess:
 
             if len(self.restoreFolderName) > 0:
@@ -312,14 +306,6 @@ class CNN:
 
                     self.summary_per_minibatch(batch_index, epoch, feed_dict_batch)
 
-                    if batch_index % self.check_interval == 0:
-                        loss_val = self.loss.eval(feed_dict=self.feed_dict_val)
-                        if loss_val < self.best_loss_val:
-                            self.best_loss_val = loss_val
-                            checks_since_last_progress = 0
-                        else:
-                            checks_since_last_progress += 1
-
                 # Metrics
                 print("Epoch: {}, Execution time: {} seconds".format(epoch, time.time() - epoch_start_time))
 
@@ -331,11 +317,15 @@ class CNN:
                 sess.run(self.metrics, feed_dict=self.feed_dict_val)
                 self.process_summaries_set("Validation", epoch)
 
-                if self.checks_since_last_progress > self.max_checks_without_progress:
-                    print("Early stopping!")
-                    break
+                if max_auc < self.auc.eval():
+                    max_auc = self.auc.eval()
+                    epochsSinceLastMax = 0
+                    self.saver.save(sess, self.checkpointdir.format(epoch))
+                else:
+                    epochsSinceLastMax += 1
 
-            self.saver.save(sess, self.checkpointdir)
+                if epochsSinceLastMax > 5:
+                    break
 
         self.file_writer.close()
 
@@ -346,10 +336,9 @@ class CNN:
             *Log directory for tensorboard.
         """
         self.now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-        folderName = "run-{}_{}_epochs-{}_learningRate-{}_batchSize-{}".format(
+        folderName = "run-{}_{}_learningRate-{}_batchSize-{}".format(
             self.now,
             self.timeSeries,
-            self.n_epochs,
             self.learning_rate,
             self.batch_size)
         if self.wavelet is not '':
@@ -361,7 +350,8 @@ class CNN:
         if self.noOutlierTable:
             folderName += "_noOutliers"
         self.logdir = "tf_logs/{}/".format(folderName)
-        self.checkpointdir = "./checkpoints/{}/model.ckpt".format(folderName)
+        self.checkpointdir = "./checkpoints/{}".format(folderName)
+        self.checkpointdir += "_savingEpoch{}/model.ckpt"
 
     def readPreprocessTable(self, name):
         """
@@ -450,13 +440,14 @@ def main():
 
     tf.reset_default_graph()
 
-    # model = CNN(restoreFolderName='run-20171230055740_rest_epochs-50_learningRate-0.0001_batchSize-100_augmented_noOutliers',
+    # model = CNN(restoreFolderName='run-20171231183057_rest_epochs-50_learningRate-0.0001_batchSize-100',
     #             developmentSet='test',
-    #             noOutlierTable=False)
+    #             noOutlierTable=True)
     # model.evaluateMetricsRestored()
 
     model = CNN(learning_rate=0.0001,
                 batch_size=100,
+                n_epochs=30,
                 timeSeries='rest',
                 useAugmentedData=False,
                 balance_undersampling=False,

@@ -372,11 +372,16 @@ def outlierRemoval():
     Generates new 'extra_columns' tables that do not contain healthCodes from a specific list
     of possible outliers.
     """
-    outliers = ["e31788d0-7834-477a-a718-fef116c04816",
-                "9a41dd95-337d-4f23-8b3e-f0f0dd40fc4d",
-                "64aedea6-b1f9-49da-8b10-3f02d8ed04b6",
-                "bae1bf32-94bf-42a7-96d0-ee23fd98245e",
-                "7fb7afc9-b006-4a44-99dc-409ba90d3fe8"]
+    outliers1 = ["e31788d0-7834-477a-a718-fef116c04816",
+                 "9a41dd95-337d-4f23-8b3e-f0f0dd40fc4d",
+                 "64aedea6-b1f9-49da-8b10-3f02d8ed04b6",
+                 "bae1bf32-94bf-42a7-96d0-ee23fd98245e",
+                 "7fb7afc9-b006-4a44-99dc-409ba90d3fe8"]
+
+    outliers2 = ["080274a4-cddf-47b7-9b8e-679153859229",
+                 "6ed887bb-394b-40dc-a8d5-96e836468a8b"]
+
+    outliers = outliers1 + outliers2
 
     for dataSplitName in ["train", "train_augmented", "test", "val", "features"]:
         table = pd.read_csv("../data/{}_extra_columns.csv".format(dataSplitName), index_col=0)
