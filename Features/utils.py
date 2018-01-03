@@ -114,41 +114,7 @@ def loadUserInput():
         return dataAcc, dataPedo
 
 
-def waveletName(wavelet, level):
-    """
-    Outputs a string that represents the smoothing type used.
-
-    Input:
-        - wavelet: string
-            Wavelet to use, empty string if no wavelet is used for smoothing.
-            example: 'db9'
-        - level: integer
-            Decomposition level for the wavelet.
-    """
-    return '-{}-level{}'.format(wavelet, str(level))
-
-
-def genFileName(sampleType, wavelet, level):
-    """
-    Outputs string with the file name of the JSON file.
-
-    Input:
-        - sampleType: string
-            'Accel' or 'RotRate'
-        - wavelet: string
-            Wavelet to use, empty string if no wavelet is used for smoothing.
-            example: 'db9'
-        - level: integer
-            Decomposition level for the wavelet. This parameter is not considered if no wavelet is used, in this
-            case, None should be passed for clarity.
-    """
-    if wavelet == "":
-        return '{}.json'.format(sampleType)
-    waveletFileName = '{}{}.json'.format(sampleType, waveletName(wavelet, level))
-    return waveletFileName
-
-
-def saveTimeSeries(data, pointer, timeSeriesName, sampleType, wavelet, level):
+def saveTimeSeries(data, pointer, timeSeriesName, sampleType):
     """
     Converts the time-series table to a JSON string.
 
@@ -161,16 +127,10 @@ def saveTimeSeries(data, pointer, timeSeriesName, sampleType, wavelet, level):
             'deviceMotion_walking_outbound', 'deviceMotion_walking_rest' or 'pedometer_walking_outbound'
         - sampleType: string
             'Accel' or 'RotRate'
-        - wavelet: string
-            Wavelet to use, empty string if no wavelet is used for smoothing.
-            example: 'db9'
-        - level: integer
-            Decomposition level for the wavelet. This parameter is not considered if no wavelet is used, in this
-            case, None should be passed for clarity.
     """
     path = generatePath(pointer, timeSeriesName)
-    fileName = genFileName(sampleType, wavelet, level)
-    data.to_json(path + fileName, orient='split')
+    filePath = "{}{}.json".format(path, sampleType)
+    data.to_json(filePath, orient='split')
 
 # Augmentation and data preprocessing
 
@@ -280,24 +240,25 @@ def augmentRow(rowFeaturesTable):
         data.to_json(path + fileName, orient='split')
 
 
-def generateAugmentedTable(augmentFraction=0.5):
+def generateAugmentedTable(tableName, augmentFraction=0.5):
     """
-    Generates an augmented version of the training table.
+    Generates an augmented version of a given table.
 
-    Warning: the features in the training table are not updated, the purpose of this table is to
+    Warning: the features in the table are not updated, the purpose of this table is to
     have additional rows with pointers to the augmented JSON files.
 
     Input:
+    - tableName: string
     - augmentFraction: float
         0 < augmentFraction <=1
     """
-    train = pd.read_csv("../data/train_extra_columns.csv")
-    train.loc[:, "augmented"] = False
-    trainSelected = train.sample(frac=augmentFraction)
-    trainSelected.loc[:, "augmented"] = True
+    table = pd.read_csv("../data/{}_extra_columns.csv".format(tableName))
+    table.loc[:, "augmented"] = False
+    tableSelected = table.sample(frac=augmentFraction)
+    tableSelected.loc[:, "augmented"] = True
 
-    trainAugmented = pd.concat([train, trainSelected])
-    trainAugmented.to_csv("../data/train_augmented_extra_columns.csv")
+    tableAugmented = pd.concat([table, tableSelected])
+    tableAugmented.to_csv("../data/{}_augmented_extra_columns.csv".format(tableName))
 
 # Parallelization for the augmentation (augmentRow)
 
@@ -367,10 +328,25 @@ def apply_by_multiprocessing_featurise(df, func, **kwargs):
 # Treating outliers in the dataset
 
 
-def outlierRemoval():
+def outlierRemovalSaving():
     """
     Generates new 'extra_columns' tables that do not contain healthCodes from a specific list
     of possible outliers.
+    """
+
+    for dataSplitName in ["train", "train_augmented", "test", "val", "features"]:
+        table = pd.read_csv("../data/{}_extra_columns.csv".format(dataSplitName), index_col=0)
+        table = outlierRemoval(table)
+        table.to_csv("../data/{}_noOutliers_extra_columns.csv".format(dataSplitName))
+
+
+def outlierRemoval(table):
+    """
+    Outputs a new table without the rows from the input table that contain healthCodes
+    from a specific list of possible outliers.
+
+    Input:
+        table: pandas DataFrame
     """
     outliers1 = ["e31788d0-7834-477a-a718-fef116c04816",
                  "9a41dd95-337d-4f23-8b3e-f0f0dd40fc4d",
@@ -383,8 +359,5 @@ def outlierRemoval():
 
     outliers = outliers1 + outliers2
 
-    for dataSplitName in ["train", "train_augmented", "test", "val", "features"]:
-        table = pd.read_csv("../data/{}_extra_columns.csv".format(dataSplitName), index_col=0)
-        dropRows = table[table.healthCode.isin(outliers)].index
-        table.drop(dropRows, inplace=True)
-        table.to_csv("../data/{}_noOutliers_extra_columns.csv".format(dataSplitName))
+    dropRows = table[table.healthCode.isin(outliers)].index
+    return table.drop(dropRows)

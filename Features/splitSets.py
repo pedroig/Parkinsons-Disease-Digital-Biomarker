@@ -4,7 +4,7 @@ import utils
 from sklearn.model_selection import train_test_split
 
 
-def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False, augmentFraction=0.5, outlierRemoval=True):
+def generateSetTables(naiveLimitHealthCode=False, augmentFraction=0.5, quickSplit=False):
     """
     Generates all the tables used by the machine learning models, distributing the dataset in training, validation
     and test sets.
@@ -13,17 +13,14 @@ def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False, augmen
         * Possible pandas warnings when running this code should be ignored.
 
     Input:
-        - wavelet: string (default='')
-            Wavelet to use, empty string if no wavelet is used for smoothing.
-            example: 'db9'
-        - level: integer (default=None)
-            Decomposition level for the wavelet. This parameter is not considered if no wavelet is used, in this
-            case, None should be passed for clarity.
         - naiveLimitHealthCode: bool
             Whether to limit the number of samples per healthCode, using only the first 10 occurrences per healthCode.
         - augmentFraction: float
             0 < augmentFraction <=1
             Fraction of the training data that is going to have the augmented version used.
+        - quickSplit: bool
+            Whether to generate only the tables Train, Test and Val. This makes the routine quicker to be
+            used during the outlier search procedure.
     """
 
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
@@ -73,8 +70,6 @@ def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False, augmen
     demographics.dropna(axis=0, how='any', inplace=True)
 
     fileName = 'walking_activity_features'
-    if wavelet is not "":
-        fileName += utils.waveletName(wavelet, level)
     walking_activity_features = pd.read_csv("../data/{}.csv".format(fileName), index_col=0)
 
     extraColumns = ['healthCode',
@@ -99,8 +94,6 @@ def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False, augmen
     noSplitFeatures = pd.DataFrame()
 
     for features, featuresSplitName in listFeatures:
-        if wavelet is not "":
-            featuresSplitName += utils.waveletName(wavelet, level)
 
         # cleaning inconsistent medTimepoint
         # also removing Parkinson patients just after medication
@@ -123,14 +116,31 @@ def generateSetTables(wavelet='', level=None, naiveLimitHealthCode=False, augmen
         features.drop(extraColumns, axis=1, inplace=True)
         features.to_csv("../data/{}.csv".format(featuresSplitName))
 
-    noSplitFeatures.reset_index(inplace=True)
-    featuresName = 'features'
-    if wavelet is not "":
-        featuresName += utils.waveletName(wavelet, level)
-    noSplitFeatures.to_csv("../data/{}_extra_columns.csv".format(featuresName))
-    noSplitFeatures.drop(extraColumns, axis=1, inplace=True)
-    noSplitFeatures.to_csv("../data/{}.csv".format(featuresName))
+    if quickSplit is False:
 
-    utils.generateAugmentedTable(augmentFraction=augmentFraction)
-    if outlierRemoval:
-        utils.outlierRemoval()
+        noSplitFeatures.reset_index(inplace=True, drop=True)
+        featuresName = 'features'
+        noSplitFeatures.to_csv("../data/{}_extra_columns.csv".format(featuresName))
+        noSplitFeatures.drop(extraColumns, axis=1, inplace=True)
+        noSplitFeatures.to_csv("../data/{}.csv".format(featuresName))
+
+        utils.generateAugmentedTable('train', augmentFraction=augmentFraction)
+        utils.outlierRemovalSaving()
+
+        numberOfFolds = 10
+        for index, demFold in enumerate(np.array_split(demographics.sample(frac=1), numberOfFolds)):
+            fold_extra_columns = pd.merge(walking_activity_features, demFold, on="healthCode")
+            fold_extra_columns.reset_index(inplace=True, drop=True)
+            fold_extra_columns.to_csv("../data/fold{}_extra_columns.csv".format(index))
+            utils.generateAugmentedTable('fold{}'.format(index), augmentFraction=augmentFraction)
+
+            fold = fold_extra_columns.drop(extraColumns, axis=1)
+            fold.to_csv("../data/fold{}.csv".format(index))
+
+            fold_extra_columns = utils.outlierRemoval(fold_extra_columns)
+            fold_extra_columns.reset_index(inplace=True, drop=True)
+            fold_extra_columns.to_csv("../data/fold{}_noOutliers_extra_columns.csv".format(index))
+            utils.generateAugmentedTable('fold{}_noOutliers'.format(index), augmentFraction=augmentFraction)
+
+            fold = fold_extra_columns.drop(extraColumns, axis=1)
+            fold.to_csv("../data/fold{}_noOutliers.csv".format(index))

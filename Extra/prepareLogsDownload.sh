@@ -18,6 +18,8 @@ mv tf_logs $HOME/Results/logs/CNN
 mkdir tf_logs
 mv checkpoints $HOME/Results/logs/CNN
 mkdir checkpoints
+mv Folds $HOME/Results/logs/CNN
+mkdir Folds
 
 cd ../RNN
 ls | grep -P "^slurm-.*.out" | xargs -d"\n" rm
@@ -42,6 +44,15 @@ mv val_noOutliers_extra_columns.csv $HOME/Results/CSVtables
 mv test.csv $HOME/Results/CSVtables
 mv test_extra_columns.csv $HOME/Results/CSVtables
 mv test_noOutliers_extra_columns.csv $HOME/Results/CSVtables
+for (( i=0; i<10; i++))
+	do
+		mv "fold"$i".csv" $HOME/Results/CSVtables
+		mv "fold"$i"_extra_columns.csv" $HOME/Results/CSVtables
+		mv "fold"$i"_augmented_extra_columns.csv" $HOME/Results/CSVtables
+		mv "fold"$i"_noOutliers_extra_columns.csv" $HOME/Results/CSVtables
+		mv "fold"$i"_noOutliers.csv" $HOME/Results/CSVtables
+		mv "fold"$i"_noOutliers_augmented_extra_columns.csv" $HOME/Results/CSVtables
+	done
 
 cd ../Features
 ls | grep -P "^slurm-.*.out" | xargs -d"\n" rm

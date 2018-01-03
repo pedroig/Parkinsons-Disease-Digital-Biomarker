@@ -4,7 +4,7 @@
 
 # This value can be adjusted to run in a condo if applicable
 # or commons if the max walltime is more than 4 hours
-#SBATCH --partition=commons
+#SBATCH --partition=scavenge
 
 #SBATCH --account=commons
 
@@ -20,7 +20,7 @@
 #SBATCH --mem-per-cpu=8G
 
 # This value can be adjusted if a different maximum wall time is required
-#SBATCH --time=00:05:00
+#SBATCH --time=00:08:00
 
 #SBATCH --mail-user=pao3@rice.edu
 

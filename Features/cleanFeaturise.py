@@ -34,8 +34,8 @@ def rowFeaturise(row, features, timeSeriesName, wavelet, level):
                     if wavelet is not '' and level is not None:
                         utils.waveletFiltering(dataAcc, wavelet, level)
                         utils.waveletFiltering(dataRot, wavelet, level)
-                    utils.saveTimeSeries(dataAcc, pointer, timeSeriesName, 'Accel', wavelet, level)
-                    utils.saveTimeSeries(dataRot, pointer, timeSeriesName, 'RotRate', wavelet, level)
+                    utils.saveTimeSeries(dataAcc, pointer, timeSeriesName, 'Accel')
+                    utils.saveTimeSeries(dataRot, pointer, timeSeriesName, 'RotRate')
                     cf.createFeatures(features, row.name, dataRot, 'RotRate_' + timeSeriesName)
                     cf.createFeatures(features, row.name, dataAcc, 'Accel_' + timeSeriesName)
             else:
@@ -45,7 +45,7 @@ def rowFeaturise(row, features, timeSeriesName, wavelet, level):
     return features.loc[row.name]
 
 
-def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
+def generateFeatures(num_cores=1, wavelet='', level=None):
     """
     Accesses the walking activity CSV table, executes the first stages of data cleaning,
     performs the feature generation and saves the results in a new table.
@@ -53,8 +53,6 @@ def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
     Input:
         - num_cores: int (default=1)
             The number of worker processes to use.
-        - dataFraction: float (default=1)
-            0 < dataFraction <= 1
         - wavelet: string (default='')
             Wavelet to use, empty string if no wavelet is used for smoothing.
             example: 'db9'
@@ -83,7 +81,7 @@ def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
     walking_activity_features = walking_activity[columns_to_keep_walking]
 
     walking_activity_features.index.name = 'ROW_ID'
-    walking_activity_features = walking_activity_features.sample(frac=dataFraction)
+    walking_activity_features = walking_activity_features.sample(frac=1)
 
     walking_activity_features["Error"] = False
     for namePrefix in ['deviceMotion_walking_', 'pedometer_walking_']:
@@ -106,8 +104,6 @@ def generateFeatures(num_cores=1, dataFraction=1, wavelet='', level=None):
     walking_activity_features.dropna(axis=0, how='any', inplace=True)
 
     fileName = 'walking_activity_features'
-    if wavelet is not "":
-        fileName += utils.waveletName(wavelet, level)
     walking_activity_features.to_csv("../data/{}.csv".format(fileName))
 
     print(len(walking_activity) - len(walking_activity_features), "rows dropped")

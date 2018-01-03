@@ -54,15 +54,8 @@ class CNN:
                  batch_size=100,
                  n_epochs=30,
                  timeSeries='rest',
-                 wavelet='',
-                 level=4,
-                 dataFractionTrain=1,
-                 dataFractionVal=1,
                  validateOnOldAgeGroup=True,
-                 developmentSet='val',
-                 restoreFolderName='',
                  useAugmentedData=False,
-                 balance_undersampling=False,
                  noOutlierTable=False):
         """
         Input:
@@ -74,42 +67,24 @@ class CNN:
                 Maximum number of epochs. (n_epochs >=1)
             - timeSeries: string
                 'rest' or 'outbound'
-            - wavelet: string
-                Wavelet to use, empty string if no wavelet is used for smoothing.
-                example: 'db9'
-            - level: integer
-                Decomposition level for the wavelet. This parameter is not considered if no wavelet is used.
-            - dataFractionTrain: float
-                0 < dataFractionTrain <= 1
-            - dataFractionVal: float
-                0 < dataFractionVal <= 1
             - validateOnOldAgeGroup: bool
                 Whether to select only people older 56 years in the validation set.
-            - developmentSet: string
-                'val' or 'test'
-            - restoreFolderName: string
-                Folder name for checkpoint to be restored. If the string is empty, nothing is restored
             - useAugmentedData: bool
                 Whether to use augmented data in the training set.
-            - balance_undersampling: bool
-                Whether to apply undersampling to balance the labels in the training set.
             - noOutlierTable: bool
                 Whether to read from tables without possible outliers.
         """
         self.channels_input = 3
         self.n_outputs = 2
         self.timeSeriesPaddedLength = 4000
+        self.numberOfFolds = 10
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.n_epochs = n_epochs
         self.timeSeries = timeSeries
-        self.wavelet = wavelet
-        self.level = level
-        self.restoreFolderName = restoreFolderName
-        self.developmentSet = developmentSet
         self.useAugmentedData = useAugmentedData
-        self.balance_undersampling = balance_undersampling
         self.noOutlierTable = noOutlierTable
+        self.validateOnOldAgeGroup = validateOnOldAgeGroup
 
         self.generateDirectoriesNames()
 
@@ -118,17 +93,6 @@ class CNN:
         self.metrics
         self.tensorboard_summaries
         self.init_and_save
-
-        self.loadTables(validateOnOldAgeGroup, dataFractionTrain, dataFractionVal)
-
-        # Reading time series for validation set
-        X_val, y_val = self.generateSetFromTable(self.featuresTableVal)
-        self.feed_dict_val = {
-            self.y: y_val,
-            self.X: X_val
-        }
-
-        self.n_batches = len(self.featuresTableTrain) // self.batch_size
 
     @define_scope(initializer=tf.contrib.slim.xavier_initializer())
     def logits_prediction(self):
@@ -223,10 +187,10 @@ class CNN:
         self.init = tf.global_variables_initializer()
         self.saver = tf.train.Saver()
 
-    def summary_per_minibatch(self, batch_index, epoch, feed_dict_batch):
+    def summary_per_minibatch(self, batch_index, epoch, feed_dict_batch, n_batches):
         if batch_index % 4 == 0:
             summary_str = self.loss_summary.eval(feed_dict=feed_dict_batch)
-            step = epoch * self.n_batches + batch_index
+            step = epoch * n_batches + batch_index
             self.file_writer.add_summary(summary_str, step)
 
     def process_summaries_set(self, setName, epoch):
@@ -248,41 +212,46 @@ class CNN:
         """
         Input:
             - setName: string
-                String to be printed to inform the user which set the metrics are from: 'train', val' or 'test'.
+                Title string to be printed.
         """
         print("\t{}".format(setName))
         print("\t\tROC AUC:", self.auc.eval())
         print("\t\tPrecision:", self.precision.eval()[0])
         print("\t\tRecall:", self.recall.eval()[0])
 
-    def evaluateMetricsRestored(self):
+    def evaluateMetricsRestored(self, restoreFolderName):
         """
-        Restores trainable parameters correspondent to the folder name specified in the constructor method and evaluates
-        the performance of the model in the development set specified (validation or test).
+        Restores trainable parameters correspondent to the folder name specified and evaluates
+        the performance of the model in the test set.
+
+        Input:
+            - restoreFolderName: string
+                Folder name for checkpoint to be restored.
         """
         with tf.Session() as sess:
             # reset the local variables used for metrics
             sess.run(tf.local_variables_initializer())
-            if len(self.restoreFolderName) > 0:
-                self.saver.restore(sess, "./checkpoints/{}/model.ckpt".format(self.restoreFolderName))
-                sess.run(self.metrics, feed_dict=self.feed_dict_val)
-                self.printMetrics(self.developmentSet)
+            self.saver.restore(sess, "./checkpoints/{}/model.ckpt".format(restoreFolderName))
+            sess.run(self.metrics, feed_dict=self.feed_dict_test)
+            self.printMetrics("Metrics:")
+            return self.auc.eval()
 
     def train(self):
         """
         Executes the tensorflow graph to train the model while also saving and displaying metrics of the process.
 
-        It is important to highlight that the mini-batches are loaded to memory on demand, making it so that only
+        Note: It is important to highlight that the mini-batches are loaded to memory on demand, making it so that only
         one is in memory at any given time.
+
+        Outputs the epoch (int) in which the AUROC score is maximum in the validation set.
         """
         max_auc = -1
+        epochsSinceLastMax = 0
+        n_batches = len(self.featuresTableTrain) // self.batch_size
 
         with tf.Session() as sess:
 
-            if len(self.restoreFolderName) > 0:
-                self.saver.restore(sess, "./checkpoints/{}/model.ckpt".format(self.restoreFolderName))
-            else:
-                self.init.run()
+            self.init.run()
 
             for epoch in range(self.n_epochs):
 
@@ -291,20 +260,16 @@ class CNN:
 
                 epoch_start_time = time.time()
 
-                for batch_index in range(self.n_batches):
+                for batch_index in range(n_batches):
 
                     # Building Batch
                     featuresTableBatch = self.featuresTableTrain[self.featuresTableTrain.index // self.batch_size == batch_index]
-                    X_batch, y_batch = self.generateSetFromTable(featuresTableBatch)
-                    feed_dict_batch = {
-                        self.y: y_batch,
-                        self.X: X_batch
-                    }
+                    feed_dict_batch = self.buildFeedDict(featuresTableBatch)
 
                     # Training operation and metrics updates
                     sess.run([self.optimize, self.metrics], feed_dict=feed_dict_batch)
 
-                    self.summary_per_minibatch(batch_index, epoch, feed_dict_batch)
+                    self.summary_per_minibatch(batch_index, epoch, feed_dict_batch, n_batches)
 
                 # Metrics
                 print("Epoch: {}, Execution time: {} seconds".format(epoch, time.time() - epoch_start_time))
@@ -320,6 +285,7 @@ class CNN:
                 if max_auc < self.auc.eval():
                     max_auc = self.auc.eval()
                     epochsSinceLastMax = 0
+                    savingEpoch = epoch
                     self.saver.save(sess, self.checkpointdir.format(epoch))
                 else:
                     epochsSinceLastMax += 1
@@ -328,6 +294,7 @@ class CNN:
                     break
 
         self.file_writer.close()
+        return savingEpoch
 
     def generateDirectoriesNames(self):
         """
@@ -341,12 +308,8 @@ class CNN:
             self.timeSeries,
             self.learning_rate,
             self.batch_size)
-        if self.wavelet is not '':
-            folderName += "_{}{}".format(self.wavelet, self.level)
         if self.useAugmentedData:
             folderName += "_augmented"
-        if self.balance_undersampling:
-            folderName += "_undersampling"
         if self.noOutlierTable:
             folderName += "_noOutliers"
         self.logdir = "tf_logs/{}/".format(folderName)
@@ -365,58 +328,77 @@ class CNN:
             featuresTable.rename(columns={'deviceMotion_walking_{}.json.items'.format(timeSeriesName):
                                           'deviceMotion_walking_' + timeSeriesName},
                                  inplace=True)
-        featuresTable.reset_index(inplace=True)
+        featuresTable.reset_index(inplace=True, drop=True)
         return featuresTable
 
-    def loadTables(self, validateOnOldAgeGroup, dataFractionTrain, dataFractionVal):
+    def buildFeedDict(self, table):
         """
-        Loads CSV the tables with the pointers to JSON files, optionally filtering the development set table to only
-        have people in the group of main interest for prediction, older people, here specified to be above 56 years old.
-        Fraction parameters are given in case there is a need to limit the amount of data to be loaded for a quick
-        testing/debugging of the code.
+        Receives table and builds the correspondent feed dictionary to be used
+        in the tensorflow session.
+
+        Input:
+            - table: pandas DataFrame
         """
+        X, y = self.generateSetFromTable(table)
+        feed_dict = {
+            self.y: y,
+            self.X: X
+        }
+        return feed_dict
 
-        # Reading tables
-        table = 'train'
-        if self.useAugmentedData:
-            table += '_augmented'
-        if self.noOutlierTable:
-            table += '_noOutliers'
-        self.featuresTableTrain = self.readPreprocessTable(table)
+    def loadFoldTables(self, foldValNumber):
+        """
+        Loads tables for all the folds used in the cross-validation.
+        """
+        foldTestNumber = (foldValNumber + 1) % self.numberOfFolds
 
-        if self.balance_undersampling:
-            X = self.featuresTableTrain
-            y = self.featuresTableTrain.Target
-            pd_indices = X[y].index
-            healthy_indices = X[~y].index
-            if len(pd_indices) > len(healthy_indices):
-                random_pd_indices = np.random.choice(pd_indices, len(healthy_indices), replace=False)
-                balanced_indices = np.append(random_pd_indices, healthy_indices)
-            else:
-                random_healthy_indices = np.random.choice(healthy_indices, len(pd_indices), replace=False)
-                balanced_indices = np.append(random_healthy_indices, pd_indices)
-            self.featuresTableTrain = X.loc[balanced_indices, :]
+        folds = []
+        for foldIndex in range(self.numberOfFolds):
+            table = 'fold{}'.format(foldIndex)
+            if self.noOutlierTable:
+                table += '_noOutliers'
+            if self.useAugmentedData and foldValNumber != foldIndex and foldTestNumber != foldIndex:
+                table += '_augmented'
+            folds.append(self.readPreprocessTable(table))
+        return folds
 
-        table = self.developmentSet
-        if self.noOutlierTable:
-            table += '_noOutliers'
-        self.featuresTableVal = self.readPreprocessTable(table)
+    def evaluateFoldConfiguration(self, foldValNumber):
+        """
+        The number of folds is equal to the number of distributions of Training and Validation/Test
+        sets. This function trains the model in one possible distribution, maximizes the AUROC on
+        the validation set and outputs the AUROC for the test set using the trainable parameters
+        from the validation maximum.
 
-        if validateOnOldAgeGroup:
-            self.featuresTableVal = self.featuresTableVal[self.featuresTableVal.age > 56]
+        Input:
+            - foldValNumber: int
+                Fold index for the validation set. This number also defines the distribution of the
+                folds in the training and test sets.
+        """
+        foldTestNumber = (foldValNumber + 1) % self.numberOfFolds
 
-        # Setting size of the dataset
-        self.featuresTableTrain = self.featuresTableTrain.sample(frac=dataFractionTrain)
-        self.featuresTableVal = self.featuresTableVal.sample(frac=dataFractionVal)
+        folds = self.loadFoldTables(foldValNumber)
+        featuresTableVal = folds[foldValNumber]
+        featuresTableTest = folds[foldTestNumber]
+        if self.validateOnOldAgeGroup:
+            featuresTableVal = featuresTableVal[featuresTableVal.age > 56]
+            featuresTableTest = featuresTableTest[featuresTableTest.age > 56]
+        del folds[foldValNumber]
+        del folds[foldTestNumber]
 
-        self.featuresTableTrain.reset_index(inplace=True)
-        self.featuresTableVal.reset_index(inplace=True)
+        self.feed_dict_val = self.buildFeedDict(featuresTableVal)
+        self.feed_dict_test = self.buildFeedDict(featuresTableTest)
+
+        self.featuresTableTrain = pd.concat(folds)
+        self.featuresTableTrain.reset_index(inplace=True, drop=True)
+
+        savingEpoch = self.train()
+        return self.evaluateMetricsRestored(self.checkpointdir.format(savingEpoch))
 
     def generateSetFromTable(self, featuresTable):
         """
         Loads all the rotation rate JSON files from a given table into memory.
         """
-        fileNameRotRate = utils.genFileName('RotRate', self.wavelet, self.level)
+        fileNameRotRate = 'RotRate.json'
         axes = ['x', 'y', 'z']
         y = featuresTable.Target
         y = np.array(y)
@@ -440,19 +422,19 @@ def main():
 
     tf.reset_default_graph()
 
-    # model = CNN(restoreFolderName='run-20171231183057_rest_epochs-50_learningRate-0.0001_batchSize-100',
-    #             developmentSet='test',
-    #             noOutlierTable=True)
-    # model.evaluateMetricsRestored()
-
     model = CNN(learning_rate=0.0001,
                 batch_size=100,
                 n_epochs=30,
                 timeSeries='rest',
-                useAugmentedData=False,
-                balance_undersampling=False,
-                noOutlierTable=False)
-    model.train()
+                useAugmentedData=True,
+                noOutlierTable=True)
+
+    foldValNumber = 0
+    test_auroc = model.evaluateFoldConfiguration(foldValNumber)
+
+    outFile = open('Folds/fold{}.txt'.format(foldValNumber), 'w')
+    outFile.write(str(test_auroc))
+    outFile.close()
 
 
 if __name__ == '__main__':

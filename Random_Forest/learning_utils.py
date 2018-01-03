@@ -41,12 +41,16 @@ def metricsPrint(y_test, y_pred, y_prob):
         Predicted labels, as returned by a classifier.
     - y_prob: numpy.ndarray
         Probability estimates of the positive class.
+
+    Returns AUROC score.
     """
-    print("Accuracy:", metrics.accuracy_score(y_test, y_pred))
-    print("Precision:", metrics.precision_score(y_test, y_pred))
-    print("Recall:", metrics.recall_score(y_test, y_pred))
-    print("F1 Score:", metrics.f1_score(y_test, y_pred))
-    print("ROC score:", metrics.roc_auc_score(y_test, y_prob))
+    print("\tAccuracy:", metrics.accuracy_score(y_test, y_pred))
+    print("\tPrecision:", metrics.precision_score(y_test, y_pred))
+    print("\tRecall:", metrics.recall_score(y_test, y_pred))
+    print("\tF1 Score:", metrics.f1_score(y_test, y_pred))
+    auroc = metrics.roc_auc_score(y_test, y_prob)
+    print("\tROC score:", auroc)
+    return auroc
 
 
 def metricsShowEnsemble(y_test, y_pred_total, setName, ensemble_size, threshold=0.5):
@@ -62,12 +66,14 @@ def metricsShowEnsemble(y_test, y_pred_total, setName, ensemble_size, threshold=
         The number of random forests in the undersampling ensemble.
     - threshold: float
         0 < threshold < 1
+
+    Returns AUROC score.
     """
     print("\nMetrics on {} Set".format(setName))
     y_prob = y_pred_total / ensemble_size
     y_prob = y_prob[:, 1]  # positiveClass
     y_pred = y_prob > threshold
-    metricsPrint(y_test, y_pred, y_prob)
+    return metricsPrint(y_test, y_pred, y_prob)
 
 
 def load_data(featuresSplitName, selectOldAge=False, dropAge=False,

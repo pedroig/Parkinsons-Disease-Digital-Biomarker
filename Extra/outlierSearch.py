@@ -38,7 +38,7 @@ def outlierSearch(iterations):
     total_auc = 0
     for i in range(iterations):
         print("\nIteration {}".format(i))
-        splitSets.generateSetTables(outlierRemoval=False)
+        splitSets.generateSetTables(quickSplit=True)
         val_auc, test_auc = randomForestModel(dropAge=True, ensemble_size=11)
         total_auc += (val_auc + test_auc)
 
@@ -95,47 +95,7 @@ def randomForestModel(oldAgeTrain=False, criterion='gini', ensemble_size=1, drop
             y_pred_total[setName] += rnd_clf[i].predict_proba(X[setName]) > 0.5  # threshold
 
     lu.metricsShowAccumulate(metrics_train_total, ensemble_size)
-    val_auc = metricsShowEnsemble(y_val, y_pred_total["val"], "Validation", ensemble_size, threshold=0.5)
-    test_auc = metricsShowEnsemble(y_test, y_pred_total["test"], "Test", ensemble_size, threshold=0.5)
+    val_auc = lu.metricsShowEnsemble(y_val, y_pred_total["val"], "Validation", ensemble_size, threshold=0.5)
+    test_auc = lu.metricsShowEnsemble(y_test, y_pred_total["test"], "Test", ensemble_size, threshold=0.5)
 
     return val_auc, test_auc
-
-
-def metricsPrint(y_test, y_pred, y_prob):
-    """
-    Input:
-    - y_test: numpy.ndarray
-        Ground truth (correct) labels.
-    - y_pred: numpy.ndarray
-        Predicted labels, as returned by a classifier.
-    - y_prob: numpy.ndarray
-        Probability estimates of the positive class.
-    """
-    print("\tAccuracy:", metrics.accuracy_score(y_test, y_pred))
-    print("\tPrecision:", metrics.precision_score(y_test, y_pred))
-    print("\tRecall:", metrics.recall_score(y_test, y_pred))
-    print("\tF1 Score:", metrics.f1_score(y_test, y_pred))
-    score = metrics.roc_auc_score(y_test, y_prob)
-    print("\tROC score:", score)
-    return score
-
-
-def metricsShowEnsemble(y_test, y_pred_total, setName, ensemble_size, threshold=0.5):
-    """
-    Input:
-    - y_test: numpy.ndarray
-        Ground truth (correct) labels.
-    - y_pred_total: numpy.ndarray
-        Sum of the votes of all the random forests in the undersampling ensemble.
-    - setName: string
-        Name of the development set to be printed as the title.
-    - ensemble_size: int
-        The number of random forests in the undersampling ensemble.
-    - threshold: float
-        0 < threshold < 1
-    """
-    print("\nMetrics on {} Set".format(setName))
-    y_prob = y_pred_total / ensemble_size
-    y_prob = y_prob[:, 1]  # positiveClass
-    y_pred = y_prob > threshold
-    return metricsPrint(y_test, y_pred, y_prob)
