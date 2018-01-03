@@ -352,14 +352,14 @@ class CNN:
         """
         foldTestNumber = (foldValNumber + 1) % self.numberOfFolds
 
-        folds = []
+        folds = {}
         for foldIndex in range(self.numberOfFolds):
             table = 'fold{}'.format(foldIndex)
             if self.noOutlierTable:
                 table += '_noOutliers'
             if self.useAugmentedData and foldValNumber != foldIndex and foldTestNumber != foldIndex:
                 table += '_augmented'
-            folds.append(self.readPreprocessTable(table))
+            folds[foldIndex] = self.readPreprocessTable(table)
         return folds
 
     def evaluateFoldConfiguration(self, foldValNumber):
@@ -388,7 +388,7 @@ class CNN:
         self.feed_dict_val = self.buildFeedDict(featuresTableVal)
         self.feed_dict_test = self.buildFeedDict(featuresTableTest)
 
-        self.featuresTableTrain = pd.concat(folds)
+        self.featuresTableTrain = pd.concat(folds.values())
         self.featuresTableTrain.reset_index(inplace=True, drop=True)
 
         savingEpoch = self.train()
@@ -429,7 +429,8 @@ def main():
                 useAugmentedData=True,
                 noOutlierTable=True)
 
-    foldValNumber = 0
+    foldValNumber = int(sys.argv[1])
+    print("Running foldValNumber", foldValNumber)
     test_auroc = model.evaluateFoldConfiguration(foldValNumber)
 
     outFile = open('Folds/fold{}.txt'.format(foldValNumber), 'w')

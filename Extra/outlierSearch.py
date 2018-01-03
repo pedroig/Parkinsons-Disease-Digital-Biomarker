@@ -1,5 +1,4 @@
 import pandas as pd
-from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
 import sys
 sys.path.insert(0, '../Features')
@@ -80,12 +79,12 @@ def randomForestModel(oldAgeTrain=False, criterion='gini', ensemble_size=1, drop
         "ROC score": 0
     }
     X = {}
-    X["val"], y_val, feature_names = lu.load_data("val", selectOldAge=True, dropAge=dropAge)
-    X["test"], y_test, _ = lu.load_data("test", selectOldAge=True, dropAge=dropAge)
+    X["val"], y_val, feature_names = lu.load_dataStandart("val", selectOldAge=True, dropAge=dropAge)
+    X["test"], y_test, _ = lu.load_dataStandart("test", selectOldAge=True, dropAge=dropAge)
 
     for i in range(ensemble_size):
-        X_train[i], y_train[i], _ = lu.load_data("train", selectOldAge=oldAgeTrain, dropAge=dropAge,
-                                                 balance_undersampling=True)
+        X_train[i], y_train[i], _ = lu.load_dataStandart("train", selectOldAge=oldAgeTrain, dropAge=dropAge,
+                                                         balance_undersampling=True)
 
         rnd_clf[i] = RandomForestClassifier(n_estimators=13, criterion=criterion, max_depth=5, min_samples_split=12, n_jobs=-1)
 

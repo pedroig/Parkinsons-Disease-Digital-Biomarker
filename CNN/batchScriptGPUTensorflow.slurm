@@ -23,7 +23,7 @@
 #SBATCH --gres=gpu:1
 
 # This value can be adjusted if a different maximum wall time is required
-#SBATCH --time=07:30:00
+#SBATCH --time=04:30:00
 
 #SBATCH --mail-user=pao3@rice.edu
 
@@ -39,4 +39,4 @@ module load GCC/6.4.0  CUDA/7.5.18  OpenMPI/2.1.1 TensorFlow/1.3
 pip install sklearn --user
 pip install pywavelets --user
 
-srun python cnn.py > output.txt
+srun python cnn.py '0' > output.txt
