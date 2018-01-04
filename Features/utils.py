@@ -252,7 +252,7 @@ def generateAugmentedTable(tableName, augmentFraction=0.5):
     - augmentFraction: float
         0 < augmentFraction <=1
     """
-    table = pd.read_csv("../data/{}_extra_columns.csv".format(tableName))
+    table = pd.read_csv("../data/{}_extra_columns.csv".format(tableName), index_col=0)
     table.loc[:, "augmented"] = False
     tableSelected = table.sample(frac=augmentFraction)
     tableSelected.loc[:, "augmented"] = True

@@ -107,17 +107,7 @@ def load_dataStandart(featuresSplitName, selectOldAge=False, dropAge=False,
     feature_names = X.axes[1]
 
     if balance_undersampling:
-        pd_indices = X[y].index
-        healthy_indices = X[~y].index
-        if len(pd_indices) > len(healthy_indices):
-            random_pd_indices = np.random.choice(pd_indices, len(healthy_indices), replace=False)
-            balanced_indices = np.append(random_pd_indices, healthy_indices)
-        else:
-            random_healthy_indices = np.random.choice(healthy_indices, len(pd_indices), replace=False)
-            balanced_indices = np.append(random_healthy_indices, pd_indices)
-        X = X.loc[balanced_indices, :]
-        y = y[balanced_indices]
-        y = np.asarray(y.values, dtype=np.int8)
+        X, y = generateUndersample(X, y)
     elif balance_oversampling:
         sm = SMOTE(ratio='minority')
         X, y = sm.fit_sample(X, y)

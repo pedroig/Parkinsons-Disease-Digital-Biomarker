@@ -346,18 +346,16 @@ class CNN:
         }
         return feed_dict
 
-    def loadFoldTables(self, foldValNumber):
+    def loadFoldTables(self):
         """
         Loads tables for all the folds used in the cross-validation.
         """
-        foldTestNumber = (foldValNumber + 1) % self.numberOfFolds
-
         folds = {}
         for foldIndex in range(self.numberOfFolds):
             table = 'fold{}'.format(foldIndex)
             if self.noOutlierTable:
                 table += '_noOutliers'
-            if self.useAugmentedData and foldValNumber != foldIndex and foldTestNumber != foldIndex:
+            if self.useAugmentedData:
                 table += '_augmented'
             folds[foldIndex] = self.readPreprocessTable(table)
         return folds
@@ -376,12 +374,22 @@ class CNN:
         """
         foldTestNumber = (foldValNumber + 1) % self.numberOfFolds
 
-        folds = self.loadFoldTables(foldValNumber)
+        folds = self.loadFoldTables()
         featuresTableVal = folds[foldValNumber]
         featuresTableTest = folds[foldTestNumber]
         if self.validateOnOldAgeGroup:
             featuresTableVal = featuresTableVal[featuresTableVal.age > 56]
             featuresTableTest = featuresTableTest[featuresTableTest.age > 56]
+
+        # Removing augmented data from validation and test sets
+        if self.useAugmentedData:
+            augmentedRowsVal = featuresTableVal[featuresTableVal.augmented].index
+            augmentedRowsTest = featuresTableTest[featuresTableTest.augmented].index
+            featuresTableVal.drop(augmentedRowsVal, inplace=True)
+            featuresTableTest.drop(augmentedRowsTest, inplace=True)
+            featuresTableVal.reset_index(inplace=True, drop=True)
+            featuresTableTest.reset_index(inplace=True, drop=True)
+
         del folds[foldValNumber]
         del folds[foldTestNumber]
 
@@ -398,7 +406,6 @@ class CNN:
         """
         Loads all the rotation rate JSON files from a given table into memory.
         """
-        fileNameRotRate = 'RotRate.json'
         axes = ['x', 'y', 'z']
         y = featuresTable.Target
         y = np.array(y)
@@ -409,7 +416,7 @@ class CNN:
             if "augmented" in featuresTable and row.augmented:
                 data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, "RotRate_augmented.json")
             else:
-                data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, fileNameRotRate)
+                data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, 'RotRate.json')
             XElement = data.loc[:, axes]
             zeros = pd.DataFrame(0, index=np.arange(self.timeSeriesPaddedLength - len(data)), columns=axes)
             X = pd.concat([X, XElement, zeros])
