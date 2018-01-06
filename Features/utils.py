@@ -258,6 +258,7 @@ def generateAugmentedTable(tableName, augmentFraction=0.5):
     tableSelected.loc[:, "augmented"] = True
 
     tableAugmented = pd.concat([table, tableSelected])
+    tableAugmented.reset_index(inplace=True, drop=True)
     tableAugmented.to_csv("../data/{}_augmented_extra_columns.csv".format(tableName))
 
 # Parallelization for the augmentation (augmentRow)

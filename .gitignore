@@ -13,5 +13,3 @@ __pycache__/
 
 # Temporary files
 Extra/Roteiro.txt
-Extra/TestOutlier/*
-CNN/oldCNN.py

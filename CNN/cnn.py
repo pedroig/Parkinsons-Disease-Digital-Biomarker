@@ -187,12 +187,6 @@ class CNN:
         self.init = tf.global_variables_initializer()
         self.saver = tf.train.Saver()
 
-    def summary_per_minibatch(self, batch_index, epoch, feed_dict_batch, n_batches):
-        if batch_index % 4 == 0:
-            summary_str = self.loss_summary.eval(feed_dict=feed_dict_batch)
-            step = epoch * n_batches + batch_index
-            self.file_writer.add_summary(summary_str, step)
-
     def process_summaries_set(self, setName, epoch):
         """
         Saves the metrics from the current epoch in the tensorboard summaries and prints it for the user.
@@ -233,7 +227,7 @@ class CNN:
             sess.run(tf.local_variables_initializer())
             self.saver.restore(sess, "./checkpoints/{}/model.ckpt".format(restoreFolderName))
             sess.run(self.metrics, feed_dict=self.feed_dict_test)
-            self.printMetrics("Metrics:")
+            self.printMetrics("Test:")
             return self.auc.eval()
 
     def train(self):
@@ -269,7 +263,11 @@ class CNN:
                     # Training operation and metrics updates
                     sess.run([self.optimize, self.metrics], feed_dict=feed_dict_batch)
 
-                    self.summary_per_minibatch(batch_index, epoch, feed_dict_batch, n_batches)
+                    # Loss function summary
+                    if batch_index % 4 == 0:
+                        summary_str = self.loss_summary.eval(feed_dict=feed_dict_batch)
+                        step = epoch * n_batches + batch_index
+                        self.file_writer.add_summary(summary_str, step)
 
                 # Metrics
                 print("Epoch: {}, Execution time: {} seconds".format(epoch, time.time() - epoch_start_time))
@@ -303,17 +301,17 @@ class CNN:
             *Log directory for tensorboard.
         """
         self.now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-        folderName = "run-{}_{}_learningRate-{}_batchSize-{}".format(
+        self.folderName = "run-{}_{}_learningRate-{}_batchSize-{}".format(
             self.now,
             self.timeSeries,
             self.learning_rate,
             self.batch_size)
         if self.useAugmentedData:
-            folderName += "_augmented"
+            self.folderName += "_augmented"
         if self.noOutlierTable:
-            folderName += "_noOutliers"
-        self.logdir = "tf_logs/{}/".format(folderName)
-        self.checkpointdir = "./checkpoints/{}".format(folderName)
+            self.folderName += "_noOutliers"
+        self.logdir = "tf_logs/{}/".format(self.folderName)
+        self.checkpointdir = "./checkpoints/{}".format(self.folderName)
         self.checkpointdir += "_savingEpoch{}/model.ckpt"
 
     def readPreprocessTable(self, name):
@@ -387,8 +385,6 @@ class CNN:
             augmentedRowsTest = featuresTableTest[featuresTableTest.augmented].index
             featuresTableVal.drop(augmentedRowsVal, inplace=True)
             featuresTableTest.drop(augmentedRowsTest, inplace=True)
-            featuresTableVal.reset_index(inplace=True, drop=True)
-            featuresTableTest.reset_index(inplace=True, drop=True)
 
         del folds[foldValNumber]
         del folds[foldTestNumber]
@@ -400,7 +396,7 @@ class CNN:
         self.featuresTableTrain.reset_index(inplace=True, drop=True)
 
         savingEpoch = self.train()
-        return self.evaluateMetricsRestored(self.checkpointdir.format(savingEpoch))
+        return self.evaluateMetricsRestored("{}_savingEpoch{}".format(self.folderName, savingEpoch))
 
     def generateSetFromTable(self, featuresTable):
         """
@@ -416,7 +412,7 @@ class CNN:
             if "augmented" in featuresTable and row.augmented:
                 data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, "RotRate_augmented.json")
             else:
-                data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, 'RotRate.json')
+                data = utils.readJSON_data(getattr(row, timeSeriesName), timeSeriesName, "RotRate.json")
             XElement = data.loc[:, axes]
             zeros = pd.DataFrame(0, index=np.arange(self.timeSeriesPaddedLength - len(data)), columns=axes)
             X = pd.concat([X, XElement, zeros])

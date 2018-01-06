@@ -7,7 +7,7 @@
 
 The data is a collection of time-series from cellphone sensors (pedometer at an undefined sampling rate and the following three at a rate of 100Hz: accelerometer, gyroscope, and magnetometer) of the gait and balance of people with or without Parkinson's disease. In each sample, the person is instructed to put the cellphone in a pant's pocket and perform measurements in three stages: 20 steps in a straight line (walking outbound); turn around and stand still for 30 seconds (walking rest); 20 steps back in a straight line (walking return). There is also a collection of demographics data for each person who has participated in the experiment.
 
-Each time-series is stored in a different JSON file which is referenced by a pointer (file code) in a CSV file ("walking_activity.csv") that contains one row for each sequence of the three measurements. Each row from this CSV file also has a healthcode which is a unique code for each person that can be used to associate the data from the time-series with the data of another CSV file ("demographics.csv") that contains one row with all demographics data for each person.
+Each time-series is stored in a different JSON file which is referenced by a pointer (file code) in a CSV file ("walking_activity.csv") that contains one column for each sequence of the three measurements. Each row from this CSV file has a healthcode which is a unique code for each person that can be used to associate the data from the time-series with the data of another CSV file ("demographics.csv") that contains one row with all demographics data for each person.
 
 ###### Example of the json structure for each data sample collected at a rate of 100Hz:
 ```json
@@ -53,7 +53,7 @@ More details about parameter descriptions at https://www.synapse.org/#!Synapse:s
 
 #### 1.1 Cleaning
 
-The first part was to remove clear cases of inconsistency in the data. There were cases of invalid references to JSON files or JSON files with 'null' value. Only this cleaning procedure resulted in a significant reduction in the data size, from more than 34,000 samples to less than 20,000. However, it was later observed that the vast majority of the inconsistent data was from the walking return stage, so the option adopted was to drop all the return data and then apply the cleaning procedures. 
+The first part was to remove clear cases of inconsistency in the data. There were cases of invalid references to JSON files or JSON files with 'null' value. Only this cleaning procedure resulted in a significant reduction in the data size, from more than 34,000 samples to less than 20,000. However, it was later observed that the vast majority of the inconsistent data was from the walking return stage, so the option adopted was to drop all the return data and then apply the cleaning procedures.
 
 The time-series with a length smaller than 300 samples also were also discarded. Those correspond to 3 seconds of data collection each and this duration was considered unreasonable to execute 20 steps for this data collection purpose or insufficient for the resting stage which was supposed to last for 30 seconds.
 
@@ -164,7 +164,7 @@ Given the number of data samples (34,631), the length of each time-series (up to
 
 #### 1.6 Splitting the Dataset
 
-After executing the initial cleaning procedures and generating the features described in 1.4, a new version of the original walking_activity.csv table is saved as walking_activity_features.csv, allowing the dataset to be easily split without generating the features everytime. The final cleaning routine and the split procedure is done by the [generateSetTables function](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/splitSets.py) that divides the dataset in the following configuration: 80% Training set, 10% Validation set, and 10% Test set. However, it is critical to call attention to the fact that the split is done by taking account of the healthcode during the creation of the sets, i.e., splitting the demographics table and then merging it to the walking_activity table. This approach is necessary in order to avoid data leakage since otherwise, the same person could be at the same time in the training set and in the validation set which would lead to unrealistic good results. It is also important to highlight that taking account of the healthCode means that the final sizes of the sets are not exactly coherent with the previously stipulated percentages since different people performed the experiment different times.
+After executing the initial cleaning procedures and generating the features described in 1.4, a new version of the original walking_activity.csv table is saved as walking_activity_features.csv, allowing the dataset to be easily split without generating the features everytime. The final cleaning routine and the split procedure is done by the [generateSetTables function](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Features/splitSets.py) that divides the dataset in the following configuration: 80% Training set, 10% Validation set, and 10% Test set. Similarly, this function also divides the dataset into ten folds for cross-validation. However, it is critical to call attention to the fact that the split is done by taking account of the healthcode during the creation of the sets, i.e., splitting the demographics table and then merging it to the walking_activity table. This approach is necessary in order to avoid data leakage since otherwise, the same person could be at the same time in the training set and in the validation set which would lead to unrealistic good results. It is also important to highlight that taking account of the healthCode means that the final sizes of the sets are not exactly coherent with the previously stipulated percentages since different people performed the experiment different times.
 
 One undesirable property observed in the final sets is the unbalanced distribution between labels. From a total of 27,314 samples after cleaning, 17,663 samples correspond to people with Parkinson's disease. This gap gets even wider when analyzing only people older 56 years old: 14,907 people with the disease from a total of 17,933.
 
@@ -218,9 +218,36 @@ The code for the random forest model can be found in the [function randomForestM
 17 | Q3 | Outbound | Z | Acceleration | 0.008227 |
 18 | Data Range | Outbound | Y | Acceleration | 0.007834 |
 19 | Data Range | Outbound | Z | Acceleration | 0.007720 |
-20 | Entropy | Rest | X | Rotation Rate |  0.007604 |
+20 | Entropy | Rest | X | Rotation Rate | 0.007604 |
 
 The table above displays a tendency to obtain higher importance values for features extracted from the z-axis of the time-series. This could be explained by the fact that this is axis is well defined in the world frame coordinate system as mentioned when discussing the data augmentation.
+
+It can also be observed in the list of the 20 most important features that the age is by far the feature with the highest importance. However, the age has negative repercussions in the model since it favors the overfitting on the training set. The gap in the AUROC score between training and validation sets when the age is used as a feature is bigger, indicating overfitting. In addition, after the removal of the age, there is no significant change of the AUROC score on the validation set. For those reasons, it was opted to drop the age column as an unusual kind of regularization technique for the random forest model. The table below shows the new list of the 20 most important features:
+
+##### 20 Most Important Features without the age as feature
+
+| Ranking | Name | Stage | Axis (es) | Measurent Type | Importance |
+|-------------|-------------|-------------|-------------|-------------|-------------|
+1 | Dominant Frequency Component | Rest | Z | Rotation Rate | 0.072905 |
+2 | Gender | - | - | - | 0.057400 |
+3 | Dominant Frequency Component | Outbound | Y | Rotation Rate | 0.042803 |
+4 | Dominant Frequency Component | Outbound | Z | Acceleration | 0.038700 |
+5 | Kurtosis | Rest | Z | Rotation Rate | 0.033987 |
+6 | Dominant Frequency Component | Outbound | X | Rotation Rate | 0.033070 |
+7 | Dominant Frequency Component | Outbound | Z | Rotation Rate | 0.032403 |
+8 | Mutual Information | Rest | YZ | Acceleration | 0.029368 |
+9 | Mean | Rest | Z | Rotation Rate | 0.027767 |
+10 | Interquartile | Rest | Z | Rotation Rate | 0.020953 |
+11 | Mutual Information | Rest | YZ | Rotation Rate | 0.019918 |
+12 | Dominant Frequency Component | Outbound | Y | Acceleration | 0.018553 |
+13 | Q1 | Rest | Z | Rotation Rate | 0.018447 |
+14 | Maximum | Outbound | Z | Acceleration | 0.017032 |
+15 | Mutual Information | Rest | XZ | Rotation Rate | 0.016369 |
+16 | Mutual Information | Rest | XZ | Acceleration | 0.016302 |
+17 | Interquartile | Rest | Y | Acceleration | 0.015043 |
+18 | Interquartile | Rest | X | Rotation Rate | 0.011202 |
+19 | Q1 | Rest | X | Rotation Rate | 0.011189 |
+20 | Zero Crossing Rate | Rest | Y | Acceleration | 0.010612 |
 
 In order to allow an easier way to tune the hyperparameters from the random forest, it was developed an auxiliary [randomForestTuning function](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Random_Forest/randomForest.py) that plots the model performance for a range of hyperparameters values. While one hyperparameter chosen by the user is plotted in a range of values, the other ones are fixed to standard quantities. Three hyperparameters can be analyzed in this procedure:
 * The maximum depth of the tree;

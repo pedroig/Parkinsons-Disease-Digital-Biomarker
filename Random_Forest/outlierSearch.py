@@ -1,32 +1,23 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 import sys
-sys.path.insert(0, '../Features')
-sys.path.insert(0, '../Random_Forest')
-import splitSets
+import shutil
 import learning_utils as lu
-
-
-def outlierRemoval():
-
-    outliers1 = ["e31788d0-7834-477a-a718-fef116c04816",
-                 "9a41dd95-337d-4f23-8b3e-f0f0dd40fc4d",
-                 "64aedea6-b1f9-49da-8b10-3f02d8ed04b6",
-                 "bae1bf32-94bf-42a7-96d0-ee23fd98245e",
-                 "7fb7afc9-b006-4a44-99dc-409ba90d3fe8"]
-
-    outliers2 = ["080274a4-cddf-47b7-9b8e-679153859229",
-                 "6ed887bb-394b-40dc-a8d5-96e836468a8b"]
-
-    outliers = outliers1 + outliers2
-
-    walking_activity_features = pd.read_csv("../data/walking_activity_features.csv", index_col=0)
-    dropRows = walking_activity_features[walking_activity_features.healthCode.isin(outliers)].index
-    walking_activity_features.drop(dropRows, inplace=True)
-    walking_activity_features.to_csv("../data/walking_activity_features.csv")
+sys.path.insert(0, '../Features')
+import splitSets
 
 
 def outlierSearch(iterations):
+    """
+    Creates a table with one line per healthCode and decreasingly sorted by an index
+    that ranks how likely the healthCode is of being an outlier.
+
+    Input:
+        - iterations: integer
+            The number of different distributions of the dataset in Training, Validation and Test
+            sets in which the outlier analysis is performed. For more stable results at least 200
+            iterations are recommended.
+    """
     outlierRemoval()
     demographics = pd.read_csv("../data/demographics.csv", index_col=0)
     demographics.loc[:, "outlierCounter"] = 0
@@ -59,10 +50,50 @@ def outlierSearch(iterations):
     demographics.loc[:, "avgOutlierCounter"] = demographics.outlierCounter / demographics.valTestCounter
     demographics.sort_values(by=['avgOutlierCounter'], ascending=False, inplace=True)
     demographics.to_csv("outlierSort.csv")
+
+    # Restoring the original table
+    shutil.move("../data/walking_activity_featuresOriginalTemp.csv", "../data/walking_activity_features.csv")
+
     print("\nAvg AUC score:", total_auc / (2 * iterations))
 
 
-def randomForestModel(oldAgeTrain=False, criterion='gini', ensemble_size=1, dropAge=False):
+def outlierRemoval():
+    """
+    Removes a collection of outliers already identified from the walking_activity_features
+    table and creates a new table walking_activity_featuresOriginalTemp to enable a way
+    to restore the original walking_activity_features table later.
+    """
+
+    outliers1 = ["e31788d0-7834-477a-a718-fef116c04816",
+                 "9a41dd95-337d-4f23-8b3e-f0f0dd40fc4d",
+                 "64aedea6-b1f9-49da-8b10-3f02d8ed04b6",
+                 "bae1bf32-94bf-42a7-96d0-ee23fd98245e",
+                 "7fb7afc9-b006-4a44-99dc-409ba90d3fe8"]
+
+    outliers2 = ["080274a4-cddf-47b7-9b8e-679153859229",
+                 "6ed887bb-394b-40dc-a8d5-96e836468a8b"]
+
+    outliers = outliers1 + outliers2
+
+    walking_activity_features = pd.read_csv("../data/walking_activity_features.csv", index_col=0)
+    shutil.move("../data/walking_activity_features.csv", "../data/walking_activity_featuresOriginalTemp.csv")
+    dropRows = walking_activity_features[walking_activity_features.healthCode.isin(outliers)].index
+    walking_activity_features.drop(dropRows, inplace=True)
+    walking_activity_features.to_csv("../data/walking_activity_features.csv")
+
+
+def randomForestModel(criterion='gini', ensemble_size=11, dropAge=False):
+    """
+    Input:
+    - criterion: string (default='gini')
+        The function to measure the quality of a split: 'gini' or 'entropy'
+    - ensemble_size: int
+        Number of classifiers trained on different training sets when undersampling is applied. This number must be odd.
+    - dropAge: bool
+        Whether to use age as a feature.
+
+    Outputs a tuple with AUROC score on the validation and test sets.
+    """
 
     X_train = {}
     y_train = {}
@@ -83,7 +114,7 @@ def randomForestModel(oldAgeTrain=False, criterion='gini', ensemble_size=1, drop
     X["test"], y_test, _ = lu.load_dataStandart("test", selectOldAge=True, dropAge=dropAge)
 
     for i in range(ensemble_size):
-        X_train[i], y_train[i], _ = lu.load_dataStandart("train", selectOldAge=oldAgeTrain, dropAge=dropAge,
+        X_train[i], y_train[i], _ = lu.load_dataStandart("train", selectOldAge=False, dropAge=dropAge,
                                                          balance_undersampling=True)
 
         rnd_clf[i] = RandomForestClassifier(n_estimators=13, criterion=criterion, max_depth=5, min_samples_split=12, n_jobs=-1)

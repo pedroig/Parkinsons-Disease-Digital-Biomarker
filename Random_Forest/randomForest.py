@@ -23,7 +23,7 @@ def cross_validation():
 def randomForestModel(foldTestNumber, numberOfFolds=10,
                       noOutlierTable=True, showImportances=False,
                       oldAgeTest=True, dropAge=True,
-                      criterion='gini', ensemble_size=1):
+                      criterion='gini', ensemble_size=11):
     """
     Input:
     - foldTestNumber: integer
@@ -34,14 +34,16 @@ def randomForestModel(foldTestNumber, numberOfFolds=10,
         Whether to read from tables without possible outliers.
     - showImportances: bool
         Whether to list the sorted order of the feature importance.
-    - oldAgeTest: bool (default=False)
+    - oldAgeTest: bool
         Whether to select only people older 56 years in the test set.
-    - dropAge: bool (default=False)
+    - dropAge: bool
         Whether to use age as a feature.
     - criterion: string (default='gini')
         The function to measure the quality of a split: 'gini' or 'entropy'
     - ensemble_size: int
         Number of classifiers trained on different training sets when undersampling is applied. This number must be odd.
+
+    Outputs the AUROC score on the test fold.
     """
     print("\nfoldTestNumber:", foldTestNumber)
 
