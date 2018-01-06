@@ -274,21 +274,19 @@ def apply_df_augmentation(args):
     return df.apply(func, axis=1)
 
 
-def apply_by_multiprocessing_augmentation(df, func, workers):
+def apply_by_multiprocessing_augmentation(df, workers):
     """
     Applies a function to all the rows of a DataFrame with the use of multiple processes.
 
     Input:
         df: pandas DataFrame
             DataFrame that is going to be operated by multiple processes.
-        func: function
-            The function applied to the DataFrame.
         workers: int
             The number of processes.
     """
     pool = multiprocessing.Pool(processes=workers)
     pool.map(apply_df_augmentation,
-             [(df_fraction, func) for df_fraction in np.array_split(df, workers)])
+             [(df_fraction, augmentRow) for df_fraction in np.array_split(df, workers)])
     pool.close()
 
 # Parallelization for data cleaning and extraction of features (rowFeaturise)

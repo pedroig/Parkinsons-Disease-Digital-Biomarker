@@ -17,8 +17,8 @@ if __name__ == '__main__':
         print("Running augmentation")
         features_extra_columns = pd.read_csv("../data/features_extra_columns.csv")
         num_cores = 16
-        utils.apply_by_multiprocessing_augmentation(features_extra_columns, utils.augmentRow, num_cores)
+        utils.apply_by_multiprocessing_augmentation(features_extra_columns, num_cores)
 
     elif sys.argv[1] == 'splitSets':
         print("Running splitSets")
-        splitSets.generateSetTables(naiveLimitHealthCode=False, augmentFraction=0.5)
+        splitSets.generateSetTables(augmentFraction=0.5)

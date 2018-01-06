@@ -4,7 +4,7 @@ import utils
 from sklearn.model_selection import train_test_split
 
 
-def generateSetTables(naiveLimitHealthCode=False, augmentFraction=0.5, quickSplit=False):
+def generateSetTables(augmentFraction=0.5, quickSplit=False):
     """
     Generates all the tables used by the machine learning models, distributing the dataset in training, validation
     and test sets.
@@ -13,8 +13,6 @@ def generateSetTables(naiveLimitHealthCode=False, augmentFraction=0.5, quickSpli
         * Possible pandas warnings when running this code should be ignored.
 
     Input:
-        - naiveLimitHealthCode: bool
-            Whether to limit the number of samples per healthCode, using only the first 10 occurrences per healthCode.
         - augmentFraction: float
             0 < augmentFraction <=1
             Fraction of the training data that is going to have the augmented version used.
@@ -95,21 +93,7 @@ def generateSetTables(naiveLimitHealthCode=False, augmentFraction=0.5, quickSpli
 
     for features, featuresSplitName in listFeatures:
 
-        # cleaning inconsistent medTimepoint
-        # also removing Parkinson patients just after medication
-        features = features[(features.medTimepoint == "I don't take Parkinson medications") |
-                            ((features.Target) & (features.medTimepoint == "Immediately before Parkinson medication")) |
-                            ((features.Target) & (features.medTimepoint == "Another time"))]
-        # ((features.Target) & (features.medTimepoint == "Just after Parkinson medication (at your best)"))]
-
-        if naiveLimitHealthCode:
-            countHealthCode = dict.fromkeys(list(demographics.healthCode), 0)
-            indexesToDrop = []
-            for row in features.itertuples():
-                countHealthCode[row.healthCode] += 1
-                if countHealthCode[row.healthCode] > 10:
-                    indexesToDrop.append(row.Index)
-            features.drop(indexesToDrop, inplace=True)
+        features = removeInconsistentMedTipoint(features)
 
         noSplitFeatures = pd.concat([features, noSplitFeatures])
         features.to_csv("../data/{}_extra_columns.csv".format(featuresSplitName))
@@ -130,6 +114,7 @@ def generateSetTables(naiveLimitHealthCode=False, augmentFraction=0.5, quickSpli
         numberOfFolds = 10
         for index, demFold in enumerate(np.array_split(demographics.sample(frac=1), numberOfFolds)):
             fold_extra_columns = pd.merge(walking_activity_features, demFold, on="healthCode")
+            fold_extra_columns = removeInconsistentMedTipoint(fold_extra_columns)
             fold_extra_columns.reset_index(inplace=True, drop=True)
             fold_extra_columns.to_csv("../data/fold{}_extra_columns.csv".format(index))
             utils.generateAugmentedTable('fold{}'.format(index), augmentFraction=augmentFraction)
@@ -144,3 +129,19 @@ def generateSetTables(naiveLimitHealthCode=False, augmentFraction=0.5, quickSpli
 
             fold = fold_extra_columns.drop(extraColumns, axis=1)
             fold.to_csv("../data/fold{}_noOutliers.csv".format(index))
+
+
+def removeInconsistentMedTipoint(features):
+    """
+    Cleans inconsistent medTimepoint and also removes Parkinson
+    patients just after medication.
+
+    Input:
+        - features: pandas DataFrame
+            Table to apply the cleaning procedure.
+    """
+    cleanedFeatures = features[(features.medTimepoint == "I don't take Parkinson medications") |
+                               ((features.Target) & (features.medTimepoint == "Immediately before Parkinson medication")) |
+                               ((features.Target) & (features.medTimepoint == "Another time"))]
+    # ((features.Target) & (features.medTimepoint == "Just after Parkinson medication (at your best)"))]
+    return cleanedFeatures
