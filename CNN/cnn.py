@@ -50,6 +50,7 @@ def define_scope(function, scope=None, *args, **kwargs):
 class CNN:
 
     def __init__(self,
+                 foldValNumber,
                  learning_rate=0.0001,
                  batch_size=100,
                  n_epochs=30,
@@ -59,6 +60,9 @@ class CNN:
                  noOutlierTable=False):
         """
         Input:
+            - foldValNumber: int
+                Fold index for the validation set. This number also defines the distribution of the
+                folds in the training and test sets.
             - learning_rate: float
                 real positive number
             - batch_size: int
@@ -74,6 +78,7 @@ class CNN:
             - noOutlierTable: bool
                 Whether to read from tables without possible outliers.
         """
+        self.foldValNumber = foldValNumber
         self.channels_input = 3
         self.n_outputs = 2
         self.timeSeriesPaddedLength = 4000
@@ -301,11 +306,12 @@ class CNN:
             *Log directory for tensorboard.
         """
         self.now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
-        self.folderName = "run-{}_{}_learningRate-{}_batchSize-{}".format(
+        self.folderName = "run-{}_{}_learningRate-{}_batchSize-{}-fold{}".format(
             self.now,
             self.timeSeries,
             self.learning_rate,
-            self.batch_size)
+            self.batch_size,
+            self.foldValNumber)
         if self.useAugmentedData:
             self.folderName += "_augmented"
         if self.noOutlierTable:
@@ -358,22 +364,17 @@ class CNN:
             folds[foldIndex] = self.readPreprocessTable(table)
         return folds
 
-    def evaluateFoldConfiguration(self, foldValNumber):
+    def evaluateFoldConfiguration(self):
         """
         The number of folds is equal to the number of distributions of Training and Validation/Test
         sets. This function trains the model in one possible distribution, maximizes the AUROC on
         the validation set and outputs the AUROC for the test set using the trainable parameters
         from the validation maximum.
-
-        Input:
-            - foldValNumber: int
-                Fold index for the validation set. This number also defines the distribution of the
-                folds in the training and test sets.
         """
-        foldTestNumber = (foldValNumber + 1) % self.numberOfFolds
+        foldTestNumber = (self.foldValNumber + 1) % self.numberOfFolds
 
         folds = self.loadFoldTables()
-        featuresTableVal = folds[foldValNumber]
+        featuresTableVal = folds[self.foldValNumber]
         featuresTableTest = folds[foldTestNumber]
         if self.validateOnOldAgeGroup:
             featuresTableVal = featuresTableVal[featuresTableVal.age > 56]
@@ -386,7 +387,7 @@ class CNN:
             featuresTableVal.drop(augmentedRowsVal, inplace=True)
             featuresTableTest.drop(augmentedRowsTest, inplace=True)
 
-        del folds[foldValNumber]
+        del folds[self.foldValNumber]
         del folds[foldTestNumber]
 
         self.feed_dict_val = self.buildFeedDict(featuresTableVal)
@@ -425,16 +426,18 @@ def main():
 
     tf.reset_default_graph()
 
-    model = CNN(learning_rate=0.0001,
+    foldValNumber = int(sys.argv[1])
+    print("Running foldValNumber", foldValNumber)
+
+    model = CNN(foldValNumber,
+                learning_rate=0.0001,
                 batch_size=100,
                 n_epochs=30,
                 timeSeries='rest',
                 useAugmentedData=True,
                 noOutlierTable=True)
 
-    foldValNumber = int(sys.argv[1])
-    print("Running foldValNumber", foldValNumber)
-    test_auroc = model.evaluateFoldConfiguration(foldValNumber)
+    test_auroc = model.evaluateFoldConfiguration()
 
     outFile = open('Folds/fold{}.txt'.format(foldValNumber), 'w')
     outFile.write(str(test_auroc))

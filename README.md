@@ -260,6 +260,31 @@ The graph plotted below elucidates the tuning visualization offered:
 |:----:|
 | Maximum Depth Tuning |
 
+##### Removing Outliers
+
+When analyzing the first results of this model, one inconsistency emerged: there was a significant oscillation for the AUROC score on the validation/test sets for different distributions of the dataset in training, validation, and test sets. This problem suggests the presence of outliers in data. To identify those outliers, multiple runs of the random forest model were performed for different distributions in the [outlierSearch procedure](https://github.com/pedroig/Parkinsons-Disease-Digital-Biomarker/blob/master/Random_Forest/outlierSearch.py) and the healthCodes were ranked by the average AUROC score on validation/test sets. This allowed the identification of seven healthCodes that when removed have a meaningful and positive impact on the AUROC score.
+
+However, even after the removal of those healthCodes, there was still a smaller, but considerable oscillation for the AUROC score. To solve this problem, it was applied 10-fold cross-validation, taking the healthCode in consideration when splitting the data into folds.
+
+##### Final Results
+
+For the final results, it was used 10-fold cross-validation in which people in the test fold that are not older than 56 years old were not considered. Using this configuration, the AUROC for the cross-validation stabilizes around 0.74. The table below shows the test fold performance details for one run in which the cross-validation AUROC is 0.743836761789:
+
+| Fold | Accuracy | Precision | Recall | F1 Score | AUROC |
+|------|----------|-----------|--------|----------|-------|
+0 | 0.722287047841 | 0.862888482633 | 0.743307086614 | 0.798646362098 | 0.745176278641
+1 | 0.661742983752 | 0.94025974026 | 0.637323943662 | 0.759706190976 | 0.759586186846
+2 | 0.759919839679 | 0.982124079916 | 0.767776407727 | 0.861822376009 | 0.626761730507
+3 | 0.707457983193 | 0.954545454545 | 0.709376820035 | 0.813899097895 | 0.739367881425
+4 | 0.68658790827 | 0.968652037618 | 0.687685459941 | 0.804338394794 | 0.737938989794
+5 | 0.672319201995 | 0.908179012346 | 0.686297376093 | 0.781800066423 | 0.675343319594
+6 | 0.809388335704 | 0.974813432836 | 0.812597200622 | 0.886344359627 | 0.841631026439
+7 | 0.761632653061 | 0.971607041454 | 0.762138084633 | 0.854218671992 | 0.827666902059
+8 | 0.746729461015 | 0.966948501153 | 0.740435550324 | 0.838666666667 | 0.834702988439
+9 | 0.642219387755 | 0.86231884058 | 0.660586835845 | 0.748091603053 | 0.65019231415
+
+With exception of the AUROC that does not require a threshold value, all the other metrics in the table above were calculated using threshold equals to 0.5.
+
 #### 2.2 Convolutional Neural Network
 
 This model is based in the [GuanLab's network architecture](https://www.synapse.org/#!Synapse:syn10146135/wiki/448409) in which each 3D time-series from the rotation rate is padded with zeros to a common length of 4000 and used as a one-dimensional image with three channels (one for each axis). The architecture consists of eight one-dimensional convolutional layers intercalated with eight one-dimensional max pooling layers. All the layers do not have padding and all the pooling layers have the same hyperparameter configuration: stride of two and size also equals to two. The convolutional layers have stride one and a monotonically increasing number of filters with hyperparameters described in the table below: 
