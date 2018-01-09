@@ -9,7 +9,3 @@ __pycache__/
 *.session
 *.npy
 *._*
-
-
-# Temporary files
-Extra/Roteiro.txt

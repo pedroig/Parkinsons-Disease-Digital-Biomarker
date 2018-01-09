@@ -68,7 +68,7 @@ class CNN:
             - batch_size: int
                 Number of samples per batch. (batch_size >= 1)
             - n_epochs: int
-                Maximum number of epochs. (n_epochs >=1)
+                Maximum number of epochs. (n_epochs > 4)
             - timeSeries: string
                 'rest' or 'outbound'
             - validateOnOldAgeGroup: bool
@@ -285,16 +285,17 @@ class CNN:
                 sess.run(self.metrics, feed_dict=self.feed_dict_val)
                 self.process_summaries_set("Validation", epoch)
 
-                if max_auc < self.auc.eval():
-                    max_auc = self.auc.eval()
-                    epochsSinceLastMax = 0
-                    savingEpoch = epoch
-                    self.saver.save(sess, self.checkpointdir.format(epoch))
-                else:
-                    epochsSinceLastMax += 1
+                if epoch > 3:
+                    if max_auc < self.auc.eval():
+                        max_auc = self.auc.eval()
+                        epochsSinceLastMax = 0
+                        savingEpoch = epoch
+                        self.saver.save(sess, self.checkpointdir.format(epoch))
+                    else:
+                        epochsSinceLastMax += 1
 
-                if epochsSinceLastMax > 5:
-                    break
+                    if epochsSinceLastMax > 8:
+                        break
 
         self.file_writer.close()
         return savingEpoch
@@ -390,10 +391,11 @@ class CNN:
         del folds[self.foldValNumber]
         del folds[foldTestNumber]
 
-        self.feed_dict_val = self.buildFeedDict(featuresTableVal)
-        self.feed_dict_test = self.buildFeedDict(featuresTableTest)
+        self.feed_dict_val = self.buildFeedDict(featuresTableVal.sample(frac=1))
+        self.feed_dict_test = self.buildFeedDict(featuresTableTest.sample(frac=1))
 
         self.featuresTableTrain = pd.concat(folds.values())
+        self.featuresTableTrain = self.featuresTableTrain.sample(frac=1)
         self.featuresTableTrain.reset_index(inplace=True, drop=True)
 
         savingEpoch = self.train()
