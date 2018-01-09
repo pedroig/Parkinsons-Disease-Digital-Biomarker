@@ -310,6 +310,23 @@ The code related to the convolutional neural network can be found in the [CNN cl
 
 With the main part of the model done by the logits_prediction method, the logits result is then used in the optimize method in which the probability of each class is calculated with a softmax function and used to calculate the cross-entropy loss function. Finally, the optimize method outputs the gradient descent operation with Adam optimization.
 
+##### Final Results
+
+For the final results, it was used 10-fold cross-validation. However, this cross-validation procedure differs from the traditional one because at each time that the model is trained, the following configuration is used: 8 folds for training, 1 fold as validation to maximise the AUROC score and 1 test fold in which the final AUROC score is calculated using the trainable parameters from the validation maximum. It's important to highlight that the search for a maximum in the validation fold only starts after the fourth epoch to avoid a possible anomalous early maximum that would not translate to the test fold. For the validation and test sets, only people older than 56 years old were considered. In addition, the seven outliers identified by the random forest model were removed from all the folds and the 8 training folds had an augmented data injection of 50%. The table below shows the performance details for one cross-validation run in which the average AUROC score was 0.7688:
+
+| Fold <br/> Configuration | AUROC on test <br/> fold |
+|--------------------------|--------------------------|
+0 | 0.816099 | 
+1 | 0.758407 |
+2 | 0.700225 |
+3 | 0.684557 | 
+4 | 0.896419 | 
+5 | 0.759148 |
+6 | 0.761747 | 
+7 | 0.749761 | 
+8 | 0.701166 |
+9 | 0.86046 |
+
 ### 3. Extra
 
 #### 3.1. Testing features
